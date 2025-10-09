@@ -3,11 +3,43 @@
   margin: 0 auto;
   padding: 20px;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', sans-serif;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+
+  &.full-viewport {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    max-width: none;
+    padding: 0;
+    margin: 0;
+    z-index: 1000;
+
+    .header,
+    .controls {
+      display: none;
+    }
+
+    .preview-section {
+      border-radius: 0;
+      box-shadow: none;
+      margin: 0;
+    }
+
+    .preview-header {
+      border-radius: 0;
+    }
+  }
 }
 
 .header {
   text-align: center;
   margin-bottom: 40px;
+  flex-shrink: 0;
 
   h1 {
     font-size: 2.5rem;
@@ -30,6 +62,7 @@
   gap: 20px;
   margin-bottom: 30px;
   align-items: center;
+  flex-shrink: 0;
 
   @media (max-width: 768px) {
     grid-template-columns: 1fr;
@@ -191,6 +224,10 @@
   border-radius: 12px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07), 0 1px 3px rgba(0, 0, 0, 0.06);
   overflow: hidden;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
 }
 
 .preview-header {
@@ -208,6 +245,12 @@
     margin: 0;
   }
 
+  .preview-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
   .theme-badge {
     display: inline-block;
     padding: 6px 12px;
@@ -217,17 +260,48 @@
     font-size: 0.875rem;
     font-weight: 500;
   }
+
+  .fullscreen-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px;
+    background-color: #ffffff;
+    color: #4299e1;
+    border: 1px solid #cbd5e0;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+
+    svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    &:hover {
+      background-color: #ebf8ff;
+      border-color: #4299e1;
+      color: #2c5282;
+    }
+
+    &:focus {
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.1);
+    }
+  }
 }
 
 .iframe-container {
   position: relative;
   width: 100%;
-  min-height: 600px;
+  flex: 1;
   background-color: #ffffff;
+  min-height: 400px;
+  display: flex;
 
   .preview-iframe {
     width: 100%;
-    height: 600px;
+    height: 100%;
     border: none;
     display: block;
   }
@@ -276,5 +350,10 @@
     flex-direction: column;
     align-items: flex-start;
     gap: 12px;
+
+    .preview-actions {
+      width: 100%;
+      justify-content: space-between;
+    }
   }
 }

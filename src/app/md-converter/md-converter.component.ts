@@ -27,6 +27,7 @@ export class MdConverterComponent implements OnInit {
   htmlContent: string = '';
   isDragging: boolean = false;
   currentTheme: string = 'claude';
+  isFullViewport: boolean = false;
 
   themes: Theme[] = [
     { name: 'Claude AI', value: 'claude', description: 'Clean, modern design inspired by claude.ai' },
@@ -714,5 +715,9 @@ Here's a sentence with a footnote[^1].
 
   triggerFileInput(): void {
     this.fileInput.nativeElement.click();
+  }
+
+  toggleFullViewport(): void {
+    this.isFullViewport = !this.isFullViewport;
   }
 }
