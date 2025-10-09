@@ -4,6 +4,7 @@ import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { marked } from 'marked';
 import hljs from 'highlight.js';
 import * as katex from 'katex';
+import { KATEX_CSS, HIGHLIGHT_CSS_LIGHT, HIGHLIGHT_CSS_DARK } from '../embedded-styles';
 
 interface Theme {
   name: string;
@@ -319,8 +320,17 @@ Here's a sentence with a footnote[^1].
   }
 
   getThemeStyles(): string {
+    // Determine which highlight.js theme to use based on current theme
+    const highlightCss = this.currentTheme === 'dark' ? HIGHLIGHT_CSS_DARK : HIGHLIGHT_CSS_LIGHT;
+
     return `
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <style>
+      /* KaTeX Styles */
+      ${KATEX_CSS}
+
+      /* Highlight.js Styles */
+      ${highlightCss}
+    </style>
     <style>
       * {
         margin: 0;
@@ -669,38 +679,7 @@ Here's a sentence with a footnote[^1].
         border: 1px solid #d73a49;
       }
 
-      /* Syntax highlighting - default light */
-      .hljs {
-        display: block;
-        overflow-x: auto;
-        padding: 0;
-        color: #333;
-      }
-
-      .hljs-comment { color: #998; font-style: italic; }
-      .hljs-keyword { color: #a71d5d; font-weight: bold; }
-      .hljs-string { color: #0086b3; }
-      .hljs-number { color: #0086b3; }
-      .hljs-built_in { color: #0086b3; }
-      .hljs-title { color: #795da3; }
-      .hljs-function { color: #a71d5d; }
-      .hljs-params { color: #333; }
-      .hljs-attr { color: #795da3; }
-      .hljs-variable { color: #ed6a43; }
-
-      /* Dark theme syntax highlighting */
-      .theme-dark .hljs {
-        color: #e0e0e0;
-      }
-
-      .theme-dark .hljs-comment { color: #7c7c7c; }
-      .theme-dark .hljs-keyword { color: #cc7832; }
-      .theme-dark .hljs-string { color: #6a8759; }
-      .theme-dark .hljs-number { color: #6897bb; }
-      .theme-dark .hljs-built_in { color: #8888c6; }
-      .theme-dark .hljs-title { color: #ffc66d; }
-      .theme-dark .hljs-function { color: #cc7832; }
-      .theme-dark .hljs-variable { color: #9876aa; }
+      /* Syntax highlighting is now provided by highlight.js themes above */
 
       @media print {
         body {
