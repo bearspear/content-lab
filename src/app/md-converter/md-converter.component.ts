@@ -1,5 +1,6 @@
 import { Component, OnInit, ViewChild, ElementRef, SecurityContext, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { marked } from 'marked';
 import hljs from 'highlight.js';
@@ -15,13 +16,14 @@ interface Theme {
 @Component({
   selector: 'app-md-converter',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './md-converter.component.html',
   styleUrl: './md-converter.component.scss'
 })
 export class MdConverterComponent implements OnInit {
   @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
   @ViewChild('previewFrame') previewFrame!: ElementRef<HTMLIFrameElement>;
+  @ViewChild('markdownEditor') markdownEditor!: ElementRef<HTMLTextAreaElement>;
 
   markdownContent: string = '';
   htmlContent: string = '';
@@ -29,6 +31,7 @@ export class MdConverterComponent implements OnInit {
   currentTheme: string = 'claude';
   isFullViewport: boolean = false;
   isDropdownOpen: boolean = false;
+  viewMode: 'write' | 'preview' = 'preview';
 
   themes: Theme[] = [
     { name: 'Claude AI', value: 'claude', description: 'Clean, modern design inspired by claude.ai' },
@@ -1395,6 +1398,369 @@ Here's a sentence with a footnote[^1].
     asciidoc = asciidoc.replace(/\n{3,}/g, '\n\n');
 
     return asciidoc.trim();
+  }
+
+  // View mode toggle
+  setViewMode(mode: 'write' | 'preview'): void {
+    this.viewMode = mode;
+    if (mode === 'preview') {
+      this.convertMarkdown();
+    }
+  }
+
+  // Editor input handler
+  onEditorInput(): void {
+    // Auto-convert markdown while typing (debounced via setTimeout)
+    if (this.viewMode === 'write') {
+      this.convertMarkdown();
+    }
+  }
+
+  // Keyboard shortcuts handler
+  onEditorKeyDown(event: KeyboardEvent): void {
+    if (event.ctrlKey || event.metaKey) {
+      switch (event.key.toLowerCase()) {
+        case 'b':
+          event.preventDefault();
+          this.insertBold();
+          break;
+        case 'i':
+          event.preventDefault();
+          this.insertItalic();
+          break;
+        case 'k':
+          event.preventDefault();
+          this.insertLink();
+          break;
+      }
+    }
+
+    // Handle Tab key for indentation
+    if (event.key === 'Tab') {
+      event.preventDefault();
+      this.insertAtCursor('\t');
+    }
+  }
+
+  // Helper method to insert text at cursor position
+  private insertAtCursor(text: string, selectText: boolean = false): void {
+    const textarea = this.markdownEditor?.nativeElement;
+    if (!textarea) return;
+
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const before = this.markdownContent.substring(0, start);
+    const after = this.markdownContent.substring(end);
+
+    this.markdownContent = before + text + after;
+
+    // Update cursor position
+    setTimeout(() => {
+      if (selectText) {
+        textarea.selectionStart = start;
+        textarea.selectionEnd = start + text.length;
+      } else {
+        textarea.selectionStart = textarea.selectionEnd = start + text.length;
+      }
+      textarea.focus();
+      this.convertMarkdown();
+    }, 0);
+  }
+
+  // Helper method to wrap selected text
+  private wrapSelection(prefix: string, suffix: string = prefix, placeholder: string = ''): void {
+    const textarea = this.markdownEditor?.nativeElement;
+    if (!textarea) return;
+
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const selectedText = this.markdownContent.substring(start, end);
+    const textToWrap = selectedText || placeholder;
+
+    const before = this.markdownContent.substring(0, start);
+    const after = this.markdownContent.substring(end);
+
+    this.markdownContent = before + prefix + textToWrap + suffix + after;
+
+    setTimeout(() => {
+      if (!selectedText) {
+        // Select the placeholder text
+        textarea.selectionStart = start + prefix.length;
+        textarea.selectionEnd = start + prefix.length + textToWrap.length;
+      } else {
+        // Place cursor after the wrapped text
+        textarea.selectionStart = textarea.selectionEnd = start + prefix.length + textToWrap.length + suffix.length;
+      }
+      textarea.focus();
+      this.convertMarkdown();
+    }, 0);
+  }
+
+  // Toolbar actions
+  insertBold(): void {
+    this.wrapSelection('**', '**', 'bold text');
+  }
+
+  insertItalic(): void {
+    this.wrapSelection('*', '*', 'italic text');
+  }
+
+  insertStrikethrough(): void {
+    this.wrapSelection('~~', '~~', 'strikethrough text');
+  }
+
+  insertCode(): void {
+    this.wrapSelection('`', '`', 'code');
+  }
+
+  insertHeading(level: number): void {
+    const textarea = this.markdownEditor?.nativeElement;
+    if (!textarea) return;
+
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+
+    // Find the start of the current line
+    let lineStart = start;
+    while (lineStart > 0 && this.markdownContent[lineStart - 1] !== '\n') {
+      lineStart--;
+    }
+
+    const before = this.markdownContent.substring(0, lineStart);
+    const after = this.markdownContent.substring(lineStart);
+    const heading = '#'.repeat(level) + ' ';
+
+    this.markdownContent = before + heading + after;
+
+    setTimeout(() => {
+      textarea.selectionStart = textarea.selectionEnd = lineStart + heading.length;
+      textarea.focus();
+      this.convertMarkdown();
+    }, 0);
+  }
+
+  insertCodeBlock(): void {
+    const textarea = this.markdownEditor?.nativeElement;
+    if (!textarea) return;
+
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const selectedText = this.markdownContent.substring(start, end);
+
+    const codeBlock = '\n```\n' + (selectedText || 'your code here') + '\n```\n';
+    const before = this.markdownContent.substring(0, start);
+    const after = this.markdownContent.substring(end);
+
+    this.markdownContent = before + codeBlock + after;
+
+    setTimeout(() => {
+      if (!selectedText) {
+        textarea.selectionStart = start + 5; // Position after ```\n
+        textarea.selectionEnd = start + 5 + 'your code here'.length;
+      } else {
+        textarea.selectionStart = textarea.selectionEnd = start + codeBlock.length;
+      }
+      textarea.focus();
+      this.convertMarkdown();
+    }, 0);
+  }
+
+  insertBlockquote(): void {
+    const textarea = this.markdownEditor?.nativeElement;
+    if (!textarea) return;
+
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+
+    // Find the start of the current line
+    let lineStart = start;
+    while (lineStart > 0 && this.markdownContent[lineStart - 1] !== '\n') {
+      lineStart--;
+    }
+
+    const before = this.markdownContent.substring(0, lineStart);
+    const after = this.markdownContent.substring(lineStart);
+
+    this.markdownContent = before + '> ' + after;
+
+    setTimeout(() => {
+      textarea.selectionStart = textarea.selectionEnd = lineStart + 2;
+      textarea.focus();
+      this.convertMarkdown();
+    }, 0);
+  }
+
+  insertUnorderedList(): void {
+    const textarea = this.markdownEditor?.nativeElement;
+    if (!textarea) return;
+
+    const start = textarea.selectionStart;
+    const listItem = '\n- List item\n';
+
+    const before = this.markdownContent.substring(0, start);
+    const after = this.markdownContent.substring(start);
+
+    this.markdownContent = before + listItem + after;
+
+    setTimeout(() => {
+      textarea.selectionStart = start + 3; // After '\n- '
+      textarea.selectionEnd = start + 3 + 'List item'.length;
+      textarea.focus();
+      this.convertMarkdown();
+    }, 0);
+  }
+
+  insertOrderedList(): void {
+    const textarea = this.markdownEditor?.nativeElement;
+    if (!textarea) return;
+
+    const start = textarea.selectionStart;
+    const listItem = '\n1. List item\n';
+
+    const before = this.markdownContent.substring(0, start);
+    const after = this.markdownContent.substring(start);
+
+    this.markdownContent = before + listItem + after;
+
+    setTimeout(() => {
+      textarea.selectionStart = start + 4; // After '\n1. '
+      textarea.selectionEnd = start + 4 + 'List item'.length;
+      textarea.focus();
+      this.convertMarkdown();
+    }, 0);
+  }
+
+  insertTask(): void {
+    const textarea = this.markdownEditor?.nativeElement;
+    if (!textarea) return;
+
+    const start = textarea.selectionStart;
+    const task = '\n- [ ] Task item\n';
+
+    const before = this.markdownContent.substring(0, start);
+    const after = this.markdownContent.substring(start);
+
+    this.markdownContent = before + task + after;
+
+    setTimeout(() => {
+      textarea.selectionStart = start + 7; // After '\n- [ ] '
+      textarea.selectionEnd = start + 7 + 'Task item'.length;
+      textarea.focus();
+      this.convertMarkdown();
+    }, 0);
+  }
+
+  insertLink(): void {
+    const textarea = this.markdownEditor?.nativeElement;
+    if (!textarea) return;
+
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const selectedText = this.markdownContent.substring(start, end);
+
+    const linkText = selectedText || 'link text';
+    const link = `[${linkText}](url)`;
+
+    const before = this.markdownContent.substring(0, start);
+    const after = this.markdownContent.substring(end);
+
+    this.markdownContent = before + link + after;
+
+    setTimeout(() => {
+      // Select 'url' for easy replacement
+      const urlStart = start + linkText.length + 3; // After '[linkText]('
+      textarea.selectionStart = urlStart;
+      textarea.selectionEnd = urlStart + 3;
+      textarea.focus();
+      this.convertMarkdown();
+    }, 0);
+  }
+
+  insertImage(): void {
+    const textarea = this.markdownEditor?.nativeElement;
+    if (!textarea) return;
+
+    const start = textarea.selectionStart;
+    const image = '![alt text](image-url)';
+
+    const before = this.markdownContent.substring(0, start);
+    const after = this.markdownContent.substring(start);
+
+    this.markdownContent = before + image + after;
+
+    setTimeout(() => {
+      // Select 'image-url' for easy replacement
+      textarea.selectionStart = start + 12; // After '![alt text]('
+      textarea.selectionEnd = start + 12 + 9; // 'image-url' length
+      textarea.focus();
+      this.convertMarkdown();
+    }, 0);
+  }
+
+  insertTable(): void {
+    const textarea = this.markdownEditor?.nativeElement;
+    if (!textarea) return;
+
+    const start = textarea.selectionStart;
+    const table = '\n| Header 1 | Header 2 | Header 3 |\n|----------|----------|----------|\n| Cell 1   | Cell 2   | Cell 3   |\n| Cell 4   | Cell 5   | Cell 6   |\n';
+
+    const before = this.markdownContent.substring(0, start);
+    const after = this.markdownContent.substring(start);
+
+    this.markdownContent = before + table + after;
+
+    setTimeout(() => {
+      textarea.selectionStart = textarea.selectionEnd = start + table.length;
+      textarea.focus();
+      this.convertMarkdown();
+    }, 0);
+  }
+
+  insertHorizontalRule(): void {
+    const textarea = this.markdownEditor?.nativeElement;
+    if (!textarea) return;
+
+    const start = textarea.selectionStart;
+    const rule = '\n---\n';
+
+    const before = this.markdownContent.substring(0, start);
+    const after = this.markdownContent.substring(start);
+
+    this.markdownContent = before + rule + after;
+
+    setTimeout(() => {
+      textarea.selectionStart = textarea.selectionEnd = start + rule.length;
+      textarea.focus();
+      this.convertMarkdown();
+    }, 0);
+  }
+
+  insertMath(): void {
+    const textarea = this.markdownEditor?.nativeElement;
+    if (!textarea) return;
+
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const selectedText = this.markdownContent.substring(start, end);
+
+    const mathText = selectedText || 'E = mc^2';
+    const math = `$${mathText}$`;
+
+    const before = this.markdownContent.substring(0, start);
+    const after = this.markdownContent.substring(end);
+
+    this.markdownContent = before + math + after;
+
+    setTimeout(() => {
+      if (!selectedText) {
+        textarea.selectionStart = start + 1;
+        textarea.selectionEnd = start + 1 + mathText.length;
+      } else {
+        textarea.selectionStart = textarea.selectionEnd = start + math.length;
+      }
+      textarea.focus();
+      this.convertMarkdown();
+    }, 0);
   }
 
   private getInlineStyles(): string {
