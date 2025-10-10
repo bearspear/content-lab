@@ -5,7 +5,6 @@ import { marked } from 'marked';
 import hljs from 'highlight.js';
 import * as katex from 'katex';
 import { KATEX_CSS, HIGHLIGHT_CSS_LIGHT, HIGHLIGHT_CSS_DARK } from '../embedded-styles';
-import html2pdf from 'html2pdf.js';
 
 interface Theme {
   name: string;
@@ -36,6 +35,7 @@ export class MdConverterComponent implements OnInit {
     { name: 'GitHub', value: 'github', description: 'GitHub markdown style' },
     { name: 'Dark Mode', value: 'dark', description: 'Dark theme for reduced eye strain' },
     { name: 'Academic', value: 'academic', description: 'Academic paper style' },
+    { name: 'PubCSS', value: 'pubcss', description: 'Academic publication style (ACM SIG format)' },
     { name: 'Minimal', value: 'minimal', description: 'Minimalist design' }
   ];
 
@@ -642,6 +642,120 @@ Here's a sentence with a footnote[^1].
         border: 1px solid #eee;
       }
 
+      /* ===== PUBCSS THEME (Academic Publication) ===== */
+      .theme-pubcss {
+        background-color: #ffffff;
+        color: #000000;
+      }
+
+      .theme-pubcss .markdown-body {
+        font-family: 'Times New Roman', Times, serif;
+        font-size: 10pt;
+        max-width: 750px;
+        line-height: 1.2;
+        text-align: justify;
+      }
+
+      .theme-pubcss h1 {
+        font-size: 14pt;
+        font-weight: bold;
+        text-transform: uppercase;
+        margin: 1.33em 0;
+        text-align: left;
+      }
+
+      .theme-pubcss h2 {
+        font-size: 12pt;
+        font-weight: bold;
+        margin: 1.33em 0;
+      }
+
+      .theme-pubcss h3,
+      .theme-pubcss h4 {
+        font-size: 11pt;
+        font-style: italic;
+        font-weight: normal;
+        margin: 1.33em 0;
+      }
+
+      .theme-pubcss p {
+        margin: 0 0 0.5em;
+        text-indent: 0;
+      }
+
+      .theme-pubcss code {
+        font-family: Courier, monospace;
+        font-size: 9pt;
+        background-color: #f5f5f5;
+        padding: 2px 4px;
+      }
+
+      .theme-pubcss pre {
+        font-family: Courier, monospace;
+        background-color: #f5f5f5;
+        padding: 12px;
+        margin: 1em 0;
+        border: 1px solid #ddd;
+        overflow-x: auto;
+      }
+
+      .theme-pubcss pre code {
+        background: none;
+        padding: 0;
+      }
+
+      .theme-pubcss table {
+        border-collapse: collapse;
+        width: 100%;
+        margin: 1.667em 0 1em;
+        font-size: 9pt;
+      }
+
+      .theme-pubcss table th,
+      .theme-pubcss table td {
+        border: 0.5px solid #000;
+        padding: 0.333em;
+        text-align: center;
+      }
+
+      .theme-pubcss table th {
+        font-weight: bold;
+        background-color: transparent;
+      }
+
+      .theme-pubcss blockquote {
+        border-left: 2px solid #666;
+        padding-left: 1em;
+        margin: 1em 0;
+        font-style: italic;
+        color: #333;
+      }
+
+      .theme-pubcss ul,
+      .theme-pubcss ol {
+        margin: 0.5em 0;
+        padding-left: 2em;
+      }
+
+      .theme-pubcss li {
+        margin: 0.25em 0;
+      }
+
+      .theme-pubcss a {
+        color: #000;
+        text-decoration: none;
+      }
+
+      .theme-pubcss a:hover {
+        text-decoration: underline;
+      }
+
+      .theme-pubcss hr {
+        border: none;
+        border-top: 1px solid #000;
+        margin: 2em 0;
+      }
+
       /* ===== COMMON STYLES ===== */
       .math-block {
         margin: 20px 0;
@@ -765,6 +879,9 @@ Here's a sentence with a footnote[^1].
     document.body.appendChild(container);
 
     try {
+      // Dynamic import for html2pdf.js
+      const html2pdf = (await import('html2pdf.js')).default;
+
       const options = {
         margin: [10, 10, 10, 10] as [number, number, number, number],
         filename: 'converted-markdown.pdf',
@@ -788,6 +905,496 @@ Here's a sentence with a footnote[^1].
     } finally {
       document.body.removeChild(container);
     }
+  }
+
+  downloadAsciiDoc(): void {
+    this.isDropdownOpen = false;
+
+    const asciiDoc = this.convertMarkdownToAsciiDoc(this.markdownContent);
+    const blob = new Blob([asciiDoc], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'converted-markdown.txt';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  }
+
+  downloadPlainText(): void {
+    this.isDropdownOpen = false;
+
+    const plainText = this.convertHtmlToPlainText(this.htmlContent);
+    const blob = new Blob([plainText], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'converted-markdown-plain.txt';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  }
+
+  downloadJson(): void {
+    this.isDropdownOpen = false;
+
+    const jsonData = this.convertToJson(this.htmlContent);
+    const jsonString = JSON.stringify(jsonData, null, 2);
+    const blob = new Blob([jsonString], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'converted-markdown.json';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  }
+
+  private convertToJson(html: string): any {
+    const temp = document.createElement('div');
+    temp.innerHTML = html;
+
+    // Find the first H1 as title
+    const h1Element = temp.querySelector('h1');
+    const title = h1Element ? h1Element.textContent?.trim() || 'Untitled' : 'Untitled';
+
+    // Parse the content
+    const content = this.parseElementChildren(temp);
+
+    return {
+      meta: {
+        generatedAt: new Date().toISOString(),
+        theme: this.currentTheme,
+        converter: 'Markdown to HTML Converter'
+      },
+      title: title,
+      content: content
+    };
+  }
+
+  private parseElementChildren(element: Element): any[] {
+    const result: any[] = [];
+
+    for (let i = 0; i < element.children.length; i++) {
+      const child = element.children[i];
+      const parsed = this.parseElement(child);
+      if (parsed) {
+        result.push(parsed);
+      }
+    }
+
+    return result;
+  }
+
+  private parseElement(element: Element): any | null {
+    const tagName = element.tagName.toLowerCase();
+
+    switch (tagName) {
+      case 'h1':
+      case 'h2':
+      case 'h3':
+      case 'h4':
+      case 'h5':
+      case 'h6':
+        return {
+          type: 'heading',
+          level: parseInt(tagName.charAt(1)),
+          content: element.textContent?.trim() || ''
+        };
+
+      case 'p':
+        const pContent = this.parseInlineContent(element);
+        return pContent.length > 0 ? {
+          type: 'paragraph',
+          content: pContent
+        } : null;
+
+      case 'pre':
+        const codeElement = element.querySelector('code');
+        const language = codeElement?.className.match(/language-(\w+)/)?.[1] || '';
+        return {
+          type: 'code',
+          language: language,
+          content: codeElement?.textContent || element.textContent || ''
+        };
+
+      case 'ul':
+        return {
+          type: 'list',
+          ordered: false,
+          items: this.parseListItems(element)
+        };
+
+      case 'ol':
+        return {
+          type: 'list',
+          ordered: true,
+          items: this.parseListItems(element)
+        };
+
+      case 'blockquote':
+        return {
+          type: 'blockquote',
+          content: this.parseElementChildren(element)
+        };
+
+      case 'table':
+        return this.parseTable(element);
+
+      case 'hr':
+        return {
+          type: 'divider'
+        };
+
+      case 'div':
+        // Handle special divs like math-block or footnotes
+        if (element.classList.contains('math-block')) {
+          return {
+            type: 'math',
+            displayMode: true,
+            content: element.textContent?.trim() || ''
+          };
+        } else if (element.classList.contains('footnotes')) {
+          return {
+            type: 'footnotes',
+            content: this.parseElementChildren(element)
+          };
+        }
+        // For other divs, parse children
+        const divChildren = this.parseElementChildren(element);
+        return divChildren.length > 0 ? { type: 'container', content: divChildren } : null;
+
+      default:
+        // For unknown elements, try to parse children
+        const children = this.parseElementChildren(element);
+        if (children.length > 0) {
+          return { type: tagName, content: children };
+        }
+        return null;
+    }
+  }
+
+  private parseInlineContent(element: Element): any[] {
+    const result: any[] = [];
+    const nodes = element.childNodes;
+
+    for (let i = 0; i < nodes.length; i++) {
+      const node = nodes[i];
+
+      if (node.nodeType === Node.TEXT_NODE) {
+        const text = node.textContent?.trim();
+        if (text) {
+          result.push({ type: 'text', content: text });
+        }
+      } else if (node.nodeType === Node.ELEMENT_NODE) {
+        const elem = node as Element;
+        const tagName = elem.tagName.toLowerCase();
+
+        switch (tagName) {
+          case 'strong':
+          case 'b':
+            result.push({
+              type: 'bold',
+              content: elem.textContent?.trim() || ''
+            });
+            break;
+
+          case 'em':
+          case 'i':
+            result.push({
+              type: 'italic',
+              content: elem.textContent?.trim() || ''
+            });
+            break;
+
+          case 'code':
+            result.push({
+              type: 'inlineCode',
+              content: elem.textContent?.trim() || ''
+            });
+            break;
+
+          case 'a':
+            result.push({
+              type: 'link',
+              url: elem.getAttribute('href') || '',
+              text: elem.textContent?.trim() || ''
+            });
+            break;
+
+          case 'img':
+            result.push({
+              type: 'image',
+              src: elem.getAttribute('src') || '',
+              alt: elem.getAttribute('alt') || ''
+            });
+            break;
+
+          case 'sup':
+            // Handle footnote references
+            const link = elem.querySelector('a');
+            if (link && link.classList.contains('footnote-ref')) {
+              result.push({
+                type: 'footnoteRef',
+                id: link.getAttribute('href')?.substring(1) || '',
+                text: elem.textContent?.trim() || ''
+              });
+            }
+            break;
+
+          default:
+            const text = elem.textContent?.trim();
+            if (text) {
+              result.push({ type: 'text', content: text });
+            }
+        }
+      }
+    }
+
+    return result;
+  }
+
+  private parseListItems(listElement: Element): any[] {
+    const items: any[] = [];
+    const liElements = listElement.querySelectorAll(':scope > li');
+
+    liElements.forEach(li => {
+      // Check if this list item contains a nested list
+      const nestedList = li.querySelector('ul, ol');
+
+      if (nestedList) {
+        // Get the text before the nested list
+        const textContent: any[] = [];
+        for (let i = 0; i < li.childNodes.length; i++) {
+          const node = li.childNodes[i];
+          if (node.nodeType === Node.TEXT_NODE) {
+            const text = node.textContent?.trim();
+            if (text) {
+              textContent.push({ type: 'text', content: text });
+            }
+          } else if (node !== nestedList) {
+            const elem = node as Element;
+            if (elem.tagName && elem.tagName.toLowerCase() !== 'ul' && elem.tagName.toLowerCase() !== 'ol') {
+              const text = elem.textContent?.trim();
+              if (text) {
+                textContent.push({ type: 'text', content: text });
+              }
+            }
+          }
+        }
+
+        items.push({
+          type: 'listItem',
+          content: textContent,
+          nested: this.parseElement(nestedList)
+        });
+      } else {
+        items.push({
+          type: 'listItem',
+          content: this.parseInlineContent(li)
+        });
+      }
+    });
+
+    return items;
+  }
+
+  private parseTable(tableElement: Element): any {
+    const rows: any[] = [];
+    const thead = tableElement.querySelector('thead');
+    const tbody = tableElement.querySelector('tbody');
+
+    // Parse header rows
+    if (thead) {
+      const headerRows = thead.querySelectorAll('tr');
+      headerRows.forEach(tr => {
+        const cells: any[] = [];
+        tr.querySelectorAll('th, td').forEach(cell => {
+          cells.push({
+            type: cell.tagName.toLowerCase() === 'th' ? 'header' : 'cell',
+            content: cell.textContent?.trim() || ''
+          });
+        });
+        rows.push({ type: 'row', cells });
+      });
+    }
+
+    // Parse body rows
+    const bodyRows = tbody ? tbody.querySelectorAll('tr') : tableElement.querySelectorAll('tr');
+    bodyRows.forEach(tr => {
+      const cells: any[] = [];
+      tr.querySelectorAll('th, td').forEach(cell => {
+        cells.push({
+          type: cell.tagName.toLowerCase() === 'th' ? 'header' : 'cell',
+          content: cell.textContent?.trim() || ''
+        });
+      });
+      if (cells.length > 0) {
+        rows.push({ type: 'row', cells });
+      }
+    });
+
+    return {
+      type: 'table',
+      rows: rows
+    };
+  }
+
+  private convertHtmlToPlainText(html: string): string {
+    // Create a temporary div to parse HTML
+    const temp = document.createElement('div');
+    temp.innerHTML = html;
+
+    // Remove script and style elements
+    const scripts = temp.getElementsByTagName('script');
+    const styles = temp.getElementsByTagName('style');
+
+    for (let i = scripts.length - 1; i >= 0; i--) {
+      scripts[i].remove();
+    }
+
+    for (let i = styles.length - 1; i >= 0; i--) {
+      styles[i].remove();
+    }
+
+    // Get text content and clean it up
+    let text = temp.textContent || temp.innerText || '';
+
+    // Clean up excessive whitespace
+    text = text.replace(/\n\s*\n\s*\n/g, '\n\n'); // Multiple blank lines to double
+    text = text.replace(/[ \t]+/g, ' '); // Multiple spaces to single space
+    text = text.trim();
+
+    return text;
+  }
+
+  private convertMarkdownToAsciiDoc(markdown: string): string {
+    let asciidoc = markdown;
+
+    // Convert headers (reverse order to handle longer sequences first)
+    asciidoc = asciidoc.replace(/^######\s+(.+)$/gm, '====== $1');
+    asciidoc = asciidoc.replace(/^#####\s+(.+)$/gm, '===== $1');
+    asciidoc = asciidoc.replace(/^####\s+(.+)$/gm, '==== $1');
+    asciidoc = asciidoc.replace(/^###\s+(.+)$/gm, '=== $1');
+    asciidoc = asciidoc.replace(/^##\s+(.+)$/gm, '== $1');
+    asciidoc = asciidoc.replace(/^#\s+(.+)$/gm, '= $1');
+
+    // Convert code blocks with language
+    asciidoc = asciidoc.replace(/```(\w+)\n([\s\S]*?)```/g, (_match, lang, code) => {
+      return `[source,${lang}]\n----\n${code.trim()}\n----`;
+    });
+
+    // Convert code blocks without language
+    asciidoc = asciidoc.replace(/```\n([\s\S]*?)```/g, (_match, code) => {
+      return `----\n${code.trim()}\n----`;
+    });
+
+    // Convert inline code
+    asciidoc = asciidoc.replace(/`([^`]+)`/g, '`$1`');
+
+    // Convert bold and italic (order matters!)
+    // Bold + Italic: ***text*** or ___text___
+    asciidoc = asciidoc.replace(/\*\*\*(.+?)\*\*\*/g, '*_$1_*');
+    asciidoc = asciidoc.replace(/___(.+?)___/g, '*_$1_*');
+
+    // Bold: **text** or __text__
+    asciidoc = asciidoc.replace(/\*\*(.+?)\*\*/g, '*$1*');
+    asciidoc = asciidoc.replace(/__(.+?)__/g, '*$1*');
+
+    // Italic: *text* or _text_
+    asciidoc = asciidoc.replace(/\*(.+?)\*/g, '_$1_');
+    asciidoc = asciidoc.replace(/_(.+?)_/g, '_$1_');
+
+    // Convert links: [text](url) to link:url[text]
+    asciidoc = asciidoc.replace(/\[([^\]]+)\]\(([^)]+)\)/g, 'link:$2[$1]');
+
+    // Convert images: ![alt](url) to image::url[alt]
+    asciidoc = asciidoc.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, 'image::$2[$1]');
+
+    // Convert unordered lists (*, -, +)
+    asciidoc = asciidoc.replace(/^[\*\-\+]\s+(.+)$/gm, '* $1');
+
+    // Convert ordered lists
+    asciidoc = asciidoc.replace(/^\d+\.\s+(.+)$/gm, '. $1');
+
+    // Convert blockquotes
+    asciidoc = asciidoc.replace(/^>\s+(.+)$/gm, '____\n$1\n____');
+
+    // Convert horizontal rules
+    asciidoc = asciidoc.replace(/^(\-{3,}|_{3,}|\*{3,})$/gm, "'''");
+
+    // Convert tables
+    asciidoc = asciidoc.replace(/^\|(.+)\|$/gm, (match) => {
+      // Check if this is a separator line
+      if (/^[\|\-\s:]+$/.test(match)) {
+        return ''; // Remove separator lines
+      }
+      return match;
+    });
+
+    // Add table delimiters
+    const lines = asciidoc.split('\n');
+    let inTable = false;
+    const result: string[] = [];
+
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i];
+      const isTableRow = line.trim().startsWith('|') && line.trim().endsWith('|');
+      const isSeparator = /^\|[\-\s:]+\|$/.test(line.trim());
+
+      if (isTableRow && !isSeparator) {
+        if (!inTable) {
+          result.push('[options="header"]');
+          result.push('|===');
+          inTable = true;
+        }
+        result.push(line);
+      } else if (isSeparator) {
+        // Skip separator lines
+        continue;
+      } else {
+        if (inTable) {
+          result.push('|===');
+          result.push('');
+          inTable = false;
+        }
+        result.push(line);
+      }
+    }
+
+    if (inTable) {
+      result.push('|===');
+    }
+
+    asciidoc = result.join('\n');
+
+    // Convert math blocks (if using $$...$$ notation)
+    asciidoc = asciidoc.replace(/\$\$([^\$]+)\$\$/g, '[latexmath]\n++++\n$1\n++++');
+
+    // Convert inline math
+    asciidoc = asciidoc.replace(/\$([^\$]+)\$/g, 'latexmath:[$1]');
+
+    // Convert footnotes [^1] to footnote:[text]
+    // First collect footnote definitions
+    const footnotes: { [key: string]: string } = {};
+    asciidoc = asciidoc.replace(/^\[\^(\w+)\]:\s*(.+)$/gm, (_match, id, content) => {
+      footnotes[id] = content;
+      return '';
+    });
+
+    // Replace footnote references
+    asciidoc = asciidoc.replace(/\[\^(\w+)\]/g, (match, id) => {
+      const content = footnotes[id];
+      return content ? `footnote:[${content}]` : match;
+    });
+
+    // Clean up multiple blank lines
+    asciidoc = asciidoc.replace(/\n{3,}/g, '\n\n');
+
+    return asciidoc.trim();
   }
 
   private getInlineStyles(): string {
@@ -1085,6 +1692,119 @@ Here's a sentence with a footnote[^1].
       .theme-minimal pre {
         background-color: #fafafa;
         border: 1px solid #eee;
+      }
+
+      .theme-pubcss {
+        background-color: #ffffff;
+        color: #000000;
+      }
+
+      .theme-pubcss .markdown-body {
+        font-family: 'Times New Roman', Times, serif;
+        font-size: 10pt;
+        max-width: 750px;
+        line-height: 1.2;
+        text-align: justify;
+      }
+
+      .theme-pubcss h1 {
+        font-size: 14pt;
+        font-weight: bold;
+        text-transform: uppercase;
+        margin: 1.33em 0;
+        text-align: left;
+      }
+
+      .theme-pubcss h2 {
+        font-size: 12pt;
+        font-weight: bold;
+        margin: 1.33em 0;
+      }
+
+      .theme-pubcss h3,
+      .theme-pubcss h4 {
+        font-size: 11pt;
+        font-style: italic;
+        font-weight: normal;
+        margin: 1.33em 0;
+      }
+
+      .theme-pubcss p {
+        margin: 0 0 0.5em;
+        text-indent: 0;
+      }
+
+      .theme-pubcss code {
+        font-family: Courier, monospace;
+        font-size: 9pt;
+        background-color: #f5f5f5;
+        padding: 2px 4px;
+      }
+
+      .theme-pubcss pre {
+        font-family: Courier, monospace;
+        background-color: #f5f5f5;
+        padding: 12px;
+        margin: 1em 0;
+        border: 1px solid #ddd;
+        overflow-x: auto;
+      }
+
+      .theme-pubcss pre code {
+        background: none;
+        padding: 0;
+      }
+
+      .theme-pubcss table {
+        border-collapse: collapse;
+        width: 100%;
+        margin: 1.667em 0 1em;
+        font-size: 9pt;
+      }
+
+      .theme-pubcss table th,
+      .theme-pubcss table td {
+        border: 0.5px solid #000;
+        padding: 0.333em;
+        text-align: center;
+      }
+
+      .theme-pubcss table th {
+        font-weight: bold;
+        background-color: transparent;
+      }
+
+      .theme-pubcss blockquote {
+        border-left: 2px solid #666;
+        padding-left: 1em;
+        margin: 1em 0;
+        font-style: italic;
+        color: #333;
+      }
+
+      .theme-pubcss ul,
+      .theme-pubcss ol {
+        margin: 0.5em 0;
+        padding-left: 2em;
+      }
+
+      .theme-pubcss li {
+        margin: 0.25em 0;
+      }
+
+      .theme-pubcss a {
+        color: #000;
+        text-decoration: none;
+      }
+
+      .theme-pubcss a:hover {
+        text-decoration: underline;
+      }
+
+      .theme-pubcss hr {
+        border: none;
+        border-top: 1px solid #000;
+        margin: 2em 0;
       }
 
       .math-block {
