@@ -28,6 +28,7 @@ export class MdConverterComponent implements OnInit {
   markdownContent: string = '';
   htmlContent: string = '';
   isDragging: boolean = false;
+  isDraggingImage: boolean = false;
   currentTheme: string = 'claude';
   isFullViewport: boolean = false;
   isDropdownOpen: boolean = false;
@@ -1761,6 +1762,85 @@ Here's a sentence with a footnote[^1].
       textarea.focus();
       this.convertMarkdown();
     }, 0);
+  }
+
+  // Image drag and drop handlers
+  onEditorDragOver(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+
+    // Check if the dragged item contains files (images)
+    if (event.dataTransfer?.types.includes('Files')) {
+      this.isDraggingImage = true;
+      event.dataTransfer.dropEffect = 'copy';
+    }
+  }
+
+  onEditorDragLeave(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isDraggingImage = false;
+  }
+
+  onEditorDrop(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isDraggingImage = false;
+
+    const files = event.dataTransfer?.files;
+    if (!files || files.length === 0) return;
+
+    // Get the current cursor position before async operations
+    const textarea = this.markdownEditor?.nativeElement;
+    if (!textarea) return;
+
+    const cursorPosition = textarea.selectionStart;
+
+    // Process all dropped files
+    Array.from(files).forEach((file, index) => {
+      if (file.type.startsWith('image/')) {
+        this.convertImageToBase64(file, cursorPosition, index);
+      }
+    });
+  }
+
+  private convertImageToBase64(file: File, cursorPosition: number, index: number): void {
+    const reader = new FileReader();
+
+    reader.onload = (e: ProgressEvent<FileReader>) => {
+      if (e.target?.result) {
+        const base64Data = e.target.result as string;
+        const filename = file.name.replace(/\.[^/.]+$/, ''); // Remove extension
+        const imageMarkdown = `![${filename}](${base64Data})`;
+
+        // Calculate the position for this image (accounting for previously inserted images)
+        const before = this.markdownContent.substring(0, cursorPosition);
+        const after = this.markdownContent.substring(cursorPosition);
+
+        // Add newlines around the image for better formatting
+        const formattedImage = index === 0 ? `\n${imageMarkdown}\n` : `${imageMarkdown}\n`;
+
+        this.markdownContent = before + formattedImage + after;
+
+        // Update cursor position after the inserted image
+        setTimeout(() => {
+          const textarea = this.markdownEditor?.nativeElement;
+          if (textarea) {
+            const newPosition = cursorPosition + formattedImage.length;
+            textarea.selectionStart = textarea.selectionEnd = newPosition;
+            textarea.focus();
+          }
+          this.convertMarkdown();
+        }, 0);
+      }
+    };
+
+    reader.onerror = (error) => {
+      console.error('Error reading image file:', error);
+      alert(`Failed to read image: ${file.name}`);
+    };
+
+    reader.readAsDataURL(file);
   }
 
   private getInlineStyles(): string {

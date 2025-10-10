@@ -249,10 +249,14 @@
 
       <textarea #markdownEditor
                 class="markdown-editor"
+                [class.dragging-image]="isDraggingImage"
                 [(ngModel)]="markdownContent"
                 (input)="onEditorInput()"
                 (keydown)="onEditorKeyDown($event)"
-                placeholder="Write your markdown here..."
+                (dragover)="onEditorDragOver($event)"
+                (dragleave)="onEditorDragLeave($event)"
+                (drop)="onEditorDrop($event)"
+                placeholder="Write your markdown here... (Drag and drop images to insert)"
                 spellcheck="true"></textarea>
     </div>
 
