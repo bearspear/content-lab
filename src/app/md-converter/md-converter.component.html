@@ -70,6 +70,13 @@
           </svg>
           Download PDF
         </button>
+        <button class="dropdown-item" (click)="downloadMarkdown()">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6m-6-3h8" />
+          </svg>
+          Download Markdown
+        </button>
         <button class="dropdown-item" (click)="downloadAsciiDoc()">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -256,7 +263,7 @@
                 (dragover)="onEditorDragOver($event)"
                 (dragleave)="onEditorDragLeave($event)"
                 (drop)="onEditorDrop($event)"
-                placeholder="Write your markdown here... (Drag and drop images to insert)"
+                placeholder="Write your markdown here... (Drag and drop images to insert, or .md/.markdown/.txt files to load)"
                 spellcheck="true"></textarea>
     </div>
 

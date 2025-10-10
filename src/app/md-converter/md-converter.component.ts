@@ -821,12 +821,26 @@ Here's a sentence with a footnote[^1].
   }
 
   downloadHtml(): void {
+    this.isDropdownOpen = false;
     const fullHtml = this.generateFullHtml();
     const blob = new Blob([fullHtml], { type: 'text/html' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
     link.download = 'converted-markdown.html';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  }
+
+  downloadMarkdown(): void {
+    this.isDropdownOpen = false;
+    const blob = new Blob([this.markdownContent], { type: 'text/markdown' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'markdown-content.md';
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -1798,10 +1812,49 @@ Here's a sentence with a footnote[^1].
 
     // Process all dropped files
     Array.from(files).forEach((file, index) => {
-      if (file.type.startsWith('image/')) {
+      // Check if it's a markdown file
+      const isMarkdownFile = file.name.endsWith('.md') ||
+                            file.name.endsWith('.markdown') ||
+                            file.name.endsWith('.txt') ||
+                            file.type === 'text/markdown' ||
+                            file.type === 'text/plain';
+
+      if (isMarkdownFile) {
+        // Read and replace content for markdown files
+        this.readMarkdownFile(file);
+      } else if (file.type.startsWith('image/')) {
+        // Insert images at cursor position
         this.convertImageToBase64(file, cursorPosition, index);
       }
     });
+  }
+
+  private readMarkdownFile(file: File): void {
+    const reader = new FileReader();
+
+    reader.onload = (e: ProgressEvent<FileReader>) => {
+      if (e.target?.result) {
+        // Replace the entire content with the markdown file content
+        this.markdownContent = e.target.result as string;
+        this.convertMarkdown();
+
+        // Focus the editor and place cursor at the beginning
+        setTimeout(() => {
+          const textarea = this.markdownEditor?.nativeElement;
+          if (textarea) {
+            textarea.selectionStart = textarea.selectionEnd = 0;
+            textarea.focus();
+          }
+        }, 0);
+      }
+    };
+
+    reader.onerror = (error) => {
+      console.error('Error reading markdown file:', error);
+      alert(`Failed to read file: ${file.name}`);
+    };
+
+    reader.readAsText(file);
   }
 
   private convertImageToBase64(file: File, cursorPosition: number, index: number): void {
