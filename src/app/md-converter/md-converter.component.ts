@@ -33,7 +33,14 @@ import {
     ExportButtonComponent
   ],
   templateUrl: './md-converter.component.html',
-  styleUrl: './md-converter.component.scss'
+  styleUrl: './md-converter.component.scss',
+  styles: [`
+    :host {
+      display: flex;
+      flex: 1;
+      min-height: 0;
+    }
+  `]
 })
 export class MdConverterComponent implements OnInit {
   @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
