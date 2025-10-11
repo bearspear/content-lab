@@ -90,6 +90,12 @@
   }
 }
 
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
 .run-btn {
   display: flex;
   align-items: center;
@@ -116,6 +122,36 @@
 
   &:active {
     transform: translateY(0);
+  }
+}
+
+.editor-header .clear-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background: transparent;
+  border: 1px solid #444;
+  border-radius: 6px;
+  color: #999;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: #ef4444;
+    color: #ef4444;
+  }
+
+  &:active {
+    transform: scale(0.98);
   }
 }
 

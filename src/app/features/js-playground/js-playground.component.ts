@@ -1,7 +1,9 @@
-import { Component, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
+import { Component, ViewChild, ElementRef, AfterViewInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Subscription } from 'rxjs';
 import { CodeEditorComponent } from './components/code-editor.component';
+import { CodeBridgeService } from '../../core/services/code-bridge.service';
 
 interface ConsoleLog {
   type: 'log' | 'error' | 'warn' | 'info';
@@ -23,11 +25,14 @@ interface ConsoleLog {
     }
   `]
 })
-export class JsPlaygroundComponent implements AfterViewInit {
+export class JsPlaygroundComponent implements AfterViewInit, OnDestroy {
   @ViewChild('previewFrame') previewFrame!: ElementRef<HTMLIFrameElement>;
 
   // Editor tabs
   activeTab: 'html' | 'css' | 'js' = 'js';
+
+  // Subscriptions
+  private codeInsertSubscription?: Subscription;
 
   // Code content
   htmlCode = `<div id="app">
@@ -81,6 +86,8 @@ app.appendChild(button);`;
   consoleLogs: ConsoleLog[] = [];
   showConsole = true;
 
+  constructor(private codeBridgeService: CodeBridgeService) {}
+
   setActiveTab(tab: 'html' | 'css' | 'js'): void {
     this.activeTab = tab;
   }
@@ -92,6 +99,18 @@ app.appendChild(button);`;
 
   clearConsole(): void {
     this.consoleLogs = [];
+  }
+
+  clearActivePanel(): void {
+    if (confirm(`Are you sure you want to clear the ${this.activeTab.toUpperCase()} code?`)) {
+      if (this.activeTab === 'html') {
+        this.htmlCode = '';
+      } else if (this.activeTab === 'css') {
+        this.cssCode = '';
+      } else if (this.activeTab === 'js') {
+        this.jsCode = '';
+      }
+    }
   }
 
   private updatePreview(): void {
@@ -199,8 +218,73 @@ app.appendChild(button);`;
       }
     });
 
+    // Check for and apply any pending code
+    const pendingJs = this.codeBridgeService.getPendingCode('js');
+    if (pendingJs) {
+      // Add double newline if there's existing code
+      if (this.jsCode.trim()) {
+        this.jsCode += '\n\n' + pendingJs;
+      } else {
+        this.jsCode += pendingJs;
+      }
+      this.activeTab = 'js';
+    }
+
+    const pendingHtml = this.codeBridgeService.getPendingCode('html');
+    if (pendingHtml) {
+      if (this.htmlCode.trim()) {
+        this.htmlCode += '\n\n' + pendingHtml;
+      } else {
+        this.htmlCode += pendingHtml;
+      }
+    }
+
+    const pendingCss = this.codeBridgeService.getPendingCode('css');
+    if (pendingCss) {
+      if (this.cssCode.trim()) {
+        this.cssCode += '\n\n' + pendingCss;
+      } else {
+        this.cssCode += pendingCss;
+      }
+    }
+
+    // Subscribe to code insertion events from CodeBridgeService
+    this.codeInsertSubscription = this.codeBridgeService.insertCode$.subscribe((event) => {
+      if (event.targetTab === 'js') {
+        // Add double newline if there's existing code
+        if (this.jsCode.trim()) {
+          this.jsCode += '\n\n' + event.code;
+        } else {
+          this.jsCode += event.code;
+        }
+        // Switch to JS tab to show the inserted code
+        this.activeTab = 'js';
+      } else if (event.targetTab === 'html') {
+        if (this.htmlCode.trim()) {
+          this.htmlCode += '\n\n' + event.code;
+        } else {
+          this.htmlCode += event.code;
+        }
+        this.activeTab = 'html';
+      } else if (event.targetTab === 'css') {
+        if (this.cssCode.trim()) {
+          this.cssCode += '\n\n' + event.code;
+        } else {
+          this.cssCode += event.code;
+        }
+        this.activeTab = 'css';
+      }
+    });
+
     // Run code on init
     setTimeout(() => this.runCode(), 100);
+  }
+
+  ngOnDestroy(): void {
+    // Clean up subscription
+    if (this.codeInsertSubscription) {
+      this.codeInsertSubscription.unsubscribe();
+    }
   }
 
   getConsoleIcon(type: string): string {

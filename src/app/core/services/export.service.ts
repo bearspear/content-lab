@@ -18,7 +18,7 @@ export class ExportService {
    * Export content based on the specified format
    */
   async export(options: ExportOptions, markdownContent: string, htmlContent: string): Promise<void> {
-    const filename = options.filename || this.generateFilename(options.format);
+    const filename = options.filename || this.generateFilename(options.format, markdownContent, options.theme);
 
     switch (options.format) {
       case 'html':
@@ -613,6 +613,277 @@ export class ExportService {
         margin: 2em 0;
       }
 
+      /* ===== PREMIUM THEME (Elegant & Publish-Ready) ===== */
+      .theme-premium {
+        background: linear-gradient(135deg, #f5f7fa 0%, #fafbfc 100%);
+        color: #2c3e50;
+      }
+
+      .theme-premium .markdown-body {
+        font-family: 'Charter', 'Georgia', 'Cambria', 'Times New Roman', serif;
+        max-width: 850px;
+        line-height: 1.75;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.08);
+        padding: 60px;
+      }
+
+      .theme-premium h1,
+      .theme-premium h2,
+      .theme-premium h3,
+      .theme-premium h4,
+      .theme-premium h5,
+      .theme-premium h6 {
+        font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif;
+        color: #1a202c;
+        font-weight: 700;
+        letter-spacing: -0.03em;
+        line-height: 1.3;
+      }
+
+      .theme-premium h1 {
+        font-size: 2.75em;
+        margin: 0 0 0.5em 0;
+        padding-bottom: 0.4em;
+        border-bottom: 3px solid transparent;
+        background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        text-shadow: 0 0 40px rgba(102, 126, 234, 0.3);
+        position: relative;
+      }
+
+      .theme-premium h1::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 80px;
+        height: 4px;
+        background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+        border-radius: 2px;
+        box-shadow: 0 2px 10px rgba(102, 126, 234, 0.4);
+      }
+
+      .theme-premium h2 {
+        font-size: 2em;
+        margin: 2em 0 0.75em 0;
+        color: #2d3748;
+        text-shadow: 0 0 30px rgba(45, 55, 72, 0.1);
+        position: relative;
+        padding-left: 20px;
+      }
+
+      .theme-premium h2::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 6px;
+        height: 70%;
+        background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
+        border-radius: 3px;
+        box-shadow: 0 0 10px rgba(102, 126, 234, 0.5);
+      }
+
+      .theme-premium h3 {
+        font-size: 1.5em;
+        margin: 1.75em 0 0.5em 0;
+        color: #4a5568;
+      }
+
+      .theme-premium h4 {
+        font-size: 1.25em;
+        margin: 1.5em 0 0.5em 0;
+        color: #4a5568;
+      }
+
+      .theme-premium h5, .theme-premium h6 {
+        font-size: 1em;
+        margin: 1.25em 0 0.5em 0;
+        color: #718096;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        font-weight: 600;
+      }
+
+      .theme-premium p {
+        margin: 0 0 1.5em 0;
+        font-size: 1.05em;
+        text-align: justify;
+        hyphens: auto;
+      }
+
+      .theme-premium a {
+        color: #667eea;
+        text-decoration: none;
+        border-bottom: 1px solid rgba(102, 126, 234, 0.3);
+        transition: all 0.2s ease;
+        font-weight: 500;
+      }
+
+      .theme-premium a:hover {
+        color: #764ba2;
+        border-bottom-color: #764ba2;
+        text-shadow: 0 0 8px rgba(102, 126, 234, 0.3);
+      }
+
+      .theme-premium code {
+        font-family: 'SF Mono', 'Menlo', 'Monaco', 'Cascadia Code', 'Courier New', monospace;
+        background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+        color: #e53e3e;
+        padding: 0.25em 0.5em;
+        border-radius: 5px;
+        font-size: 0.9em;
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+      }
+
+      .theme-premium pre {
+        background: #1a202c;
+        padding: 24px;
+        border-radius: 10px;
+        overflow-x: auto;
+        margin: 2em 0;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2),
+                    0 0 0 1px rgba(102, 126, 234, 0.1),
+                    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+        position: relative;
+      }
+
+      .theme-premium pre::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+        border-radius: 10px 10px 0 0;
+      }
+
+      .theme-premium pre code {
+        background: none;
+        color: #e2e8f0;
+        border: none;
+        padding: 0;
+        font-size: 0.9em;
+        line-height: 1.6;
+        box-shadow: none;
+      }
+
+      .theme-premium blockquote {
+        margin: 2em 0;
+        padding: 1.5em 1.5em 1.5em 2em;
+        background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+        border-left: 5px solid #667eea;
+        border-radius: 8px;
+        color: #4a5568;
+        font-style: italic;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        position: relative;
+      }
+
+      .theme-premium blockquote::before {
+        content: '\\201C';
+        position: absolute;
+        top: 10px;
+        left: 15px;
+        font-size: 3em;
+        color: rgba(102, 126, 234, 0.2);
+        font-family: Georgia, serif;
+        line-height: 1;
+      }
+
+      .theme-premium ul, .theme-premium ol {
+        margin: 1.5em 0;
+        padding-left: 2.5em;
+        line-height: 1.8;
+      }
+
+      .theme-premium li {
+        margin: 0.75em 0;
+        padding-left: 0.5em;
+      }
+
+      .theme-premium ul li::marker {
+        color: #667eea;
+        font-size: 1.2em;
+      }
+
+      .theme-premium ol li::marker {
+        color: #667eea;
+        font-weight: 700;
+      }
+
+      .theme-premium table {
+        border-collapse: separate;
+        border-spacing: 0;
+        width: 100%;
+        margin: 2em 0;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      }
+
+      .theme-premium table th,
+      .theme-premium table td {
+        padding: 12px 16px;
+        text-align: left;
+        border-bottom: 1px solid #e2e8f0;
+      }
+
+      .theme-premium table th {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        font-weight: 600;
+        font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        font-size: 0.85em;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+      }
+
+      .theme-premium table tbody tr {
+        background: white;
+        transition: all 0.2s ease;
+      }
+
+      .theme-premium table tbody tr:nth-child(even) {
+        background: #f7fafc;
+      }
+
+      .theme-premium table tbody tr:hover {
+        background: #edf2f7;
+        transform: scale(1.01);
+      }
+
+      .theme-premium hr {
+        border: none;
+        height: 3px;
+        background: linear-gradient(90deg,
+          transparent 0%,
+          rgba(102, 126, 234, 0.3) 20%,
+          rgba(102, 126, 234, 0.6) 50%,
+          rgba(102, 126, 234, 0.3) 80%,
+          transparent 100%);
+        margin: 3em 0;
+        border-radius: 2px;
+      }
+
+      .theme-premium strong {
+        color: #2d3748;
+        font-weight: 700;
+      }
+
+      .theme-premium em {
+        color: #4a5568;
+        font-style: italic;
+      }
+
       /* ===== COMMON STYLES ===== */
       .math-block {
         margin: 20px 0;
@@ -667,9 +938,59 @@ export class ExportService {
   }
 
   /**
+   * Extract title from markdown content
+   */
+  private extractTitle(markdownContent: string): string | null {
+    if (!markdownContent || !markdownContent.trim()) {
+      return null;
+    }
+
+    // Try to find the first H1 heading (# Title or ===== underline style)
+    const lines = markdownContent.split('\n');
+
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i].trim();
+
+      // Check for # H1 syntax
+      if (line.startsWith('# ')) {
+        return line.substring(2).trim();
+      }
+
+      // Check for === underline style H1
+      if (i < lines.length - 1) {
+        const nextLine = lines[i + 1].trim();
+        if (nextLine && /^=+$/.test(nextLine) && line) {
+          return line.trim();
+        }
+      }
+    }
+
+    return null;
+  }
+
+  /**
+   * Convert title to filename-friendly format
+   */
+  private titleToFilename(title: string): string {
+    return title
+      // Replace spaces with underscores
+      .replace(/\s+/g, '_')
+      // Remove special characters except underscores, hyphens, and dots
+      .replace(/[^\w\-_.]/g, '')
+      // Remove leading/trailing underscores
+      .replace(/^_+|_+$/g, '')
+      // Collapse multiple underscores
+      .replace(/_+/g, '_')
+      // Limit length to 100 characters
+      .substring(0, 100)
+      // Convert to lowercase for consistency
+      .toLowerCase();
+  }
+
+  /**
    * Generate default filename for export
    */
-  private generateFilename(format: string): string {
+  private generateFilename(format: string, markdownContent?: string, theme?: string): string {
     const extensions: { [key: string]: string } = {
       html: '.html',
       pdf: '.pdf',
@@ -679,6 +1000,25 @@ export class ExportService {
       json: '.json'
     };
 
-    return `markdown-export${extensions[format] || '.txt'}`;
+    const extension = extensions[format] || '.txt';
+    let baseFilename = 'markdown-export';
+
+    // Try to extract title from markdown
+    if (markdownContent) {
+      const title = this.extractTitle(markdownContent);
+      if (title) {
+        const filename = this.titleToFilename(title);
+        if (filename) {
+          baseFilename = filename;
+        }
+      }
+    }
+
+    // Append theme if provided
+    if (theme) {
+      return `${baseFilename}-${theme}${extension}`;
+    }
+
+    return `${baseFilename}${extension}`;
   }
 }

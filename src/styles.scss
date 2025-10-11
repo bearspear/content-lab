@@ -23,3 +23,39 @@ html, body {
 code {
   font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
 }
+
+// Success Toast for JSON Editor
+.insert-success-toast {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+  padding: 16px 24px;
+  border-radius: 8px;
+  box-shadow: 0 10px 25px rgba(16, 185, 129, 0.3);
+  font-weight: 600;
+  font-size: 0.95rem;
+  z-index: 10000;
+  animation: slideInUp 0.3s ease, fadeOut 0.3s ease 2.7s forwards;
+}
+
+@keyframes slideInUp {
+  from {
+    transform: translateY(100px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}

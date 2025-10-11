@@ -6,5 +6,6 @@ export const THEMES: Theme[] = [
   { name: 'Dark Mode', value: 'dark', description: 'Dark theme for reduced eye strain' },
   { name: 'Academic', value: 'academic', description: 'Academic paper style' },
   { name: 'PubCSS', value: 'pubcss', description: 'Academic publication style (ACM SIG format)' },
-  { name: 'Minimal', value: 'minimal', description: 'Minimalist design' }
+  { name: 'Minimal', value: 'minimal', description: 'Minimalist design' },
+  { name: 'Premium', value: 'premium', description: 'High-quality publish-ready theme with elegant typography and subtle glow effects' }
 ];

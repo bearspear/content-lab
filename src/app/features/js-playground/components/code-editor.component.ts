@@ -23,7 +23,7 @@ import { loadMonaco, getMonaco } from './monaco-loader';
 })
 export class CodeEditorComponent implements AfterViewInit, OnChanges, OnDestroy {
   @Input() code = '';
-  @Input() language: 'html' | 'css' | 'javascript' = 'javascript';
+  @Input() language: 'html' | 'css' | 'javascript' | 'json' = 'javascript';
   @Input() placeholder = '';
   @Output() codeChange = new EventEmitter<string>();
 
