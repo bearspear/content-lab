@@ -1,1 +1,13 @@
-<app-md-converter></app-md-converter>
+<div class="app-container">
+  <app-sidebar
+    (toolSelected)="onToolSelected($event)"
+    (sidebarToggled)="onSidebarToggled($event)">
+  </app-sidebar>
+
+  <main class="main-content" [class.sidebar-collapsed]="isSidebarCollapsed">
+    <app-md-converter *ngIf="activeTool === 'md-html'"></app-md-converter>
+    <app-text-editor *ngIf="activeTool === 'text-editor'"></app-text-editor>
+    <app-js-playground *ngIf="activeTool === 'js-playground'"></app-js-playground>
+    <app-json-editor *ngIf="activeTool === 'json-editor'"></app-json-editor>
+  </main>
+</div>
