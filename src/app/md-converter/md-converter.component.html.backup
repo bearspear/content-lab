@@ -1,0 +1,278 @@
+<div class="md-converter-container" [class.full-viewport]="isFullViewport">
+  <header class="header">
+    <h1>Markdown to HTML Converter</h1>
+    <p class="subtitle">Convert markdown files to beautifully styled HTML with syntax highlighting, math equations, and more</p>
+  </header>
+
+  <div class="controls">
+    <div class="upload-section"
+         [class.dragging]="isDragging"
+         (dragover)="onDragOver($event)"
+         (dragleave)="onDragLeave($event)"
+         (drop)="onDrop($event)">
+      <input #fileInput
+             type="file"
+             accept=".md,.markdown,text/markdown"
+             (change)="onFileSelected($event)"
+             style="display: none;">
+
+      <div class="upload-content">
+        <svg class="upload-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+        </svg>
+        <p class="upload-text">
+          <strong>Drag and drop</strong> your markdown file here or
+          <button class="link-button" (click)="triggerFileInput()">browse</button>
+        </p>
+        <p class="upload-hint">Supports .md and .markdown files</p>
+      </div>
+    </div>
+
+    <div class="theme-selector">
+      <label for="theme-select">
+        <svg class="theme-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
+        </svg>
+        Theme:
+      </label>
+      <select id="theme-select"
+              [value]="currentTheme"
+              (change)="onThemeChange($event)"
+              class="theme-dropdown">
+        <option *ngFor="let theme of themes" [value]="theme.value">
+          {{ theme.name }}
+        </option>
+      </select>
+    </div>
+
+    <div class="split-button-container">
+      <button class="download-btn main-action" (click)="downloadHtml()">
+        <svg class="download-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+        </svg>
+        Download HTML
+      </button>
+      <button class="download-btn dropdown-toggle" (click)="toggleDropdown()" [attr.aria-expanded]="isDropdownOpen">
+        <svg class="chevron-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+        </svg>
+      </button>
+      <div class="dropdown-menu" [class.show]="isDropdownOpen">
+        <button class="dropdown-item" (click)="downloadHtml()">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+          </svg>
+          Download HTML
+        </button>
+        <button class="dropdown-item" (click)="downloadPdf()">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+          </svg>
+          Download PDF
+        </button>
+        <button class="dropdown-item" (click)="downloadMarkdown()">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6m-6-3h8" />
+          </svg>
+          Download Markdown
+        </button>
+        <button class="dropdown-item" (click)="downloadAsciiDoc()">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          </svg>
+          Download AsciiDoc
+        </button>
+        <button class="dropdown-item" (click)="downloadPlainText()">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          </svg>
+          Download Plain Text
+        </button>
+        <button class="dropdown-item" (click)="downloadJson()">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 9h6M9 12h6M9 15h6" />
+          </svg>
+          Download JSON
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="preview-section">
+    <div class="preview-header">
+      <div class="view-mode-toggle">
+        <button class="toggle-btn"
+                [class.active]="viewMode === 'write'"
+                (click)="setViewMode('write')">
+          Write
+        </button>
+        <button class="toggle-btn"
+                [class.active]="viewMode === 'preview'"
+                (click)="setViewMode('preview')">
+          Preview
+        </button>
+      </div>
+      <div class="preview-actions">
+        <span class="theme-badge">{{ currentTheme | titlecase }} Theme</span>
+        <button class="fullscreen-btn" (click)="toggleFullViewport()" [attr.aria-label]="isFullViewport ? 'Exit full viewport' : 'Expand to full viewport'">
+          <svg *ngIf="!isFullViewport" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+          </svg>
+          <svg *ngIf="isFullViewport" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 9V4.5M9 9H4.5M9 9L3.75 3.75M9 15v4.5M9 15H4.5M9 15l-5.25 5.25M15 9h4.5M15 9V4.5M15 9l5.25-5.25M15 15h4.5M15 15v4.5m0-4.5l5.25 5.25" />
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Editor Mode -->
+    <div class="editor-container" *ngIf="viewMode === 'write'">
+      <div class="editor-toolbar">
+        <div class="toolbar-group">
+          <button class="toolbar-btn" (click)="insertBold()" title="Bold (Ctrl+B)">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 4h8a4 4 0 014 4 4 4 0 01-4 4H6z" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 12h9a4 4 0 014 4 4 4 0 01-4 4H6z" />
+            </svg>
+          </button>
+          <button class="toolbar-btn" (click)="insertItalic()" title="Italic (Ctrl+I)">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <line x1="19" y1="4" x2="10" y2="4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+              <line x1="14" y1="20" x2="5" y2="20" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+              <line x1="15" y1="4" x2="9" y2="20" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+            </svg>
+          </button>
+          <button class="toolbar-btn" (click)="insertStrikethrough()" title="Strikethrough">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12h18M9 4a3.5 3.5 0 013 1.75M15 20a3.5 3.5 0 01-3-1.75" />
+            </svg>
+          </button>
+        </div>
+
+        <div class="toolbar-divider"></div>
+
+        <div class="toolbar-group">
+          <button class="toolbar-btn" (click)="insertHeading(1)" title="Heading 1">H1</button>
+          <button class="toolbar-btn" (click)="insertHeading(2)" title="Heading 2">H2</button>
+          <button class="toolbar-btn" (click)="insertHeading(3)" title="Heading 3">H3</button>
+        </div>
+
+        <div class="toolbar-divider"></div>
+
+        <div class="toolbar-group">
+          <button class="toolbar-btn" (click)="insertCode()" title="Inline Code">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <polyline points="16 18 22 12 16 6" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+              <polyline points="8 6 2 12 8 18" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+            </svg>
+          </button>
+          <button class="toolbar-btn" (click)="insertCodeBlock()" title="Code Block">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <rect x="3" y="3" width="18" height="18" rx="2" ry="2" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+              <line x1="9" y1="9" x2="15" y2="9" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+              <line x1="9" y1="15" x2="15" y2="15" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+            </svg>
+          </button>
+          <button class="toolbar-btn" (click)="insertBlockquote()" title="Blockquote">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 9a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H9V9z" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 9a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H5V9z" />
+            </svg>
+          </button>
+        </div>
+
+        <div class="toolbar-divider"></div>
+
+        <div class="toolbar-group">
+          <button class="toolbar-btn" (click)="insertUnorderedList()" title="Unordered List">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <line x1="8" y1="6" x2="21" y2="6" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+              <line x1="8" y1="12" x2="21" y2="12" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+              <line x1="8" y1="18" x2="21" y2="18" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+              <line x1="3" y1="6" x2="3.01" y2="6" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+              <line x1="3" y1="12" x2="3.01" y2="12" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+              <line x1="3" y1="18" x2="3.01" y2="18" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+            </svg>
+          </button>
+          <button class="toolbar-btn" (click)="insertOrderedList()" title="Ordered List">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <line x1="10" y1="6" x2="21" y2="6" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+              <line x1="10" y1="12" x2="21" y2="12" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+              <line x1="10" y1="18" x2="21" y2="18" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h1v4M4 10h2M6 18H4c0-1 2-2 2-3s-1-1.5-2-1"/>
+            </svg>
+          </button>
+          <button class="toolbar-btn" (click)="insertTask()" title="Task List">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <polyline points="9 11 12 14 22 4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11" />
+            </svg>
+          </button>
+        </div>
+
+        <div class="toolbar-divider"></div>
+
+        <div class="toolbar-group">
+          <button class="toolbar-btn" (click)="insertLink()" title="Link (Ctrl+K)">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71" />
+            </svg>
+          </button>
+          <button class="toolbar-btn" (click)="insertImage()" title="Image">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <rect x="3" y="3" width="18" height="18" rx="2" ry="2" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+              <circle cx="8.5" cy="8.5" r="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+              <polyline points="21 15 16 10 5 21" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+            </svg>
+          </button>
+          <button class="toolbar-btn" (click)="insertTable()" title="Table">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <rect x="3" y="3" width="18" height="18" rx="2" ry="2" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+              <line x1="3" y1="9" x2="21" y2="9" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+              <line x1="3" y1="15" x2="21" y2="15" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+              <line x1="12" y1="3" x2="12" y2="21" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+            </svg>
+          </button>
+        </div>
+
+        <div class="toolbar-divider"></div>
+
+        <div class="toolbar-group">
+          <button class="toolbar-btn" (click)="insertHorizontalRule()" title="Horizontal Rule">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <line x1="3" y1="12" x2="21" y2="12" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+            </svg>
+          </button>
+          <button class="toolbar-btn" (click)="insertMath()" title="Math Equation">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <text x="6" y="18" font-size="16" font-style="italic" fill="currentColor">∑</text>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <textarea #markdownEditor
+                class="markdown-editor"
+                [class.dragging-image]="isDraggingImage"
+                [(ngModel)]="markdownContent"
+                (input)="onEditorInput()"
+                (keydown)="onEditorKeyDown($event)"
+                (dragover)="onEditorDragOver($event)"
+                (dragleave)="onEditorDragLeave($event)"
+                (drop)="onEditorDrop($event)"
+                placeholder="Write your markdown here... (Drag and drop images to insert, or .md/.markdown/.txt files to load)"
+                spellcheck="true"></textarea>
+    </div>
+
+    <!-- Preview Mode -->
+    <div class="iframe-container" *ngIf="viewMode === 'preview'">
+      <iframe #previewFrame
+              class="preview-iframe"
+              sandbox="allow-same-origin allow-scripts"
+              title="Markdown Preview"></iframe>
+    </div>
+  </div>
+</div>
