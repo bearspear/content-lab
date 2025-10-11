@@ -3,12 +3,13 @@ import { CommonModule } from '@angular/common';
 import { MdConverterComponent } from './md-converter/md-converter.component';
 import { JsPlaygroundComponent } from './features/js-playground/js-playground.component';
 import { JsonEditorComponent } from './features/json-editor/json-editor.component';
+import { TextEditorComponent } from './features/text-editor/text-editor.component';
 import { SidebarComponent } from './shared/components/sidebar/sidebar.component';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, MdConverterComponent, JsPlaygroundComponent, JsonEditorComponent, SidebarComponent],
+  imports: [CommonModule, MdConverterComponent, JsPlaygroundComponent, JsonEditorComponent, TextEditorComponent, SidebarComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'
 })
