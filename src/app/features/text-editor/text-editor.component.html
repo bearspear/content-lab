@@ -1,0 +1,188 @@
+<div class="text-editor-container">
+  <!-- Header -->
+  <div class="editor-header">
+    <h1>Text Editor</h1>
+    <p class="subtitle">A fully-featured text editor with find/replace, statistics, and more</p>
+  </div>
+
+  <!-- Toolbar -->
+  <div class="toolbar">
+    <!-- File Operations -->
+    <div class="toolbar-group">
+      <button (click)="newFile()" title="New File" class="toolbar-btn">
+        <span class="icon">📄</span>
+        New
+      </button>
+      <button (click)="openFile()" title="Open File" class="toolbar-btn">
+        <span class="icon">📂</span>
+        Open
+      </button>
+      <button (click)="saveFile()" title="Save File" class="toolbar-btn">
+        <span class="icon">💾</span>
+        Save
+      </button>
+    </div>
+
+    <div class="toolbar-divider"></div>
+
+    <!-- Edit Operations -->
+    <div class="toolbar-group">
+      <button (click)="undo()" title="Undo (Ctrl+Z)" class="toolbar-btn">
+        <span class="icon">↶</span>
+        Undo
+      </button>
+      <button (click)="redo()" title="Redo (Ctrl+Y)" class="toolbar-btn">
+        <span class="icon">↷</span>
+        Redo
+      </button>
+    </div>
+
+    <div class="toolbar-divider"></div>
+
+    <!-- Find Operations -->
+    <div class="toolbar-group">
+      <button (click)="openFind()" title="Find (Ctrl+F)" class="toolbar-btn">
+        <span class="icon">🔍</span>
+        Find
+      </button>
+      <button (click)="openFindReplace()" title="Find & Replace (Ctrl+H)" class="toolbar-btn">
+        <span class="icon">🔄</span>
+        Replace
+      </button>
+      <button (click)="goToLine()" title="Go to Line (Ctrl+G)" class="toolbar-btn">
+        <span class="icon">➡️</span>
+        Go to Line
+      </button>
+    </div>
+
+    <div class="toolbar-divider"></div>
+
+    <!-- View Options -->
+    <div class="toolbar-group">
+      <button
+        (click)="toggleLineNumbers()"
+        [class.active]="showLineNumbers"
+        title="Toggle Line Numbers"
+        class="toolbar-btn">
+        <span class="icon">🔢</span>
+        Line Numbers
+      </button>
+      <button
+        (click)="toggleWhitespace()"
+        [class.active]="showWhitespace"
+        title="Show Special Characters"
+        class="toolbar-btn">
+        <span class="icon">¶</span>
+        Whitespace
+      </button>
+      <button
+        (click)="toggleWordWrap()"
+        [class.active]="wordWrap"
+        title="Toggle Word Wrap"
+        class="toolbar-btn">
+        <span class="icon">↩️</span>
+        Word Wrap
+      </button>
+    </div>
+
+    <div class="toolbar-divider"></div>
+
+    <!-- Font Size -->
+    <div class="toolbar-group">
+      <button (click)="decreaseFontSize()" title="Decrease Font Size" class="toolbar-btn icon-only">
+        <span class="icon">➖</span>
+      </button>
+      <span class="font-size-display">{{ fontSize }}px</span>
+      <button (click)="increaseFontSize()" title="Increase Font Size" class="toolbar-btn icon-only">
+        <span class="icon">➕</span>
+      </button>
+      <button (click)="resetFontSize()" title="Reset Font Size" class="toolbar-btn">
+        Reset
+      </button>
+    </div>
+
+    <div class="toolbar-divider"></div>
+
+    <!-- Theme Toggle -->
+    <div class="toolbar-group">
+      <button (click)="toggleTheme()" title="Toggle Light/Dark Theme" class="toolbar-btn">
+        <span class="icon">🌓</span>
+        Theme
+      </button>
+    </div>
+
+    <div class="toolbar-divider"></div>
+
+    <!-- Other Operations -->
+    <div class="toolbar-group">
+      <button (click)="selectAll()" title="Select All (Ctrl+A)" class="toolbar-btn">
+        <span class="icon">📋</span>
+        Select All
+      </button>
+      <button (click)="copyAll()" title="Copy All" class="toolbar-btn">
+        <span class="icon">📄</span>
+        Copy All
+      </button>
+      <button (click)="clearContent()" title="Clear Content" class="toolbar-btn danger">
+        <span class="icon">🗑️</span>
+        Clear
+      </button>
+    </div>
+  </div>
+
+  <!-- Statistics Bar -->
+  <div class="statistics-bar">
+    <div class="stat-item">
+      <span class="stat-label">Lines:</span>
+      <span class="stat-value">{{ lineCount }}</span>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="stat-item">
+      <span class="stat-label">Words:</span>
+      <span class="stat-value">{{ wordCount }}</span>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="stat-item">
+      <span class="stat-label">Characters:</span>
+      <span class="stat-value">{{ characterCount }}</span>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="stat-item" *ngIf="selectedText.length > 0">
+      <span class="stat-label">Selected:</span>
+      <span class="stat-value">{{ selectedText.length }} chars</span>
+    </div>
+    <div class="stat-item spacer"></div>
+    <div class="stat-item">
+      <span class="stat-label">Font:</span>
+      <span class="stat-value">{{ fontSize }}px</span>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="stat-item">
+      <span class="stat-label">Line #:</span>
+      <span class="stat-value">{{ showLineNumbers ? 'On' : 'Off' }}</span>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="stat-item">
+      <span class="stat-label">Whitespace:</span>
+      <span class="stat-value">{{ showWhitespace ? 'Visible' : 'Hidden' }}</span>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="stat-item">
+      <span class="stat-label">Wrap:</span>
+      <span class="stat-value">{{ wordWrap ? 'On' : 'Off' }}</span>
+    </div>
+  </div>
+
+  <!-- Editor -->
+  <div class="editor-wrapper">
+    <div #editorContainer class="monaco-editor-container"></div>
+  </div>
+
+  <!-- Tips Section -->
+  <div class="tips-section">
+    <div class="tip">
+      <strong>💡 Keyboard Shortcuts:</strong>
+      Ctrl+F (Find), Ctrl+H (Replace), Ctrl+G (Go to Line), Ctrl+/ (Comment), Ctrl+Z (Undo), Ctrl+Y (Redo), Ctrl+A (Select All)
+    </div>
+  </div>
+</div>
