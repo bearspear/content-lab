@@ -25,7 +25,54 @@ import { ThemeService } from '../../../core/services';
       </select>
     </div>
   `,
-  styles: []
+  styles: [`
+    .theme-selector {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background-color: #ffffff;
+      padding: 12px 20px;
+      border-radius: 8px;
+      border: 1px solid #e2e8f0;
+      white-space: nowrap;
+    }
+
+    .theme-selector label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 600;
+      color: #2d3748;
+      font-size: 0.95rem;
+    }
+
+    .theme-icon {
+      width: 20px;
+      height: 20px;
+      color: #4299e1;
+    }
+
+    .theme-dropdown {
+      padding: 8px 12px;
+      border: 1px solid #cbd5e0;
+      border-radius: 6px;
+      font-size: 0.95rem;
+      background-color: #ffffff;
+      color: #2d3748;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .theme-dropdown:hover {
+      border-color: #4299e1;
+    }
+
+    .theme-dropdown:focus {
+      outline: none;
+      border-color: #4299e1;
+      box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.1);
+    }
+  `]
 })
 export class ThemeSelectorComponent implements OnInit {
   @Input() selectedTheme: string = 'claude';

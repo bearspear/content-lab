@@ -132,7 +132,91 @@ import { EditorAction, EditorActionType } from '../../../core/models';
       </div>
     </div>
   `,
-  styles: []
+  styles: [`
+    .editor-toolbar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 16px;
+      background-color: #f7fafc;
+      border-bottom: 1px solid #e2e8f0;
+      flex-wrap: wrap;
+      flex-shrink: 0;
+    }
+
+    .toolbar-group {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .toolbar-divider {
+      width: 1px;
+      height: 24px;
+      background-color: #cbd5e0;
+      margin: 0 4px;
+    }
+
+    .toolbar-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 8px;
+      background-color: transparent;
+      border: 1px solid transparent;
+      border-radius: 6px;
+      color: #4a5568;
+      cursor: pointer;
+      transition: all 0.15s;
+      font-size: 0.875rem;
+      font-weight: 500;
+      min-width: 32px;
+      height: 32px;
+    }
+
+    .toolbar-btn svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    .toolbar-btn:hover {
+      background-color: #e2e8f0;
+      color: #2d3748;
+      border-color: #cbd5e0;
+    }
+
+    .toolbar-btn:active {
+      background-color: #cbd5e0;
+    }
+
+    .toolbar-btn:focus {
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.15);
+      border-color: #4299e1;
+    }
+
+    @media (max-width: 768px) {
+      .editor-toolbar {
+        padding: 8px 12px;
+        gap: 4px;
+      }
+
+      .toolbar-divider {
+        display: none;
+      }
+
+      .toolbar-btn {
+        padding: 6px;
+        min-width: 28px;
+        height: 28px;
+      }
+
+      .toolbar-btn svg {
+        width: 16px;
+        height: 16px;
+      }
+    }
+  `]
 })
 export class MarkdownToolbarComponent {
   @Output() action = new EventEmitter<EditorAction>();

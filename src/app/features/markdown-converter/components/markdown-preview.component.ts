@@ -12,7 +12,21 @@ import { ThemeService } from '../../../core/services';
             sandbox="allow-same-origin allow-scripts"
             title="Markdown Preview"></iframe>
   `,
-  styles: []
+  styles: [`
+    :host {
+      display: block;
+      width: 100%;
+      height: 100%;
+      position: relative;
+    }
+
+    .preview-iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+      display: block;
+    }
+  `]
 })
 export class MarkdownPreviewComponent implements OnChanges {
   @ViewChild('previewFrame') previewFrame!: ElementRef<HTMLIFrameElement>;

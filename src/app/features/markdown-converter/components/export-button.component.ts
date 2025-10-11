@@ -61,7 +61,135 @@ import { ExportFormat } from '../../../core/models';
       </div>
     </div>
   `,
-  styles: []
+  styles: [`
+    .split-button-container {
+      position: relative;
+      display: inline-flex;
+      white-space: nowrap;
+    }
+
+    .download-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 24px;
+      background-color: #3182ce;
+      color: white;
+      border: none;
+      font-weight: 600;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .download-btn .download-icon,
+    .download-btn .chevron-icon {
+      width: 20px;
+      height: 20px;
+    }
+
+    .download-btn.main-action {
+      border-radius: 8px 0 0 8px;
+      padding-right: 20px;
+    }
+
+    .download-btn.dropdown-toggle {
+      border-radius: 0 8px 8px 0;
+      padding: 12px 12px;
+      border-left: 1px solid rgba(255, 255, 255, 0.3);
+    }
+
+    .download-btn.dropdown-toggle .chevron-icon {
+      width: 16px;
+      height: 16px;
+    }
+
+    .download-btn:hover {
+      background-color: #2c5282;
+    }
+
+    .download-btn:active {
+      transform: translateY(0);
+    }
+
+    .download-btn:focus {
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.4);
+      position: relative;
+      z-index: 1;
+    }
+
+    .dropdown-menu {
+      position: absolute;
+      top: calc(100% + 4px);
+      right: 0;
+      min-width: 180px;
+      background-color: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(-8px);
+      transition: all 0.2s;
+      z-index: 1000;
+    }
+
+    .dropdown-menu.show {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+
+    .dropdown-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      width: 100%;
+      padding: 12px 16px;
+      background: none;
+      border: none;
+      color: #2d3748;
+      font-size: 0.95rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: left;
+    }
+
+    .dropdown-item svg {
+      width: 18px;
+      height: 18px;
+      color: #4299e1;
+      flex-shrink: 0;
+    }
+
+    .dropdown-item:first-child {
+      border-radius: 6px 6px 0 0;
+    }
+
+    .dropdown-item:last-child {
+      border-radius: 0 0 6px 6px;
+    }
+
+    .dropdown-item:not(:last-child) {
+      border-bottom: 1px solid #e2e8f0;
+    }
+
+    .dropdown-item:hover {
+      background-color: #f7fafc;
+      color: #1a202c;
+    }
+
+    .dropdown-item:hover svg {
+      color: #3182ce;
+    }
+
+    .dropdown-item:focus {
+      outline: none;
+      background-color: #ebf8ff;
+    }
+  `]
 })
 export class ExportButtonComponent {
   @Output() export = new EventEmitter<ExportFormat>();

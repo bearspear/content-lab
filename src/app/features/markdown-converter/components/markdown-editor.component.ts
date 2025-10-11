@@ -34,7 +34,68 @@ export interface MarkdownFileDropEvent {
               [placeholder]="placeholder"
               spellcheck="true"></textarea>
   `,
-  styles: []
+  styles: [`
+    :host {
+      display: flex;
+      flex: 1;
+      min-height: 0;
+    }
+
+    .markdown-editor {
+      flex: 1;
+      width: 100%;
+      border: none;
+      padding: 24px;
+      font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, monospace;
+      font-size: 0.95rem;
+      line-height: 1.6;
+      color: #2d3748;
+      background-color: #ffffff;
+      resize: none;
+      overflow-y: auto;
+      transition: all 0.2s ease;
+    }
+
+    .markdown-editor:focus {
+      outline: none;
+    }
+
+    .markdown-editor::placeholder {
+      color: #a0aec0;
+    }
+
+    .markdown-editor.dragging-image {
+      background-color: #ebf8ff;
+      border: 2px dashed #4299e1;
+      outline: 2px solid rgba(66, 153, 225, 0.2);
+      outline-offset: -4px;
+    }
+
+    .markdown-editor::-webkit-scrollbar {
+      width: 12px;
+    }
+
+    .markdown-editor::-webkit-scrollbar-track {
+      background: #f7fafc;
+    }
+
+    .markdown-editor::-webkit-scrollbar-thumb {
+      background: #cbd5e0;
+      border-radius: 6px;
+      border: 3px solid #f7fafc;
+    }
+
+    .markdown-editor::-webkit-scrollbar-thumb:hover {
+      background: #a0aec0;
+    }
+
+    @media (max-width: 768px) {
+      .markdown-editor {
+        padding: 16px;
+        font-size: 0.9rem;
+      }
+    }
+  `]
 })
 export class MarkdownEditorComponent implements AfterViewInit {
   @ViewChild('markdownEditor') editorRef!: ElementRef<HTMLTextAreaElement>;
