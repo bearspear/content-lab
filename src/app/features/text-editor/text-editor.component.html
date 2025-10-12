@@ -1,8 +1,11 @@
 <div class="text-editor-container">
   <!-- Header -->
   <div class="editor-header">
-    <h1>Text Editor</h1>
-    <p class="subtitle">A fully-featured text editor with find/replace, statistics, and more</p>
+    <div class="header-content">
+      <h1>Text Editor</h1>
+      <p class="subtitle">A fully-featured text editor with find/replace, statistics, and more</p>
+    </div>
+    <app-reset-button (reset)="onReset()"></app-reset-button>
   </div>
 
   <!-- Toolbar -->

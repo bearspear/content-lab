@@ -1,16 +1,29 @@
-import { Component, ViewChild, ElementRef, AfterViewInit, OnDestroy } from '@angular/core';
+import { Component, ViewChild, ElementRef, AfterViewInit, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import * as monaco from 'monaco-editor';
+import { StateManagerService } from '../../core/services';
+import { ResetButtonComponent } from '../../shared/components/reset-button/reset-button.component';
+
+interface TextEditorState {
+  content: string;
+  showLineNumbers: boolean;
+  showWhitespace: boolean;
+  fontSize: number;
+  wordWrap: boolean;
+}
 
 @Component({
   selector: 'app-text-editor',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, ResetButtonComponent],
   templateUrl: './text-editor.component.html',
   styleUrl: './text-editor.component.scss'
 })
-export class TextEditorComponent implements AfterViewInit, OnDestroy {
+export class TextEditorComponent implements OnInit, AfterViewInit, OnDestroy {
+  private readonly TOOL_ID = 'text-editor';
+  private saveStateTimeout: any;
+
   @ViewChild('editorContainer', { static: false }) editorContainer!: ElementRef;
 
   editor: monaco.editor.IStandaloneCodeEditor | null = null;
@@ -30,13 +43,108 @@ export class TextEditorComponent implements AfterViewInit, OnDestroy {
   // Find/Replace
   showFindReplace: boolean = false;
 
+  constructor(private stateManager: StateManagerService) {}
+
+  ngOnInit(): void {
+    // State will be loaded after editor initialization in ngAfterViewInit
+  }
+
   ngAfterViewInit(): void {
     this.initializeEditor();
   }
 
   ngOnDestroy(): void {
+    if (this.saveStateTimeout) {
+      clearTimeout(this.saveStateTimeout);
+    }
     if (this.editor) {
       this.editor.dispose();
+    }
+  }
+
+  /**
+   * Load saved state after editor initialization
+   */
+  private loadState(): void {
+    const savedState = this.stateManager.loadState<TextEditorState>(this.TOOL_ID);
+
+    if (savedState && this.editor) {
+      // Apply saved settings
+      this.showLineNumbers = savedState.showLineNumbers;
+      this.showWhitespace = savedState.showWhitespace;
+      this.fontSize = savedState.fontSize;
+      this.wordWrap = savedState.wordWrap;
+
+      // Update editor options
+      this.editor.updateOptions({
+        lineNumbers: this.showLineNumbers ? 'on' : 'off',
+        renderWhitespace: this.showWhitespace ? 'all' : 'none',
+        fontSize: this.fontSize,
+        wordWrap: this.wordWrap ? 'on' : 'off'
+      });
+
+      // Set saved content
+      this.editor.setValue(savedState.content);
+    } else {
+      this.loadDefaultContent();
+    }
+  }
+
+  /**
+   * Save current state (debounced)
+   */
+  saveState(): void {
+    if (this.saveStateTimeout) {
+      clearTimeout(this.saveStateTimeout);
+    }
+
+    this.saveStateTimeout = setTimeout(() => {
+      if (!this.editor) return;
+
+      const state: TextEditorState = {
+        content: this.editor.getValue(),
+        showLineNumbers: this.showLineNumbers,
+        showWhitespace: this.showWhitespace,
+        fontSize: this.fontSize,
+        wordWrap: this.wordWrap
+      };
+      this.stateManager.saveState(this.TOOL_ID, state);
+    }, 500); // Debounce saves by 500ms
+  }
+
+  /**
+   * Reset to default state
+   */
+  onReset(): void {
+    this.stateManager.clearState(this.TOOL_ID);
+
+    // Reset settings to defaults
+    this.showLineNumbers = true;
+    this.showWhitespace = false;
+    this.fontSize = 14;
+    this.wordWrap = false;
+
+    if (this.editor) {
+      // Update editor options
+      this.editor.updateOptions({
+        lineNumbers: 'on',
+        renderWhitespace: 'none',
+        fontSize: 14,
+        wordWrap: 'off'
+      });
+
+      // Clear content
+      this.editor.setValue('');
+    }
+  }
+
+  /**
+   * Load default content
+   */
+  private loadDefaultContent(): void {
+    // Editor starts with empty content by default
+    if (this.editor) {
+      this.editor.setValue('');
     }
   }
 
@@ -85,6 +193,7 @@ export class TextEditorComponent implements AfterViewInit, OnDestroy {
     // Update statistics on content change
     this.editor.onDidChangeModelContent(() => {
       this.updateStatistics();
+      this.saveState();
     });
 
     // Update selected text on selection change
@@ -96,6 +205,9 @@ export class TextEditorComponent implements AfterViewInit, OnDestroy {
     });
 
     this.updateStatistics();
+
+    // Load saved state after editor is initialized
+    this.loadState();
   }
 
   private updateStatistics(): void {
@@ -130,6 +242,7 @@ export class TextEditorComponent implements AfterViewInit, OnDestroy {
         lineNumbers: this.showLineNumbers ? 'on' : 'off'
       });
     }
+    this.saveState();
   }
 
   toggleWhitespace(): void {
@@ -139,6 +252,7 @@ export class TextEditorComponent implements AfterViewInit, OnDestroy {
         renderWhitespace: this.showWhitespace ? 'all' : 'none'
       });
     }
+    this.saveState();
   }
 
   toggleWordWrap(): void {
@@ -148,6 +262,7 @@ export class TextEditorComponent implements AfterViewInit, OnDestroy {
         wordWrap: this.wordWrap ? 'on' : 'off'
       });
     }
+    this.saveState();
   }
 
   increaseFontSize(): void {
@@ -156,6 +271,7 @@ export class TextEditorComponent implements AfterViewInit, OnDestroy {
       if (this.editor) {
         this.editor.updateOptions({ fontSize: this.fontSize });
       }
+      this.saveState();
     }
   }
 
@@ -165,6 +281,7 @@ export class TextEditorComponent implements AfterViewInit, OnDestroy {
       if (this.editor) {
         this.editor.updateOptions({ fontSize: this.fontSize });
       }
+      this.saveState();
     }
   }
 
@@ -173,6 +290,7 @@ export class TextEditorComponent implements AfterViewInit, OnDestroy {
     if (this.editor) {
       this.editor.updateOptions({ fontSize: this.fontSize });
     }
+    this.saveState();
   }
 
   // Find and Replace
