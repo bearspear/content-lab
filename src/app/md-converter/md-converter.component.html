@@ -28,16 +28,23 @@
       </div>
     </div>
 
-    <!-- Theme Selector Component -->
-    <app-theme-selector
-      [selectedTheme]="currentTheme"
-      (themeChange)="onThemeChange($event)">
-    </app-theme-selector>
+    <div class="controls-right">
+      <!-- Theme Selector Component -->
+      <app-theme-selector
+        [selectedTheme]="currentTheme"
+        (themeChange)="onThemeChange($event)">
+      </app-theme-selector>
 
-    <!-- Export Button Component -->
-    <app-export-button
-      (export)="onExport($event)">
-    </app-export-button>
+      <!-- Export Button Component -->
+      <app-export-button
+        (export)="onExport($event)">
+      </app-export-button>
+
+      <!-- Reset Button Component -->
+      <app-reset-button
+        (reset)="onReset()">
+      </app-reset-button>
+    </div>
   </div>
 
   <div class="preview-section">
@@ -52,6 +59,14 @@
                 [class.active]="viewMode === 'preview'"
                 (click)="setViewMode('preview')">
           Preview
+        </button>
+        <button class="copy-md-btn"
+                (click)="copyMarkdownToClipboard()"
+                title="Copy Markdown to clipboard"
+                aria-label="Copy Markdown to clipboard">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+          </svg>
         </button>
       </div>
       <div class="preview-actions">
@@ -91,5 +106,13 @@
         [theme]="currentTheme">
       </app-markdown-preview>
     </div>
+  </div>
+
+  <!-- Copy Toast Notification -->
+  <div class="toast-notification" [class.show]="showCopyToast">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+    </svg>
+    <span>{{ copyToastMessage }}</span>
   </div>
 </div>

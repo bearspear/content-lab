@@ -54,10 +54,18 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 24px;
   padding: 32px 32px 24px;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
   flex-shrink: 0;
+
+  .header-left {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    flex: 1;
+  }
 
   .header-content {
     h1 {
@@ -353,6 +361,13 @@
     align-items: flex-start;
     gap: 16px;
     padding: 24px 20px;
+
+    .header-left {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 16px;
+      width: 100%;
+    }
 
     .validation-status {
       width: 100%;

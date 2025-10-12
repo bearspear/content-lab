@@ -1,9 +1,9 @@
-import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
 // Services
-import { MarkdownService, ExportService, ThemeService, FileService } from '../core/services';
+import { MarkdownService, ExportService, ThemeService, FileService, StateManagerService } from '../core/services';
 
 // Models
 import { EditorAction, ExportFormat } from '../core/models';
@@ -19,6 +19,14 @@ import {
   ImageDropEvent,
   MarkdownFileDropEvent
 } from '../features/markdown-converter/components';
+import { ResetButtonComponent } from '../shared/components/reset-button/reset-button.component';
+
+// State interface
+interface MdConverterState {
+  markdownContent: string;
+  currentTheme: string;
+  viewMode: 'write' | 'preview';
+}
 
 @Component({
   selector: 'app-md-converter',
@@ -30,7 +38,8 @@ import {
     MarkdownEditorComponent,
     MarkdownPreviewComponent,
     ThemeSelectorComponent,
-    ExportButtonComponent
+    ExportButtonComponent,
+    ResetButtonComponent
   ],
   templateUrl: './md-converter.component.html',
   styleUrl: './md-converter.component.scss',
@@ -42,7 +51,10 @@ import {
     }
   `]
 })
-export class MdConverterComponent implements OnInit {
+export class MdConverterComponent implements OnInit, OnDestroy {
+  private readonly TOOL_ID = 'md-converter';
+  private saveStateTimeout: any;
+
   @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
   @ViewChild(MarkdownEditorComponent) editorComponent!: MarkdownEditorComponent;
 
@@ -53,15 +65,68 @@ export class MdConverterComponent implements OnInit {
   isDragging: boolean = false;
   isFullViewport: boolean = false;
   viewMode: 'write' | 'preview' = 'preview';
+  showCopyToast: boolean = false;
+  copyToastMessage: string = 'Markdown copied to clipboard!';
 
   constructor(
     private markdownService: MarkdownService,
     private exportService: ExportService,
     private themeService: ThemeService,
-    private fileService: FileService
+    private fileService: FileService,
+    private stateManager: StateManagerService
   ) {}
 
   ngOnInit(): void {
+    this.loadState();
+  }
+
+  ngOnDestroy(): void {
+    if (this.saveStateTimeout) {
+      clearTimeout(this.saveStateTimeout);
+    }
+  }
+
+  /**
+   * Load saved state or initialize with sample markdown
+   */
+  private loadState(): void {
+    const savedState = this.stateManager.loadState<MdConverterState>(this.TOOL_ID);
+
+    if (savedState) {
+      this.markdownContent = savedState.markdownContent;
+      this.currentTheme = savedState.currentTheme;
+      this.viewMode = savedState.viewMode;
+      this.convertMarkdown();
+    } else {
+      this.loadSampleMarkdown();
+    }
+  }
+
+  /**
+   * Save current state (debounced)
+   */
+  private saveState(): void {
+    if (this.saveStateTimeout) {
+      clearTimeout(this.saveStateTimeout);
+    }
+
+    this.saveStateTimeout = setTimeout(() => {
+      const state: MdConverterState = {
+        markdownContent: this.markdownContent,
+        currentTheme: this.currentTheme,
+        viewMode: this.viewMode
+      };
+      this.stateManager.saveState(this.TOOL_ID, state);
+    }, 500); // Debounce saves by 500ms
+  }
+
+  /**
+   * Reset to default state
+   */
+  onReset(): void {
+    this.stateManager.clearState(this.TOOL_ID);
+    this.currentTheme = 'claude';
+    this.viewMode = 'preview';
     this.loadSampleMarkdown();
   }
 
@@ -141,6 +206,7 @@ export class MdConverterComponent implements OnInit {
   onThemeChange(theme: string): void {
     this.currentTheme = theme;
     this.themeService.setTheme(theme);
+    this.saveState();
   }
 
   // ===== View Mode Handlers =====
@@ -150,6 +216,7 @@ export class MdConverterComponent implements OnInit {
     if (mode === 'preview') {
       this.convertMarkdown();
     }
+    this.saveState();
   }
 
   toggleFullViewport(): void {
@@ -167,6 +234,7 @@ export class MdConverterComponent implements OnInit {
   onEditorContentChange(event: EditorContentChange): void {
     this.markdownContent = event.content;
     this.convertMarkdown();
+    this.saveState();
   }
 
   async onImageDrop(event: ImageDropEvent): Promise<void> {
@@ -205,5 +273,58 @@ export class MdConverterComponent implements OnInit {
       console.error(`Export to ${format} failed:`, error);
       alert(`Failed to export as ${format}. Please try again.`);
     }
+  }
+
+  // ===== Clipboard Handlers =====
+
+  async copyMarkdownToClipboard(): Promise<void> {
+    try {
+      if (this.viewMode === 'preview') {
+        // Copy complete HTML with styles and theme
+        const fullHtml = this.exportService.getFullHtml(this.htmlContent, this.currentTheme);
+        await navigator.clipboard.writeText(fullHtml);
+        this.showToast('HTML');
+        console.log('✅ Complete HTML copied to clipboard!');
+      } else {
+        // Copy raw markdown
+        await navigator.clipboard.writeText(this.markdownContent);
+        this.showToast('Markdown');
+        console.log('✅ Markdown copied to clipboard!');
+      }
+    } catch (error) {
+      console.error('Failed to copy:', error);
+      // Fallback for older browsers
+      const content = this.viewMode === 'preview'
+        ? this.exportService.getFullHtml(this.htmlContent, this.currentTheme)
+        : this.markdownContent;
+      this.fallbackCopyToClipboard(content);
+    }
+  }
+
+  private fallbackCopyToClipboard(text: string): void {
+    const textarea = document.createElement('textarea');
+    textarea.value = text;
+    textarea.style.position = 'fixed';
+    textarea.style.opacity = '0';
+    document.body.appendChild(textarea);
+    textarea.select();
+    try {
+      document.execCommand('copy');
+      const contentType = this.viewMode === 'preview' ? 'HTML' : 'Markdown';
+      this.showToast(contentType);
+      console.log(`✅ ${contentType} copied to clipboard (fallback)!`);
+    } catch (error) {
+      console.error('Fallback copy failed:', error);
+      alert('Failed to copy to clipboard');
+    }
+    document.body.removeChild(textarea);
+  }
+
+  private showToast(contentType: string = 'Markdown'): void {
+    this.copyToastMessage = `${contentType} copied to clipboard!`;
+    this.showCopyToast = true;
+    setTimeout(() => {
+      this.showCopyToast = false;
+    }, 2000);
   }
 }

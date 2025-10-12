@@ -333,6 +333,14 @@ export class SidebarComponent {
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M20 9h2M2 9h2m18 6h2M2 15h2M16.5 3.5l-1 1m-7-1l1 1m-1 13l1-1m7 1l-1-1"/>
       </svg>`,
       description: 'Format & validate JSON'
+    },
+    {
+      id: 'csv-editor',
+      name: 'CSV/TSV Editor',
+      icon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+      </svg>`,
+      description: 'Edit & convert CSV data'
     }
   ];
 

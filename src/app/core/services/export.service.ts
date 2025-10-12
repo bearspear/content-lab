@@ -8,11 +8,13 @@ import {
   createTextBlob
 } from '../../shared/utils';
 import { KATEX_CSS, HIGHLIGHT_CSS_LIGHT, HIGHLIGHT_CSS_DARK } from '../../embedded-styles';
+import { ThemeService } from './theme.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ExportService {
+  constructor(private themeService: ThemeService) {}
 
   /**
    * Export content based on the specified format
@@ -48,7 +50,7 @@ export class ExportService {
    * Export as standalone HTML file
    */
   private exportAsHtml(htmlContent: string, theme: string, filename: string): void {
-    const fullHtml = this.generateFullHtml(htmlContent, theme);
+    const fullHtml = this.themeService.generateFullHtml(htmlContent, theme);
     const blob = createTextBlob(fullHtml, 'text/html');
     downloadBlob(blob, filename);
   }
@@ -64,14 +66,14 @@ export class ExportService {
     container.style.top = '0';
     container.style.width = '210mm'; // A4 width
 
-    // Add theme styles
-    const highlightCss = theme === 'dark' ? HIGHLIGHT_CSS_DARK : HIGHLIGHT_CSS_LIGHT;
+    // Use ThemeService styles for consistency
     const styleElement = document.createElement('style');
-    styleElement.textContent = `
-      ${KATEX_CSS}
-      ${highlightCss}
-      ${this.getInlineStyles()}
-    `;
+    const themeStyles = this.themeService.getThemeStyles(theme);
+    // Extract just the CSS content from the style tags
+    const cssMatch = themeStyles.match(/<style[^>]*>([\s\S]*?)<\/style>/g);
+    if (cssMatch) {
+      styleElement.textContent = cssMatch.map(s => s.replace(/<\/?style[^>]*>/g, '')).join('\n');
+    }
 
     // Create content wrapper
     const contentWrapper = document.createElement('div');
@@ -148,23 +150,11 @@ export class ExportService {
   }
 
   /**
-   * Generate full HTML document with embedded styles
+   * Get full HTML document with embedded styles (for copying to clipboard)
+   * Uses ThemeService to ensure consistency with preview
    */
-  private generateFullHtml(htmlContent: string, theme: string): string {
-    return `<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Markdown Preview</title>
-  ${this.getThemeStyles(theme)}
-</head>
-<body class="theme-${theme}">
-  <div class="markdown-body">
-    ${htmlContent}
-  </div>
-</body>
-</html>`;
+  public getFullHtml(htmlContent: string, theme: string): string {
+    return this.themeService.generateFullHtml(htmlContent, theme);
   }
 
   /**

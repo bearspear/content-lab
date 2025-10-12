@@ -4,20 +4,24 @@
      (dragleave)="onDragLeave($event)"
      (drop)="onDrop($event)">
   <header class="editor-header">
-    <div class="header-content">
-      <h1>JSON Editor</h1>
-      <p class="subtitle">Format, validate, and edit JSON with syntax highlighting • Drag & drop .json files</p>
+    <div class="header-left">
+      <div class="header-content">
+        <h1>JSON Editor</h1>
+        <p class="subtitle">Format, validate, and edit JSON with syntax highlighting • Drag & drop .json files</p>
+      </div>
+
+      <div class="validation-status" [class.valid]="isValid" [class.invalid]="!isValid">
+        <svg *ngIf="isValid" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+        <svg *ngIf="!isValid" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+        <span>{{ isValid ? 'Valid JSON' : 'Invalid JSON' }}</span>
+      </div>
     </div>
 
-    <div class="validation-status" [class.valid]="isValid" [class.invalid]="!isValid">
-      <svg *ngIf="isValid" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-      </svg>
-      <svg *ngIf="!isValid" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-      </svg>
-      <span>{{ isValid ? 'Valid JSON' : 'Invalid JSON' }}</span>
-    </div>
+    <app-reset-button (reset)="onReset()"></app-reset-button>
   </header>
 
   <div class="editor-content">
