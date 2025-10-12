@@ -2,6 +2,7 @@ import { Theme } from '../../core/models';
 
 export const THEMES: Theme[] = [
   { name: 'Claude AI', value: 'claude', description: 'Clean, modern design inspired by claude.ai' },
+  { name: 'Claude Web', value: 'claude-web', description: 'Warm, professional design matching Claude\'s web interface' },
   { name: 'GitHub', value: 'github', description: 'GitHub markdown style' },
   { name: 'Dark Mode', value: 'dark', description: 'Dark theme for reduced eye strain' },
   { name: 'Academic', value: 'academic', description: 'Academic paper style' },
@@ -17,5 +18,8 @@ export const THEMES: Theme[] = [
   { name: 'Newspaper', value: 'newspaper', description: 'Traditional newspaper layout with columns' },
   { name: 'GitBook Muted', value: 'gitbook-muted', description: 'Professional theme with warm gray tones' },
   { name: 'Terminal', value: 'terminal', description: 'Retro terminal aesthetic with monospace fonts' },
-  { name: 'Gradient Glass', value: 'gradient-glass', description: 'Modern glassmorphism with blur effects' }
+  { name: 'Gradient Glass', value: 'gradient-glass', description: 'Modern glassmorphism with blur effects' },
+  { name: 'Professional Article', value: 'article', description: 'Professional article layout with elegant typography and serif fonts' },
+  { name: 'Normalize', value: 'normalize', description: 'Clean baseline with normalize.css for cross-browser consistency' },
+  { name: 'Bare (User Agent)', value: 'bare', description: 'No custom styles - pure browser defaults' }
 ];

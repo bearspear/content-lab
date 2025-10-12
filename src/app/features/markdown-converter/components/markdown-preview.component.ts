@@ -1,4 +1,4 @@
-import { Component, Input, ViewChild, ElementRef, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, Input, ViewChild, ElementRef, OnChanges, SimpleChanges, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ThemeService } from '../../../core/services';
 
@@ -28,11 +28,13 @@ import { ThemeService } from '../../../core/services';
     }
   `]
 })
-export class MarkdownPreviewComponent implements OnChanges {
+export class MarkdownPreviewComponent implements OnChanges, OnDestroy {
   @ViewChild('previewFrame') previewFrame!: ElementRef<HTMLIFrameElement>;
 
   @Input() htmlContent: string = '';
   @Input() theme: string = 'claude';
+
+  private currentBlobUrl: string | null = null;
 
   constructor(private themeService: ThemeService) {}
 
@@ -50,9 +52,16 @@ export class MarkdownPreviewComponent implements OnChanges {
       const iframe = this.previewFrame?.nativeElement;
       if (!iframe) return;
 
+      // Revoke previous blob URL to free memory and ensure clean slate
+      if (this.currentBlobUrl) {
+        URL.revokeObjectURL(this.currentBlobUrl);
+        this.currentBlobUrl = null;
+      }
+
       const fullHtml = this.themeService.generateFullHtml(this.htmlContent, this.theme);
       const blob = new Blob([fullHtml], { type: 'text/html' });
-      iframe.src = URL.createObjectURL(blob);
+      this.currentBlobUrl = URL.createObjectURL(blob);
+      iframe.src = this.currentBlobUrl;
     }, 0);
   }
 
@@ -61,5 +70,15 @@ export class MarkdownPreviewComponent implements OnChanges {
    */
   refresh(): void {
     this.updateIframe();
+  }
+
+  /**
+   * Cleanup on component destroy
+   */
+  ngOnDestroy(): void {
+    if (this.currentBlobUrl) {
+      URL.revokeObjectURL(this.currentBlobUrl);
+      this.currentBlobUrl = null;
+    }
   }
 }

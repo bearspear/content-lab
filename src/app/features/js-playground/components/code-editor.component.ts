@@ -31,6 +31,81 @@ export class CodeEditorComponent implements AfterViewInit, OnChanges, OnDestroy 
 
   private editor: any = null;
   private isUpdatingFromParent = false;
+  private static loadedLibraries = new Set<string>();
+
+  /**
+   * Load TypeScript definitions for a library to enable autocomplete
+   */
+  static async loadLibraryDefinitions(libraryId: string): Promise<void> {
+    // Only load once per library
+    if (this.loadedLibraries.has(libraryId)) {
+      console.log(`⚠️ Type definitions for ${libraryId} already loaded`);
+      return;
+    }
+
+    try {
+      const monaco = getMonaco();
+      if (!monaco) {
+        console.error('❌ Monaco not loaded yet - cannot load type definitions');
+        return;
+      }
+
+      console.log(`🔄 Loading type definitions for ${libraryId}...`);
+
+      // Fetch the type definition file
+      const response = await fetch(`/assets/type-definitions/${libraryId}.d.ts`);
+      if (!response.ok) {
+        console.error(`❌ Type definitions not found for ${libraryId} (Status: ${response.status})`);
+        return;
+      }
+
+      const defs = await response.text();
+      console.log(`📦 Fetched ${defs.length} characters of type definitions for ${libraryId}`);
+
+      // Verify the definitions look valid
+      if (!defs.includes('declare') && !defs.includes('interface')) {
+        console.warn(`⚠️ Type definitions for ${libraryId} may be invalid - no declare/interface found`);
+      }
+
+      // Add to Monaco's extra libraries for JavaScript/TypeScript intellisense
+      monaco.languages.typescript.javascriptDefaults.addExtraLib(
+        defs,
+        `file:///node_modules/@types/${libraryId}/index.d.ts`
+      );
+
+      // Also add for TypeScript language (in case it's used)
+      monaco.languages.typescript.typescriptDefaults.addExtraLib(
+        defs,
+        `file:///node_modules/@types/${libraryId}/index.d.ts`
+      );
+
+      this.loadedLibraries.add(libraryId);
+      console.log(`✅ Type definitions for ${libraryId} loaded successfully!`);
+      console.log(`💡 Try typing "${this.getGlobalName(libraryId)}." in the editor to see autocomplete`);
+    } catch (error) {
+      console.error(`❌ Failed to load type definitions for ${libraryId}:`, error);
+    }
+  }
+
+  private static getGlobalName(libraryId: string): string {
+    const globalNames: { [key: string]: string } = {
+      'lodash': '_',
+      'jquery': '$',
+      'moment': 'moment',
+      'dayjs': 'dayjs',
+      'axios': 'axios',
+      'chartjs': 'Chart',
+      'chart': 'Chart',
+      'highcharts': 'Highcharts',
+      'd3': 'd3',
+      'gsap': 'gsap',
+      'threejs': 'THREE',
+      'three': 'THREE',
+      'rxjs': 'rxjs',
+      'ramda': 'R'
+    };
+    return globalNames[libraryId] || libraryId;
+  }
 
   async ngAfterViewInit(): Promise<void> {
     try {
@@ -75,6 +150,22 @@ export class CodeEditorComponent implements AfterViewInit, OnChanges, OnDestroy 
       return;
     }
 
+    // Configure TypeScript/JavaScript language features for better IntelliSense
+    monaco.languages.typescript.javascriptDefaults.setDiagnosticsOptions({
+      noSemanticValidation: false,
+      noSyntaxValidation: false,
+    });
+
+    monaco.languages.typescript.javascriptDefaults.setCompilerOptions({
+      target: monaco.languages.typescript.ScriptTarget.ES2020,
+      allowNonTsExtensions: true,
+      moduleResolution: monaco.languages.typescript.ModuleResolutionKind.NodeJs,
+      module: monaco.languages.typescript.ModuleKind.CommonJS,
+      noEmit: true,
+      allowJs: true,
+      typeRoots: ['node_modules/@types']
+    });
+
     this.editor = monaco.editor.create(this.editorContainer.nativeElement, {
       value: this.code,
       language: this.language,
@@ -101,7 +192,20 @@ export class CodeEditorComponent implements AfterViewInit, OnChanges, OnDestroy 
       hideCursorInOverviewRuler: true,
       overviewRulerBorder: false,
       renderLineHighlight: 'line',
-      padding: { top: 10, bottom: 10 }
+      padding: { top: 10, bottom: 10 },
+      // Enable IntelliSense features
+      quickSuggestions: {
+        other: true,
+        comments: false,
+        strings: true
+      },
+      parameterHints: {
+        enabled: true
+      },
+      suggestOnTriggerCharacters: true,
+      acceptSuggestionOnEnter: 'on',
+      tabCompletion: 'on',
+      wordBasedSuggestions: 'matchingDocuments'
     });
 
     // Listen for content changes

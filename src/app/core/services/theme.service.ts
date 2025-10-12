@@ -58,7 +58,7 @@ export class ThemeService {
       ${highlightCss}
     </style>
     <style>
-      ${this.getInlineStyles()}
+      ${this.getInlineStyles(currentTheme)}
     </style>
     `;
   }
@@ -86,29 +86,86 @@ export class ThemeService {
   }
 
   /**
-   * Get inline styles for all themes
+   * Get inline styles for the selected theme only
    */
-  private getInlineStyles(): string {
+  private getInlineStyles(theme: string): string {
     return `
+      ${this.getBaseStyles()}
+      ${this.getThemeSpecificStyles(theme)}
+      ${this.getCommonStyles()}
+    `;
+  }
+
+  /**
+   * Get base styles (applied to all themes)
+   */
+  private getBaseStyles(): string {
+    return `
+      /* Minimal base - only box-sizing */
       * {
-        margin: 0;
-        padding: 0;
         box-sizing: border-box;
       }
 
-      body {
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif;
-        line-height: 1.6;
-        padding: 20px;
-        transition: background-color 0.3s, color 0.3s;
-      }
+    `;
+  }
 
-      .markdown-body {
-        max-width: 900px;
-        margin: 0 auto;
-        padding: 40px;
-      }
+  /**
+   * Get theme-specific styles based on the selected theme
+   */
+  private getThemeSpecificStyles(theme: string): string {
+    switch (theme) {
+      case 'claude':
+        return this.getClaudeThemeStyles();
+      case 'claude-web':
+        return this.getClaudeWebThemeStyles();
+      case 'github':
+        return this.getGithubThemeStyles();
+      case 'dark':
+        return this.getDarkThemeStyles();
+      case 'academic':
+        return this.getAcademicThemeStyles();
+      case 'minimal':
+        return this.getMinimalThemeStyles();
+      case 'pubcss':
+        return this.getPubcssThemeStyles();
+      case 'premium':
+        return this.getPremiumThemeStyles();
+      case 'medium':
+        return this.getMediumThemeStyles();
+      case 'readthedocs':
+        return this.getReadthedocsThemeStyles();
+      case 'notion':
+        return this.getNotionThemeStyles();
+      case 'gitbook':
+        return this.getGitbookThemeStyles();
+      case 'latex':
+        return this.getLatexThemeStyles();
+      case 'cyberpunk':
+        return this.getCyberpunkThemeStyles();
+      case 'newspaper':
+        return this.getNewspaperThemeStyles();
+      case 'gitbook-muted':
+        return this.getGitbookMutedThemeStyles();
+      case 'terminal':
+        return this.getTerminalThemeStyles();
+      case 'gradient-glass':
+        return this.getGradientGlassThemeStyles();
+      case 'article':
+        return this.getArticleThemeStyles();
+      case 'normalize':
+        return this.getNormalizeThemeStyles();
+      case 'bare':
+        return this.getBareThemeStyles();
+      default:
+        return this.getClaudeThemeStyles(); // Default to Claude theme
+    }
+  }
 
+  /**
+   * Claude theme styles
+   */
+  private getClaudeThemeStyles(): string {
+    return `
       /* ===== CLAUDE THEME (Default) ===== */
       .theme-claude {
         background-color: #f9f9f8;
@@ -225,7 +282,163 @@ export class ThemeService {
         border-top: 1px solid #e5e5e5;
         margin: 24px 0;
       }
+    `;
+  }
 
+  /**
+   * Claude Web theme styles
+   */
+  private getClaudeWebThemeStyles(): string {
+    return `
+      /* ===== CLAUDE WEB THEME ===== */
+      .theme-claude-web {
+        background-color: #f8f7f4;
+        color: #2d2d2d;
+      }
+
+      .theme-claude-web .markdown-body {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+        background: #ffffff;
+        border-radius: 12px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        max-width: 768px;
+        line-height: 1.6;
+      }
+
+      .theme-claude-web h1, .theme-claude-web h2, .theme-claude-web h3,
+      .theme-claude-web h4, .theme-claude-web h5, .theme-claude-web h6 {
+        color: #2d2d2d;
+        font-weight: 600;
+        line-height: 1.3;
+        margin-top: 24px;
+        margin-bottom: 16px;
+      }
+
+      .theme-claude-web h1 {
+        font-size: 28px;
+        border-bottom: 1px solid #e5e5e5;
+        padding-bottom: 0.3em;
+      }
+
+      .theme-claude-web h2 {
+        font-size: 24px;
+        border-bottom: 1px solid #f0f0f0;
+        padding-bottom: 0.3em;
+      }
+
+      .theme-claude-web h3 { font-size: 20px; }
+      .theme-claude-web h4 { font-size: 18px; }
+      .theme-claude-web h5 { font-size: 16px; }
+      .theme-claude-web h6 {
+        font-size: 14px;
+        color: #666666;
+      }
+
+      .theme-claude-web p {
+        margin-bottom: 16px;
+        color: #2d2d2d;
+      }
+
+      .theme-claude-web a {
+        color: #cc785c;
+        text-decoration: none;
+        transition: color 0.2s ease;
+      }
+
+      .theme-claude-web a:hover {
+        color: #b86b4f;
+        text-decoration: underline;
+      }
+
+      .theme-claude-web code {
+        background-color: #f0f0f0;
+        color: #2d2d2d;
+        padding: 2px 6px;
+        border-radius: 6px;
+        font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, monospace;
+        font-size: 14px;
+      }
+
+      .theme-claude-web pre {
+        background-color: #1e1e1e;
+        padding: 16px;
+        border-radius: 12px;
+        overflow-x: auto;
+        margin: 16px 0;
+        border: 1px solid #e5e5e5;
+      }
+
+      .theme-claude-web pre code {
+        background: none;
+        color: #d4d4d4;
+        padding: 0;
+        font-size: 13px;
+        line-height: 1.5;
+      }
+
+      .theme-claude-web blockquote {
+        border-left: 3px solid #e5e5e5;
+        padding-left: 16px;
+        margin: 16px 0;
+        color: #666666;
+        font-style: italic;
+      }
+
+      .theme-claude-web table {
+        border-collapse: collapse;
+        width: 100%;
+        margin: 16px 0;
+        font-size: 14px;
+      }
+
+      .theme-claude-web table th,
+      .theme-claude-web table td {
+        border-bottom: 1px solid #e5e5e5;
+        padding: 8px 16px;
+        text-align: left;
+      }
+
+      .theme-claude-web table th {
+        font-weight: 600;
+        color: #666666;
+        background-color: #f4f4f4;
+      }
+
+      .theme-claude-web table tr:last-child td {
+        border-bottom: none;
+      }
+
+      .theme-claude-web ul, .theme-claude-web ol {
+        margin: 16px 0;
+        padding-left: 24px;
+      }
+
+      .theme-claude-web li {
+        margin: 8px 0;
+      }
+
+      .theme-claude-web hr {
+        border: none;
+        border-top: 1px solid #e5e5e5;
+        margin: 24px 0;
+      }
+
+      .theme-claude-web strong, .theme-claude-web b {
+        font-weight: 600;
+        color: #2d2d2d;
+      }
+
+      .theme-claude-web em, .theme-claude-web i {
+        font-style: italic;
+      }
+    `;
+  }
+
+  /**
+   * GitHub theme styles
+   */
+  private getGithubThemeStyles(): string {
+    return `
       /* ===== GITHUB THEME ===== */
       .theme-github {
         background-color: #ffffff;
@@ -267,7 +480,14 @@ export class ThemeService {
         color: #57606a;
         padding: 0 1em;
       }
+    `;
+  }
 
+  /**
+   * Dark theme styles
+   */
+  private getDarkThemeStyles(): string {
+    return `
       /* ===== DARK THEME ===== */
       .theme-dark {
         background-color: #1a1a1a;
@@ -318,7 +538,14 @@ export class ThemeService {
       .theme-dark hr {
         border-top-color: #444;
       }
+    `;
+  }
 
+  /**
+   * Academic theme styles
+   */
+  private getAcademicThemeStyles(): string {
+    return `
       /* ===== ACADEMIC THEME ===== */
       .theme-academic {
         background-color: #fafafa;
@@ -358,7 +585,14 @@ export class ThemeService {
         border-left: 3px solid #999;
         font-style: italic;
       }
+    `;
+  }
 
+  /**
+   * Minimal theme styles
+   */
+  private getMinimalThemeStyles(): string {
+    return `
       /* ===== MINIMAL THEME ===== */
       .theme-minimal {
         background-color: #ffffff;
@@ -396,7 +630,14 @@ export class ThemeService {
         background-color: #fafafa;
         border: 1px solid #eee;
       }
+    `;
+  }
 
+  /**
+   * PubCSS theme styles
+   */
+  private getPubcssThemeStyles(): string {
+    return `
       /* ===== PUBCSS THEME (Academic Publication) ===== */
       .theme-pubcss {
         background-color: #ffffff;
@@ -510,7 +751,14 @@ export class ThemeService {
         border-top: 1px solid #000;
         margin: 2em 0;
       }
+    `;
+  }
 
+  /**
+   * Premium theme styles
+   */
+  private getPremiumThemeStyles(): string {
+    return `
       /* ===== PREMIUM THEME (Elegant & Publish-Ready) ===== */
       .theme-premium {
         background: linear-gradient(135deg, #f5f7fa 0%, #fafbfc 100%);
@@ -781,7 +1029,14 @@ export class ThemeService {
         color: #4a5568;
         font-style: italic;
       }
+    `;
+  }
 
+  /**
+   * Medium theme styles
+   */
+  private getMediumThemeStyles(): string {
+    return `
       /* ===== MEDIUM THEME ===== */
       .theme-medium {
         background-color: #ffffff;
@@ -846,7 +1101,14 @@ export class ThemeService {
         font-style: italic;
         color: #6B6B6B;
       }
+    `;
+  }
 
+  /**
+   * Readthedocs theme styles
+   */
+  private getReadthedocsThemeStyles(): string {
+    return `
       /* ===== READTHEDOCS THEME ===== */
       .theme-readthedocs {
         background-color: #fcfcfc;
@@ -909,7 +1171,14 @@ export class ThemeService {
         border: none;
         padding: 0;
       }
+    `;
+  }
 
+  /**
+   * Notion theme styles
+   */
+  private getNotionThemeStyles(): string {
+    return `
       /* ===== NOTION THEME ===== */
       .theme-notion {
         background-color: #ffffff;
@@ -962,7 +1231,14 @@ export class ThemeService {
         color: #787774;
         margin: 16px 0;
       }
+    `;
+  }
 
+  /**
+   * Gitbook theme styles
+   */
+  private getGitbookThemeStyles(): string {
+    return `
       /* ===== GITBOOK CLEAN THEME ===== */
       .theme-gitbook {
         background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
@@ -1009,7 +1285,14 @@ export class ThemeService {
         background: none;
         color: inherit;
       }
+    `;
+  }
 
+  /**
+   * Latex theme styles
+   */
+  private getLatexThemeStyles(): string {
+    return `
       /* ===== LATEX THEME ===== */
       .theme-latex {
         background-color: #ffffff;
@@ -1055,7 +1338,14 @@ export class ThemeService {
         margin: 1em 0;
         font-style: italic;
       }
+    `;
+  }
 
+  /**
+   * Cyberpunk theme styles
+   */
+  private getCyberpunkThemeStyles(): string {
+    return `
       /* ===== CYBERPUNK NEON THEME ===== */
       .theme-cyberpunk {
         background-color: #0a0e27;
@@ -1120,7 +1410,14 @@ export class ThemeService {
         color: #00ffff;
         text-shadow: 0 0 5px #00ffff;
       }
+    `;
+  }
 
+  /**
+   * Newspaper theme styles
+   */
+  private getNewspaperThemeStyles(): string {
+    return `
       /* ===== NEWSPAPER THEME ===== */
       .theme-newspaper {
         background-color: #f8f8f8;
@@ -1182,7 +1479,14 @@ export class ThemeService {
         border: 1px solid #000;
         overflow-x: auto;
       }
+    `;
+  }
 
+  /**
+   * Gitbook Muted theme styles
+   */
+  private getGitbookMutedThemeStyles(): string {
+    return `
       /* ===== GITBOOK MUTED THEME ===== */
       .theme-gitbook-muted {
         background-color: #fafaf9;
@@ -1240,7 +1544,14 @@ export class ThemeService {
         padding-left: 16px;
         color: #78716c;
       }
+    `;
+  }
 
+  /**
+   * Terminal theme styles
+   */
+  private getTerminalThemeStyles(): string {
+    return `
       /* ===== TERMINAL THEME ===== */
       .theme-terminal {
         background-color: #000000;
@@ -1297,7 +1608,14 @@ export class ThemeService {
         color: #00ff00;
         font-weight: bold;
       }
+    `;
+  }
 
+  /**
+   * Gradient Glass theme styles
+   */
+  private getGradientGlassThemeStyles(): string {
+    return `
       /* ===== GRADIENT GLASS THEME ===== */
       .theme-gradient-glass {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
@@ -1370,7 +1688,596 @@ export class ThemeService {
       .theme-gradient-glass strong {
         color: #ffffff;
       }
+    `;
+  }
 
+  /**
+   * Article theme styles
+   */
+  private getArticleThemeStyles(): string {
+    return `
+      /* ===== PROFESSIONAL ARTICLE THEME ===== */
+      .theme-article {
+        background-color: #ffffff;
+        color: #1a1a1a;
+      }
+
+      .theme-article .markdown-body {
+        font-family: 'Charter', 'Georgia', 'Cambria', 'Times New Roman', serif;
+        font-size: 1.125rem;
+        line-height: 1.75;
+        max-width: 680px;
+        padding: 32px;
+      }
+
+      /* Headings */
+      .theme-article h1,
+      .theme-article h2,
+      .theme-article h3,
+      .theme-article h4,
+      .theme-article h5,
+      .theme-article h6 {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+        font-weight: 700;
+        line-height: 1.3;
+        color: #1a1a1a;
+        scroll-margin-top: 2rem;
+      }
+
+      .theme-article h1 {
+        font-size: 2.25rem;
+        margin-top: 0;
+        margin-bottom: 2rem;
+        border-bottom: 2px solid #dee2e6;
+        padding-bottom: 1rem;
+      }
+
+      .theme-article h2 {
+        font-size: 1.875rem;
+        margin-top: 3rem;
+        margin-bottom: 1.5rem;
+        border-bottom: 1px solid #e9ecef;
+        padding-bottom: 0.5rem;
+      }
+
+      .theme-article h3 {
+        font-size: 1.5rem;
+        margin-top: 3rem;
+        margin-bottom: 1.5rem;
+      }
+
+      .theme-article h4 {
+        font-size: 1.25rem;
+        margin-top: 3rem;
+        margin-bottom: 1.5rem;
+      }
+
+      .theme-article h5 {
+        font-size: 1.125rem;
+        margin-top: 3rem;
+        margin-bottom: 1.5rem;
+      }
+
+      .theme-article h6 {
+        font-size: 1rem;
+        color: #4a4a4a;
+        margin-top: 3rem;
+        margin-bottom: 1.5rem;
+      }
+
+      /* Paragraphs & Text */
+      .theme-article p {
+        margin-bottom: 1.5rem;
+        color: #1a1a1a;
+      }
+
+      .theme-article p:last-child {
+        margin-bottom: 0;
+      }
+
+      .theme-article strong,
+      .theme-article b {
+        font-weight: 700;
+        color: #1a1a1a;
+      }
+
+      .theme-article em,
+      .theme-article i {
+        font-style: italic;
+      }
+
+      .theme-article mark {
+        background-color: #fff3cd;
+        padding: 0.1em 0.3em;
+        border-radius: 3px;
+      }
+
+      .theme-article del,
+      .theme-article s {
+        text-decoration: line-through;
+        opacity: 0.7;
+      }
+
+      .theme-article small {
+        font-size: 0.875rem;
+      }
+
+      /* Links */
+      .theme-article a {
+        color: #0066cc;
+        text-decoration: none;
+        transition: color 0.2s ease;
+      }
+
+      .theme-article a:hover {
+        color: #0052a3;
+        text-decoration: underline;
+      }
+
+      /* Lists */
+      .theme-article ul,
+      .theme-article ol {
+        margin-bottom: 1.5rem;
+        padding-left: 2rem;
+      }
+
+      .theme-article li {
+        margin-bottom: 0.5rem;
+        line-height: 1.6;
+      }
+
+      .theme-article li > p {
+        margin-bottom: 0.5rem;
+      }
+
+      .theme-article li:last-child {
+        margin-bottom: 0;
+      }
+
+      .theme-article li > ul,
+      .theme-article li > ol {
+        margin-top: 0.5rem;
+        margin-bottom: 0.5rem;
+      }
+
+      .theme-article ul {
+        list-style-type: disc;
+      }
+
+      .theme-article ul ul {
+        list-style-type: circle;
+      }
+
+      .theme-article ul ul ul {
+        list-style-type: square;
+      }
+
+      .theme-article ol {
+        list-style-type: decimal;
+      }
+
+      .theme-article ol ol {
+        list-style-type: lower-alpha;
+      }
+
+      .theme-article ol ol ol {
+        list-style-type: lower-roman;
+      }
+
+      /* Blockquotes */
+      .theme-article blockquote {
+        margin: 2rem 0;
+        padding: 1rem 1.5rem;
+        border-left: 4px solid #0066cc;
+        background-color: #f8f9fa;
+        border-radius: 6px;
+        color: #4a4a4a;
+        font-style: italic;
+      }
+
+      .theme-article blockquote p {
+        margin-bottom: 1rem;
+      }
+
+      .theme-article blockquote p:last-child {
+        margin-bottom: 0;
+      }
+
+      .theme-article blockquote blockquote {
+        margin: 1rem 0;
+        padding: 0.5rem 1rem;
+        border-left-width: 3px;
+      }
+
+      /* Code */
+      .theme-article code {
+        font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Fira Code', 'Courier New', monospace;
+        font-size: 0.9em;
+        background-color: #f6f8fa;
+        padding: 0.2em 0.4em;
+        border-radius: 3px;
+        border: 1px solid #d0d7de;
+        color: #1a1a1a;
+      }
+
+      .theme-article pre {
+        background-color: #f6f8fa;
+        border: 1px solid #d0d7de;
+        border-radius: 6px;
+        padding: 1.5rem;
+        margin: 2rem 0;
+        overflow-x: auto;
+        line-height: 1.6;
+      }
+
+      .theme-article pre code {
+        background-color: transparent;
+        padding: 0;
+        border: none;
+        font-size: 0.875rem;
+        line-height: inherit;
+      }
+
+      /* Scrollbar for code blocks */
+      .theme-article pre::-webkit-scrollbar {
+        height: 8px;
+      }
+
+      .theme-article pre::-webkit-scrollbar-track {
+        background: #f8f9fa;
+        border-radius: 6px;
+      }
+
+      .theme-article pre::-webkit-scrollbar-thumb {
+        background: #dee2e6;
+        border-radius: 6px;
+      }
+
+      .theme-article pre::-webkit-scrollbar-thumb:hover {
+        background: #6c757d;
+      }
+
+      /* Tables */
+      .theme-article table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 2rem 0;
+        overflow: hidden;
+        border-radius: 6px;
+        border: 1px solid #dee2e6;
+        font-size: 1rem;
+      }
+
+      .theme-article thead {
+        background-color: #f6f8fa;
+      }
+
+      .theme-article th {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+        font-weight: 700;
+        text-align: left;
+        padding: 1rem;
+        border-bottom: 2px solid #dee2e6;
+        color: #1a1a1a;
+      }
+
+      .theme-article td {
+        padding: 1rem;
+        border-bottom: 1px solid #e9ecef;
+      }
+
+      .theme-article tr:last-child td {
+        border-bottom: none;
+      }
+
+      .theme-article tbody tr:hover {
+        background-color: #f8f9fa;
+      }
+
+      .theme-article th[align="center"],
+      .theme-article td[align="center"] {
+        text-align: center;
+      }
+
+      .theme-article th[align="right"],
+      .theme-article td[align="right"] {
+        text-align: right;
+      }
+
+      /* Horizontal Rules */
+      .theme-article hr {
+        border: none;
+        border-top: 2px solid #dee2e6;
+        margin: 4rem 0;
+      }
+
+      /* Images */
+      .theme-article img {
+        max-width: 100%;
+        height: auto;
+        display: block;
+        margin: 2rem auto;
+        border-radius: 6px;
+      }
+
+      .theme-article figure {
+        margin: 2rem 0;
+      }
+
+      .theme-article figcaption {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+        font-size: 0.875rem;
+        color: #6c757d;
+        text-align: center;
+        margin-top: 0.5rem;
+        font-style: italic;
+      }
+
+      /* Details/Summary */
+      .theme-article details {
+        margin: 1.5rem 0;
+        padding: 1rem;
+        border: 1px solid #dee2e6;
+        border-radius: 6px;
+        background-color: #f8f9fa;
+      }
+
+      .theme-article summary {
+        font-weight: 700;
+        cursor: pointer;
+        user-select: none;
+        padding: 0.5rem;
+        margin: -1rem;
+        border-radius: 6px;
+        transition: background-color 0.2s;
+      }
+
+      .theme-article summary:hover {
+        background-color: #e9ecef;
+      }
+
+      .theme-article details[open] summary {
+        margin-bottom: 1rem;
+        border-bottom: 1px solid #e9ecef;
+        border-radius: 6px 6px 0 0;
+      }
+
+      /* Keyboard keys */
+      .theme-article kbd {
+        font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Fira Code', 'Courier New', monospace;
+        font-size: 0.875rem;
+        padding: 0.2em 0.4em;
+        background-color: #f8f9fa;
+        border: 1px solid #dee2e6;
+        border-radius: 3px;
+        box-shadow: 0 1px 0 #dee2e6;
+      }
+
+      .theme-article abbr[title] {
+        text-decoration: underline dotted;
+        cursor: help;
+      }
+    `;
+  }
+
+  /**
+   * Normalize theme styles
+   */
+  private getNormalizeThemeStyles(): string {
+    return `
+      /* ===== NORMALIZE THEME ===== */
+      /* Based on normalize.css v8.0.1 | MIT License | github.com/necolas/normalize.css */
+      /* ONLY normalize.css - no additional styling */
+
+      .theme-normalize .markdown-body {
+        max-width: none;
+        margin: 0;
+        padding: 8px;
+      }
+
+      .theme-normalize html {
+        line-height: 1.15;
+        -webkit-text-size-adjust: 100%;
+      }
+
+      .theme-normalize body {
+        margin: 0;
+      }
+
+      .theme-normalize main {
+        display: block;
+      }
+
+      .theme-normalize h1 {
+        font-size: 2em;
+        margin: 0.67em 0;
+      }
+
+      .theme-normalize hr {
+        box-sizing: content-box;
+        height: 0;
+        overflow: visible;
+      }
+
+      .theme-normalize pre {
+        font-family: monospace, monospace;
+        font-size: 1em;
+      }
+
+      .theme-normalize a {
+        background-color: transparent;
+      }
+
+      .theme-normalize abbr[title] {
+        border-bottom: none;
+        text-decoration: underline;
+        text-decoration: underline dotted;
+      }
+
+      .theme-normalize b,
+      .theme-normalize strong {
+        font-weight: bolder;
+      }
+
+      .theme-normalize code,
+      .theme-normalize kbd,
+      .theme-normalize samp {
+        font-family: monospace, monospace;
+        font-size: 1em;
+      }
+
+      .theme-normalize small {
+        font-size: 80%;
+      }
+
+      .theme-normalize sub,
+      .theme-normalize sup {
+        font-size: 75%;
+        line-height: 0;
+        position: relative;
+        vertical-align: baseline;
+      }
+
+      .theme-normalize sub {
+        bottom: -0.25em;
+      }
+
+      .theme-normalize sup {
+        top: -0.5em;
+      }
+
+      .theme-normalize img {
+        border-style: none;
+      }
+
+      .theme-normalize button,
+      .theme-normalize input,
+      .theme-normalize optgroup,
+      .theme-normalize select,
+      .theme-normalize textarea {
+        font-family: inherit;
+        font-size: 100%;
+        line-height: 1.15;
+        margin: 0;
+      }
+
+      .theme-normalize button,
+      .theme-normalize input {
+        overflow: visible;
+      }
+
+      .theme-normalize button,
+      .theme-normalize select {
+        text-transform: none;
+      }
+
+      .theme-normalize button,
+      .theme-normalize [type="button"],
+      .theme-normalize [type="reset"],
+      .theme-normalize [type="submit"] {
+        -webkit-appearance: button;
+      }
+
+      .theme-normalize button::-moz-focus-inner,
+      .theme-normalize [type="button"]::-moz-focus-inner,
+      .theme-normalize [type="reset"]::-moz-focus-inner,
+      .theme-normalize [type="submit"]::-moz-focus-inner {
+        border-style: none;
+        padding: 0;
+      }
+
+      .theme-normalize button:-moz-focusring,
+      .theme-normalize [type="button"]:-moz-focusring,
+      .theme-normalize [type="reset"]:-moz-focusring,
+      .theme-normalize [type="submit"]:-moz-focusring {
+        outline: 1px dotted ButtonText;
+      }
+
+      .theme-normalize fieldset {
+        padding: 0.35em 0.75em 0.625em;
+      }
+
+      .theme-normalize legend {
+        box-sizing: border-box;
+        color: inherit;
+        display: table;
+        max-width: 100%;
+        padding: 0;
+        white-space: normal;
+      }
+
+      .theme-normalize progress {
+        vertical-align: baseline;
+      }
+
+      .theme-normalize textarea {
+        overflow: auto;
+      }
+
+      .theme-normalize [type="checkbox"],
+      .theme-normalize [type="radio"] {
+        box-sizing: border-box;
+        padding: 0;
+      }
+
+      .theme-normalize [type="number"]::-webkit-inner-spin-button,
+      .theme-normalize [type="number"]::-webkit-outer-spin-button {
+        height: auto;
+      }
+
+      .theme-normalize [type="search"] {
+        -webkit-appearance: textfield;
+        outline-offset: -2px;
+      }
+
+      .theme-normalize [type="search"]::-webkit-search-decoration {
+        -webkit-appearance: none;
+      }
+
+      .theme-normalize ::-webkit-file-upload-button {
+        -webkit-appearance: button;
+        font: inherit;
+      }
+
+      .theme-normalize details {
+        display: block;
+      }
+
+      .theme-normalize summary {
+        display: list-item;
+      }
+
+      .theme-normalize template {
+        display: none;
+      }
+
+      .theme-normalize [hidden] {
+        display: none;
+      }
+    `;
+  }
+
+  /**
+   * Bare theme styles
+   */
+  private getBareThemeStyles(): string {
+    return `
+      /* ===== BARE (USER AGENT) THEME ===== */
+      /* No custom styles - pure browser defaults */
+
+      .theme-bare .markdown-body {
+        max-width: none;
+        margin: 0;
+        padding: 8px;
+      }
+    `;
+  }
+
+  /**
+   * Common styles shared across all themes
+   */
+  private getCommonStyles(): string {
+    return `
       /* ===== COMMON STYLES ===== */
       .math-block {
         margin: 20px 0;

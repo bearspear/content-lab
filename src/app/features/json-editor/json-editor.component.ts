@@ -1,7 +1,9 @@
-import { Component, ViewChild } from '@angular/core';
+import { Component, ViewChild, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { CodeEditorComponent } from '../js-playground/components/code-editor.component';
 import { CodeBridgeService } from '../../core/services/code-bridge.service';
+import { StateManagerService } from '../../core/services';
+import { ResetButtonComponent } from '../../shared/components/reset-button/reset-button.component';
 
 interface ValidationError {
   line: number;
@@ -9,10 +11,15 @@ interface ValidationError {
   message: string;
 }
 
+interface JsonEditorState {
+  jsonContent: string;
+  showStats: boolean;
+}
+
 @Component({
   selector: 'app-json-editor',
   standalone: true,
-  imports: [CommonModule, CodeEditorComponent],
+  imports: [CommonModule, CodeEditorComponent, ResetButtonComponent],
   templateUrl: './json-editor.component.html',
   styleUrl: './json-editor.component.scss',
   styles: [`
@@ -23,7 +30,10 @@ interface ValidationError {
     }
   `]
 })
-export class JsonEditorComponent {
+export class JsonEditorComponent implements OnInit, OnDestroy {
+  private readonly TOOL_ID = 'json-editor';
+  private saveStateTimeout: any;
+
   @ViewChild(CodeEditorComponent) editorComponent!: CodeEditorComponent;
 
   jsonContent = '';
@@ -37,7 +47,10 @@ export class JsonEditorComponent {
     size: '0 B'
   };
 
-  constructor(private codeBridgeService: CodeBridgeService) {}
+  constructor(
+    private codeBridgeService: CodeBridgeService,
+    private stateManager: StateManagerService
+  ) {}
 
   sampleTemplates = [
     {
@@ -156,10 +169,61 @@ export class JsonEditorComponent {
   ];
 
   ngOnInit(): void {
-    this.loadSampleJSON();
+    this.loadState();
   }
 
-  private loadSampleJSON(): void {
+  ngOnDestroy(): void {
+    if (this.saveStateTimeout) {
+      clearTimeout(this.saveStateTimeout);
+    }
+  }
+
+  /**
+   * Load saved state or initialize with sample JSON
+   */
+  private loadState(): void {
+    const savedState = this.stateManager.loadState<JsonEditorState>(this.TOOL_ID);
+
+    if (savedState) {
+      this.jsonContent = savedState.jsonContent;
+      this.showStats = savedState.showStats;
+      this.validateJSON();
+      this.updateStats();
+    } else {
+      this.loadDefaultJSON();
+    }
+  }
+
+  /**
+   * Save current state (debounced)
+   */
+  saveState(): void {
+    if (this.saveStateTimeout) {
+      clearTimeout(this.saveStateTimeout);
+    }
+
+    this.saveStateTimeout = setTimeout(() => {
+      const state: JsonEditorState = {
+        jsonContent: this.jsonContent,
+        showStats: this.showStats
+      };
+      this.stateManager.saveState(this.TOOL_ID, state);
+    }, 500); // Debounce saves by 500ms
+  }
+
+  /**
+   * Reset to default state
+   */
+  onReset(): void {
+    this.stateManager.clearState(this.TOOL_ID);
+    this.showStats = false;
+    this.loadDefaultJSON();
+  }
+
+  /**
+   * Load default sample JSON
+   */
+  private loadDefaultJSON(): void {
     this.jsonContent = this.sampleTemplates[0].content;
     this.validateJSON();
     this.updateStats();
@@ -169,6 +233,7 @@ export class JsonEditorComponent {
     this.jsonContent = content;
     this.validateJSON();
     this.updateStats();
+    this.saveState();
   }
 
   validateJSON(): void {
@@ -215,6 +280,7 @@ export class JsonEditorComponent {
       this.isValid = true;
       this.validationErrors = [];
       this.updateStats();
+      this.saveState();
     } catch (error: any) {
       // Validation will show the error
       this.validateJSON();
@@ -228,6 +294,7 @@ export class JsonEditorComponent {
       this.isValid = true;
       this.validationErrors = [];
       this.updateStats();
+      this.saveState();
     } catch (error: any) {
       // Validation will show the error
       this.validateJSON();
@@ -263,6 +330,7 @@ export class JsonEditorComponent {
     this.jsonContent = template.content;
     this.validateJSON();
     this.updateStats();
+    this.saveState();
   }
 
   private updateStats(): void {
@@ -281,6 +349,7 @@ export class JsonEditorComponent {
 
   toggleStats(): void {
     this.showStats = !this.showStats;
+    this.saveState();
   }
 
   insertToJsPlayground(): void {
