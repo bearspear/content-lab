@@ -243,6 +243,13 @@ custom-*.css
 *.bak
 *.tmp
 
+# Code backup and refactored files
+*.backup
+*-refactored.component.ts
+*-refactored.component.html
+*-refactored.component.scss
+refactor_*.js
+
 # Keep important files
 !md2html-instructions.md
 !md2html-instructions.txt

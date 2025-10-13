@@ -1,6 +1,33 @@
-import { Component, EventEmitter, Output } from '@angular/core';
+import { Component, EventEmitter, Output, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
+/**
+ * Reusable reset button component with configurable confirmation
+ *
+ * @example
+ * ```html
+ * <!-- With confirmation (default) -->
+ * <app-reset-button (reset)="onReset()"></app-reset-button>
+ *
+ * <!-- Custom confirmation message -->
+ * <app-reset-button
+ *   (reset)="onReset()"
+ *   confirmMessage="Reset the editor? All your code will be lost.">
+ * </app-reset-button>
+ *
+ * <!-- Without confirmation -->
+ * <app-reset-button
+ *   (reset)="onReset()"
+ *   [requireConfirmation]="false">
+ * </app-reset-button>
+ *
+ * <!-- Custom button text -->
+ * <app-reset-button
+ *   (reset)="onReset()"
+ *   buttonText="Clear All">
+ * </app-reset-button>
+ * ```
+ */
 @Component({
   selector: 'app-reset-button',
   standalone: true,
@@ -9,12 +36,12 @@ import { CommonModule } from '@angular/common';
     <button
       class="reset-btn"
       (click)="onReset()"
-      title="Reset to default state"
-      aria-label="Reset to default state">
+      [title]="title"
+      [attr.aria-label]="title">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
       </svg>
-      <span>Reset</span>
+      <span>{{ buttonText }}</span>
     </button>
   `,
   styles: [`
@@ -60,10 +87,44 @@ import { CommonModule } from '@angular/common';
   `]
 })
 export class ResetButtonComponent {
+  /**
+   * Emits when reset is confirmed (or when confirmation is disabled)
+   */
   @Output() reset = new EventEmitter<void>();
 
+  /**
+   * Whether to show confirmation dialog before resetting
+   * @default true
+   */
+  @Input() requireConfirmation = true;
+
+  /**
+   * Custom confirmation message to display
+   * @default 'Are you sure you want to reset to default state? This will clear all current content.'
+   */
+  @Input() confirmMessage = 'Are you sure you want to reset to default state? This will clear all current content.';
+
+  /**
+   * Custom button text
+   * @default 'Reset'
+   */
+  @Input() buttonText = 'Reset';
+
+  /**
+   * Custom tooltip/title text
+   * @default 'Reset to default state'
+   */
+  @Input() title = 'Reset to default state';
+
+  /**
+   * Handles reset button click with optional confirmation
+   */
   onReset(): void {
-    if (confirm('Are you sure you want to reset to default state? This will clear all current content.')) {
+    if (this.requireConfirmation) {
+      if (confirm(this.confirmMessage)) {
+        this.reset.emit();
+      }
+    } else {
       this.reset.emit();
     }
   }

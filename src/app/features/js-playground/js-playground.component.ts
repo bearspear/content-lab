@@ -1,11 +1,13 @@
-import { Component, ViewChild, ElementRef, AfterViewInit, OnDestroy } from '@angular/core';
+import { Component, ViewChild, ElementRef, AfterViewInit, NgZone } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Subscription } from 'rxjs';
 import { CodeEditorComponent } from './components/code-editor.component';
 import { CodeBridgeService } from '../../core/services/code-bridge.service';
-import { StateManagerService } from '../../core/services';
+import { StateManagerService, ScriptLoaderService, MonacoThemeService } from '../../core/services';
 import { ResetButtonComponent } from '../../shared/components/reset-button/reset-button.component';
+import { StatefulComponent } from '../../core/base';
+import { LIBRARY_CONFIG, LibraryConfig } from '../../core/config/library.config';
 
 interface ConsoleLog {
   type: 'log' | 'error' | 'warn' | 'info';
@@ -13,13 +15,8 @@ interface ConsoleLog {
   timestamp: Date;
 }
 
-interface Library {
-  id: string;
-  name: string;
-  description: string;
-  url: string;
+interface Library extends LibraryConfig {
   enabled: boolean;
-  category: string;
 }
 
 interface JsPlaygroundState {
@@ -44,9 +41,8 @@ interface JsPlaygroundState {
     }
   `]
 })
-export class JsPlaygroundComponent implements AfterViewInit, OnDestroy {
-  private readonly TOOL_ID = 'js-playground';
-  private saveStateTimeout: any;
+export class JsPlaygroundComponent extends StatefulComponent<JsPlaygroundState> implements AfterViewInit {
+  protected readonly TOOL_ID = 'js-playground';
 
   @ViewChild('previewFrame') previewFrame!: ElementRef<HTMLIFrameElement>;
 
@@ -55,6 +51,7 @@ export class JsPlaygroundComponent implements AfterViewInit, OnDestroy {
 
   // Subscriptions
   private codeInsertSubscription?: Subscription;
+  private messageListener?: (event: MessageEvent) => void;
 
   // Code content (defaults)
   htmlCode = '';
@@ -67,159 +64,87 @@ export class JsPlaygroundComponent implements AfterViewInit, OnDestroy {
 
   // Library panel
   showLibraryPanel = false;
-  libraries: Library[] = [
-    {
-      id: 'lodash',
-      name: 'Lodash',
-      description: 'Utility library for arrays, objects, and functions',
-      url: '/assets/js-libraries/lodash.min.js',
-      enabled: false,
-      category: 'Utility'
-    },
-    {
-      id: 'moment',
-      name: 'Moment.js',
-      description: 'Date and time manipulation library',
-      url: '/assets/js-libraries/moment.min.js',
-      enabled: false,
-      category: 'Date/Time'
-    },
-    {
-      id: 'dayjs',
-      name: 'Day.js',
-      description: 'Lightweight date library (alternative to Moment)',
-      url: '/assets/js-libraries/dayjs.min.js',
-      enabled: false,
-      category: 'Date/Time'
-    },
-    {
-      id: 'axios',
-      name: 'Axios',
-      description: 'Promise-based HTTP client',
-      url: '/assets/js-libraries/axios.min.js',
-      enabled: false,
-      category: 'HTTP'
-    },
-    {
-      id: 'chartjs',
-      name: 'Chart.js',
-      description: 'Simple yet flexible charting library',
-      url: '/assets/js-libraries/chart.min.js',
-      enabled: false,
-      category: 'Charting'
-    },
-    {
-      id: 'highcharts',
-      name: 'Highcharts',
-      description: 'Interactive JavaScript charts library',
-      url: '/assets/js-libraries/highcharts.js',
-      enabled: false,
-      category: 'Charting'
-    },
-    {
-      id: 'd3',
-      name: 'D3.js',
-      description: 'Data visualization library',
-      url: '/assets/js-libraries/d3.min.js',
-      enabled: false,
-      category: 'Charting'
-    },
-    {
-      id: 'jquery',
-      name: 'jQuery',
-      description: 'Fast, small JavaScript library',
-      url: '/assets/js-libraries/jquery.min.js',
-      enabled: false,
-      category: 'Utility'
-    },
-    {
-      id: 'gsap',
-      name: 'GSAP',
-      description: 'Professional-grade animation library',
-      url: '/assets/js-libraries/gsap.min.js',
-      enabled: false,
-      category: 'Animation'
-    },
-    {
-      id: 'threejs',
-      name: 'Three.js',
-      description: '3D graphics library',
-      url: '/assets/js-libraries/three.min.js',
-      enabled: false,
-      category: '3D/Graphics'
-    },
-    {
-      id: 'rxjs',
-      name: 'RxJS',
-      description: 'Reactive extensions library',
-      url: '/assets/js-libraries/rxjs.umd.min.js',
-      enabled: false,
-      category: 'Reactive'
-    },
-    {
-      id: 'ramda',
-      name: 'Ramda',
-      description: 'Functional programming library',
-      url: '/assets/js-libraries/ramda.min.js',
-      enabled: false,
-      category: 'Functional'
-    }
-  ];
+  libraries: Library[] = LIBRARY_CONFIG.map(config => ({
+    ...config,
+    enabled: false
+  }));
 
   constructor(
     private codeBridgeService: CodeBridgeService,
-    private stateManager: StateManagerService
-  ) {}
-
-  /**
-   * Load saved state or initialize with default code
-   */
-  private loadState(): void {
-    const savedState = this.stateManager.loadState<JsPlaygroundState>(this.TOOL_ID);
-
-    if (savedState) {
-      this.htmlCode = savedState.htmlCode;
-      this.cssCode = savedState.cssCode;
-      this.jsCode = savedState.jsCode;
-      this.activeTab = savedState.activeTab;
-      // Restore library states
-      if (savedState.libraries) {
-        this.libraries = savedState.libraries;
-      }
-    } else {
-      this.loadDefaultCode();
-    }
+    private scriptLoaderService: ScriptLoaderService,
+    private ngZone: NgZone,
+    private monacoThemeService: MonacoThemeService,
+    stateManager: StateManagerService
+  ) {
+    super(stateManager);
   }
 
   /**
-   * Save current state (debounced)
+   * Override ngOnInit to prevent base class from loading state too early
+   * State will be loaded after preview iframe initialization in ngAfterViewInit
    */
-  saveState(): void {
-    if (this.saveStateTimeout) {
-      clearTimeout(this.saveStateTimeout);
-    }
+  override ngOnInit(): void {
+    // Do nothing - state loaded in ngAfterViewInit
+  }
 
-    this.saveStateTimeout = setTimeout(() => {
-      const state: JsPlaygroundState = {
-        htmlCode: this.htmlCode,
-        cssCode: this.cssCode,
-        jsCode: this.jsCode,
-        activeTab: this.activeTab,
-        libraries: this.libraries
-      };
-      this.stateManager.saveState(this.TOOL_ID, state);
-    }, 500);
+  override ngOnDestroy(): void {
+    super.ngOnDestroy();
+    // Clean up subscription
+    if (this.codeInsertSubscription) {
+      this.codeInsertSubscription.unsubscribe();
+    }
+    // Clean up message listener
+    if (this.messageListener) {
+      window.removeEventListener('message', this.messageListener);
+    }
+  }
+
+  protected getDefaultState(): JsPlaygroundState {
+    this.loadDefaultCode(); // Populate default code values
+    return {
+      htmlCode: this.htmlCode,
+      cssCode: this.cssCode,
+      jsCode: this.jsCode,
+      activeTab: 'js',
+      libraries: this.libraries.map(lib => ({ ...lib, enabled: false }))
+    };
+  }
+
+  protected applyState(state: JsPlaygroundState): void {
+    this.htmlCode = state.htmlCode;
+    this.cssCode = state.cssCode;
+    this.jsCode = state.jsCode;
+    this.activeTab = state.activeTab;
+    // Restore library enabled states while preserving current config
+    if (state.libraries) {
+      // Merge saved enabled states with current library config
+      this.libraries = LIBRARY_CONFIG.map(config => {
+        const savedLib = state.libraries.find(lib => lib.id === config.id);
+        return {
+          ...config,
+          enabled: savedLib?.enabled || false
+        };
+      });
+    }
+  }
+
+  protected getCurrentState(): JsPlaygroundState {
+    return {
+      htmlCode: this.htmlCode,
+      cssCode: this.cssCode,
+      jsCode: this.jsCode,
+      activeTab: this.activeTab,
+      libraries: this.libraries
+    };
   }
 
   /**
-   * Reset to default state
+   * Override reset to also reset console and libraries
    */
-  onReset(): void {
-    this.stateManager.clearState(this.TOOL_ID);
-    this.loadDefaultCode();
+  public override onReset(): void {
+    super.onReset();
     // Reset libraries
     this.libraries.forEach(lib => lib.enabled = false);
-    this.activeTab = 'js';
     this.consoleLogs = [];
     this.runCode();
   }
@@ -301,37 +226,36 @@ app.appendChild(button);
     // Get enabled libraries
     const enabledLibraries = this.getEnabledLibraries();
 
-    // Fetch and embed library contents directly
+    // Fetch and embed library contents from CDN/local
     const libraryScripts: string[] = [];
     for (const lib of enabledLibraries) {
       try {
-        const absoluteUrl = lib.url.startsWith('http')
-          ? lib.url
-          : `${window.location.origin}${lib.url}`;
+        // Try CDN first
+        let response = await fetch(lib.cdnUrl);
 
-        console.log(`Fetching ${lib.name} for download...`);
-        const response = await fetch(absoluteUrl);
+        // If CDN fails, try local
+        if (!response.ok) {
+          const absoluteLocalUrl = lib.localUrl.startsWith('http')
+            ? lib.localUrl
+            : `${window.location.origin}${lib.localUrl}`;
+          response = await fetch(absoluteLocalUrl);
+        }
+
         if (response.ok) {
           const jsContent = await response.text();
           libraryScripts.push(`  <script>
     // ${lib.name} - ${lib.description}
     ${jsContent}
   </script>`);
-          console.log(`✓ Embedded ${lib.name}`);
         } else {
-          console.warn(`Failed to fetch ${lib.name}: ${response.status}`);
-          // Fallback to external URL with comment
-          libraryScripts.push(`  <!-- Failed to embed ${lib.name}, using external URL -->
-  <script src="${absoluteUrl}"></script>`);
+          console.warn(`Failed to fetch ${lib.name}, using external CDN URL`);
+          libraryScripts.push(`  <!-- Failed to embed ${lib.name}, using external CDN -->
+  <script src="${lib.cdnUrl}"></script>`);
         }
       } catch (error) {
         console.error(`Error fetching ${lib.name}:`, error);
-        // Fallback to external URL
-        const absoluteUrl = lib.url.startsWith('http')
-          ? lib.url
-          : `${window.location.origin}${lib.url}`;
-        libraryScripts.push(`  <!-- Error embedding ${lib.name}, using external URL -->
-  <script src="${absoluteUrl}"></script>`);
+        libraryScripts.push(`  <!-- Error embedding ${lib.name}, using external CDN -->
+  <script src="${lib.cdnUrl}"></script>`);
       }
     }
 
@@ -370,8 +294,6 @@ ${libraryScripts.join('\n')}
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
-
-    console.log('📥 Download complete! File is now fully standalone.');
   }
 
   clearActivePanel(): void {
@@ -619,14 +541,10 @@ console.log('Original:', data);`
 
     // Get enabled libraries
     const enabledLibraries = this.getEnabledLibraries();
-    // Convert relative URLs to absolute URLs for blob iframe context
-    const libraryScripts = enabledLibraries
-      .map(lib => {
-        const absoluteUrl = lib.url.startsWith('http')
-          ? lib.url
-          : `${window.location.origin}${lib.url}`;
-        return `  <script src="${absoluteUrl}"></script>`;
-      })
+
+    // Generate library script tags - they need to be in head for proper loading order
+    const libraryScriptTags = enabledLibraries
+      .map(lib => this.scriptLoaderService.getScriptTagWithFallback(lib))
       .join('\n');
 
     // Create the HTML document with console interception
@@ -645,12 +563,8 @@ console.log('Original:', data);`
     }
     ${this.cssCode}
   </style>
-${libraryScripts}
-</head>
-<body>
-  ${this.htmlCode}
   <script>
-    // Intercept console methods
+    // Intercept console methods BEFORE any libraries load
     (function() {
       const originalConsole = {
         log: console.log,
@@ -704,30 +618,38 @@ ${libraryScripts}
         return false;
       };
     })();
+  </script>
+${libraryScriptTags}
+</head>
+<body>
+  ${this.htmlCode}
+  <script>
+    // This runs after ALL resources (including external scripts) have loaded
+    window.addEventListener('load', function() {
+      // Initialize - Check which libraries are loaded
+      console.log('🚀 JavaScript Playground initialized!');
+      console.log('📚 Available libraries:');
+      if (typeof _ !== 'undefined') console.log('  ✓ Lodash (_)');
+      if (typeof $ !== 'undefined') console.log('  ✓ jQuery ($)');
+      if (typeof moment !== 'undefined') console.log('  ✓ Moment.js (moment)');
+      if (typeof dayjs !== 'undefined') console.log('  ✓ Day.js (dayjs)');
+      if (typeof axios !== 'undefined') console.log('  ✓ Axios (axios)');
+      if (typeof Chart !== 'undefined') console.log('  ✓ Chart.js (Chart)');
+      if (typeof Highcharts !== 'undefined') console.log('  ✓ Highcharts (Highcharts)');
+      if (typeof d3 !== 'undefined') console.log('  ✓ D3.js (d3)');
+      if (typeof gsap !== 'undefined') console.log('  ✓ GSAP (gsap)');
+      if (typeof THREE !== 'undefined') console.log('  ✓ Three.js (THREE)');
+      if (typeof rxjs !== 'undefined') console.log('  ✓ RxJS (rxjs)');
+      if (typeof R !== 'undefined') console.log('  ✓ Ramda (R)');
+      console.log('');
 
-    // Initialize - Check which libraries are loaded
-    console.log('🚀 JavaScript Playground initialized!');
-    console.log('📚 Available libraries:');
-    if (typeof _ !== 'undefined') console.log('  ✓ Lodash (_)');
-    if (typeof $ !== 'undefined') console.log('  ✓ jQuery ($)');
-    if (typeof moment !== 'undefined') console.log('  ✓ Moment.js (moment)');
-    if (typeof dayjs !== 'undefined') console.log('  ✓ Day.js (dayjs)');
-    if (typeof axios !== 'undefined') console.log('  ✓ Axios (axios)');
-    if (typeof Chart !== 'undefined') console.log('  ✓ Chart.js (Chart)');
-    if (typeof Highcharts !== 'undefined') console.log('  ✓ Highcharts (Highcharts)');
-    if (typeof d3 !== 'undefined') console.log('  ✓ D3.js (d3)');
-    if (typeof gsap !== 'undefined') console.log('  ✓ GSAP (gsap)');
-    if (typeof THREE !== 'undefined') console.log('  ✓ Three.js (THREE)');
-    if (typeof rxjs !== 'undefined') console.log('  ✓ RxJS (rxjs)');
-    if (typeof R !== 'undefined') console.log('  ✓ Ramda (R)');
-    console.log('');
-
-    // User code
-    try {
-      ${this.jsCode}
-    } catch (error) {
-      console.error('Error: ' + error.message);
-    }
+      // User code
+      try {
+        ${this.jsCode}
+      } catch (error) {
+        console.error('Error: ' + error.message);
+      }
+    });
   </script>
 </body>
 </html>`;
@@ -740,16 +662,26 @@ ${libraryScripts}
     // Load saved state
     this.loadState();
 
-    // Listen for console messages from iframe
-    window.addEventListener('message', (event) => {
-      if (event.data.type === 'console') {
-        this.consoleLogs.push({
-          type: event.data.level,
-          message: event.data.message,
-          timestamp: new Date()
+    // Apply JS Playground's preferred dark theme
+    // This ensures the dark theme is used when navigating to this component
+    this.monacoThemeService.applyComponentTheme('js-playground-js');
+
+    // Create and store message listener for cleanup
+    this.messageListener = (event: MessageEvent) => {
+      if (event.data?.type === 'console') {
+        // Run inside Angular zone to trigger change detection
+        this.ngZone.run(() => {
+          this.consoleLogs.push({
+            type: event.data.level,
+            message: event.data.message,
+            timestamp: new Date()
+          });
         });
       }
-    });
+    };
+
+    // Listen for console messages from iframe
+    window.addEventListener('message', this.messageListener);
 
     // Check for and apply any pending code
     let hasPendingCode = false;
@@ -824,17 +756,6 @@ ${libraryScripts}
 
     // Run code on init
     setTimeout(() => this.runCode(), 100);
-  }
-
-  ngOnDestroy(): void {
-    // Clean up subscription
-    if (this.codeInsertSubscription) {
-      this.codeInsertSubscription.unsubscribe();
-    }
-    // Clean up save timeout
-    if (this.saveStateTimeout) {
-      clearTimeout(this.saveStateTimeout);
-    }
   }
 
   getConsoleIcon(type: string): string {

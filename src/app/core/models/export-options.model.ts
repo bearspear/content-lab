@@ -4,6 +4,7 @@ export interface ExportOptions {
   format: ExportFormat;
   filename?: string;
   theme?: string;
+  centerContent?: boolean;
 }
 
 export interface JsonExportContent {

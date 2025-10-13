@@ -1,8 +1,9 @@
-import { Component, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
+import { Component, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { StateManagerService } from '../../core/services';
 import { ResetButtonComponent } from '../../shared/components/reset-button/reset-button.component';
+import { StatefulComponent } from '../../core/base';
 
 declare const Papa: any;
 
@@ -28,9 +29,8 @@ interface CsvEditorState {
   templateUrl: './csv-editor.component.html',
   styleUrls: ['./csv-editor.component.scss']
 })
-export class CsvEditorComponent implements OnInit, OnDestroy {
-  private readonly TOOL_ID = 'csv-editor';
-  private saveStateTimeout: any;
+export class CsvEditorComponent extends StatefulComponent<CsvEditorState> {
+  protected readonly TOOL_ID = 'csv-editor';
 
   @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
 
@@ -55,95 +55,69 @@ export class CsvEditorComponent implements OnInit, OnDestroy {
   rowCount = 0;
   columnCount = 0;
 
-  constructor(private stateManager: StateManagerService) {}
+  constructor(stateManager: StateManagerService) {
+    super(stateManager);
+  }
 
-  ngOnInit(): void {
+  override ngOnInit(): void {
+    super.ngOnInit();
     this.loadPapaParse();
-    this.loadState();
   }
 
-  ngOnDestroy(): void {
-    if (this.saveStateTimeout) {
-      clearTimeout(this.saveStateTimeout);
-    }
+  protected getDefaultState(): CsvEditorState {
+    return {
+      headers: [],
+      rows: [],
+      csvInput: '',
+      delimiter: ',',
+      hasHeader: true,
+      showImportDialog: true,
+      tableName: 'table_data'
+    };
   }
 
-  /**
-   * Load saved state
-   */
-  private loadState(): void {
-    const savedState = this.stateManager.loadState<CsvEditorState>(this.TOOL_ID);
-
-    if (savedState) {
-      this.headers = savedState.headers;
-      this.rows = savedState.rows;
-      this.csvInput = savedState.csvInput;
-      this.delimiter = savedState.delimiter;
-      this.hasHeader = savedState.hasHeader;
-      this.showImportDialog = savedState.showImportDialog;
-      this.tableName = savedState.tableName;
-      this.rowCount = this.rows.length;
-      this.columnCount = this.headers.length;
-    } else {
-      this.loadDefaultState();
-    }
+  protected applyState(state: CsvEditorState): void {
+    this.headers = state.headers;
+    this.rows = state.rows;
+    this.csvInput = state.csvInput;
+    this.delimiter = state.delimiter;
+    this.hasHeader = state.hasHeader;
+    this.showImportDialog = state.showImportDialog;
+    this.tableName = state.tableName;
+    this.rowCount = this.rows.length;
+    this.columnCount = this.headers.length;
   }
 
-  /**
-   * Save current state (debounced)
-   */
-  saveState(): void {
-    if (this.saveStateTimeout) {
-      clearTimeout(this.saveStateTimeout);
-    }
-
-    this.saveStateTimeout = setTimeout(() => {
-      const state: CsvEditorState = {
-        headers: this.headers,
-        rows: this.rows,
-        csvInput: this.csvInput,
-        delimiter: this.delimiter,
-        hasHeader: this.hasHeader,
-        showImportDialog: this.showImportDialog,
-        tableName: this.tableName
-      };
-      this.stateManager.saveState(this.TOOL_ID, state);
-    }, 500); // Debounce saves by 500ms
+  protected getCurrentState(): CsvEditorState {
+    return {
+      headers: this.headers,
+      rows: this.rows,
+      csvInput: this.csvInput,
+      delimiter: this.delimiter,
+      hasHeader: this.hasHeader,
+      showImportDialog: this.showImportDialog,
+      tableName: this.tableName
+    };
   }
 
   /**
-   * Reset to default state
+   * Override reset to clear data
    */
-  onReset(): void {
-    this.stateManager.clearState(this.TOOL_ID);
-    this.loadDefaultState();
-  }
-
-  /**
-   * Load default state
-   */
-  private loadDefaultState(): void {
-    this.headers = [];
-    this.rows = [];
-    this.csvInput = '';
-    this.delimiter = ',';
-    this.hasHeader = true;
-    this.showImportDialog = true;
-    this.tableName = 'table_data';
+  public override onReset(): void {
+    super.onReset();
     this.rowCount = 0;
     this.columnCount = 0;
   }
 
   private loadPapaParse(): void {
     if (typeof Papa !== 'undefined') {
-      console.log('✅ PapaParse already loaded');
       return;
     }
 
     const script = document.createElement('script');
     script.src = '/assets/js-libraries/papaparse.min.js';
     script.onload = () => {
-      console.log('✅ PapaParse loaded successfully');
+      // PapaParse loaded successfully
     };
     script.onerror = () => {
       console.error('❌ Failed to load PapaParse');
@@ -251,7 +225,6 @@ export class CsvEditorComponent implements OnInit, OnDestroy {
     this.columnCount = this.headers.length;
     this.showImportDialog = false;
 
-    console.log(`✅ Parsed ${this.rowCount} rows x ${this.columnCount} columns`);
     this.saveState();
   }
 

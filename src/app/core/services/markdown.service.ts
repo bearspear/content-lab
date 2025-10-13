@@ -183,7 +183,7 @@ function fibonacci(n: number): number {
   return fibonacci(n - 1) + fibonacci(n - 2);
 }
 
-console.log(fibonacci(10)); // Output: 55
+// fibonacci(10); // Output: 55
 \`\`\`
 
 ## Math Equations
