@@ -1,3 +1,5 @@
+@import '../../../styles.scss';
+
 .csv-editor {
   display: flex;
   flex-direction: column;
@@ -15,7 +17,7 @@
   background: white;
   border-bottom: 1px solid #e2e8f0;
   flex-shrink: 0;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  box-shadow: $shadow-sm;
 }
 
 .header-left {
@@ -55,14 +57,14 @@
 .btn {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 8px 16px;
+  gap: $spacing-sm;
+  padding: $spacing-sm $spacing-lg;
   border: none;
-  border-radius: 6px;
+  border-radius: $border-radius-md;
   font-size: 0.875rem;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: $transition-base;
 
   svg {
     width: 18px;
@@ -80,11 +82,10 @@
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
+  @include header-gradient;
 
   &:hover {
-    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    box-shadow: $shadow-primary;
   }
 }
 
@@ -118,9 +119,9 @@
     position: absolute;
     top: 100%;
     right: 0;
-    margin-top: 4px;
+    margin-top: $spacing-xs;
     background: white;
-    border-radius: 6px;
+    border-radius: $border-radius-md;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     overflow: hidden;
     z-index: 100;
@@ -140,7 +141,7 @@
 
       &:hover {
         background: #f7fafc;
-        color: #667eea;
+        color: $color-primary;
       }
     }
   }
@@ -158,12 +159,12 @@
 
 .import-card {
   background: white;
-  border-radius: 12px;
-  padding: 32px;
+  border-radius: $border-radius-xl;
+  padding: $spacing-3xl;
   max-width: 900px;
   width: 100%;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-  transition: all 0.3s ease;
+  transition: $transition-slow;
 
   h2 {
     font-size: 1.75rem;
@@ -174,7 +175,7 @@
   }
 
   &.dragging {
-    border: 2px dashed #667eea;
+    border: 2px dashed $color-primary;
     box-shadow: 0 8px 30px rgba(102, 126, 234, 0.2);
     background: rgba(102, 126, 234, 0.02);
   }
@@ -206,24 +207,24 @@
   }
 
   .delimiter-btn {
-    padding: 6px 12px;
+    padding: 6px $spacing-md;
     border: 1px solid #cbd5e0;
     background: white;
-    border-radius: 4px;
+    border-radius: $border-radius-sm;
     font-size: 0.8125rem;
     color: #4a5568;
     cursor: pointer;
-    transition: all 0.15s ease;
+    transition: $transition-fast;
 
     &:hover {
-      border-color: #667eea;
+      border-color: $color-primary;
       background: #f7fafc;
     }
 
     &.active {
-      background: #667eea;
-      color: white;
-      border-color: #667eea;
+      background: $color-primary;
+      color: $color-white;
+      border-color: $color-primary;
     }
   }
 
@@ -268,9 +269,9 @@
 
   textarea {
     width: 100%;
-    padding: 12px;
+    padding: $spacing-md;
     border: 1px solid #cbd5e0;
-    border-radius: 6px;
+    border-radius: $border-radius-md;
     font-family: 'Monaco', 'Menlo', monospace;
     font-size: 0.8125rem;
     resize: vertical;
@@ -278,7 +279,7 @@
 
     &:focus {
       outline: none;
-      border-color: #667eea;
+      border-color: $color-primary;
       box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
     }
   }
@@ -299,10 +300,10 @@
 
 .drop-zone {
   border: 2px dashed #cbd5e0;
-  border-radius: 12px;
+  border-radius: $border-radius-xl;
   padding: 40px 20px;
   background: #f7fafc;
-  transition: all 0.3s ease;
+  transition: $transition-slow;
   cursor: pointer;
 
   &:hover {
@@ -311,17 +312,17 @@
   }
 
   &.active {
-    border-color: #667eea;
+    border-color: $color-primary;
     background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
     box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
 
     .drop-icon {
-      color: #667eea;
+      color: $color-primary;
       transform: scale(1.1);
     }
 
     .drop-text.dropping {
-      color: #667eea;
+      color: $color-primary;
       font-weight: 600;
     }
   }
@@ -392,8 +393,8 @@
 
 .table-wrapper {
   background: white;
-  border-radius: 8px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  border-radius: $border-radius-lg;
+  box-shadow: $shadow-sm;
   overflow: hidden;
 }
 
@@ -481,7 +482,7 @@
     }
 
     &:hover {
-      color: #667eea;
+      color: $color-primary;
     }
   }
 
@@ -508,8 +509,8 @@
 
   .cell-input {
     width: 100%;
-    padding: 4px 8px;
-    border: 1px solid #667eea;
+    padding: $spacing-xs $spacing-sm;
+    border: 1px solid $color-primary;
     border-radius: 3px;
     font-size: 0.875rem;
     outline: none;
@@ -532,8 +533,8 @@
     color: #cbd5e0;
     display: inline-flex;
     align-items: center;
-    border-radius: 4px;
-    transition: all 0.15s ease;
+    border-radius: $border-radius-sm;
+    transition: $transition-fast;
 
     svg {
       width: 18px;
@@ -564,7 +565,7 @@
 
 .modal-content {
   background: white;
-  border-radius: 12px;
+  border-radius: $border-radius-xl;
   max-width: 800px;
   width: 100%;
   max-height: 90vh;
@@ -593,8 +594,8 @@
     background: none;
     cursor: pointer;
     color: #a0aec0;
-    border-radius: 4px;
-    transition: all 0.15s ease;
+    border-radius: $border-radius-sm;
+    transition: $transition-fast;
 
     svg {
       width: 20px;
@@ -630,14 +631,14 @@
 
     input[type="text"] {
       flex: 1;
-      padding: 8px 12px;
+      padding: $spacing-sm $spacing-md;
       border: 1px solid #cbd5e0;
-      border-radius: 6px;
+      border-radius: $border-radius-md;
       font-size: 0.875rem;
 
       &:focus {
         outline: none;
-        border-color: #667eea;
+        border-color: $color-primary;
         box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
       }
     }
@@ -646,8 +647,8 @@
 
 .export-preview {
   background: #1a202c;
-  border-radius: 8px;
-  padding: 16px;
+  border-radius: $border-radius-lg;
+  padding: $spacing-lg;
   max-height: 400px;
   overflow: auto;
 
@@ -682,7 +683,7 @@
 
 ::-webkit-scrollbar-thumb {
   background: #cbd5e0;
-  border-radius: 4px;
+  border-radius: $border-radius-sm;
 
   &:hover {
     background: #a0aec0;

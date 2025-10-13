@@ -1,6 +1,7 @@
-import { Component, Input, Output, EventEmitter, AfterViewInit, ViewChild, ElementRef, OnChanges, SimpleChanges, OnDestroy } from '@angular/core';
+import { Component, Input, Output, EventEmitter, AfterViewInit, ViewChild, ElementRef, OnChanges, SimpleChanges, OnDestroy, Optional } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { loadMonaco, getMonaco } from './monaco-loader';
+import { MonacoThemeService } from '../../../core/services/monaco-theme.service';
 
 @Component({
   selector: 'app-code-editor',
@@ -25,6 +26,8 @@ export class CodeEditorComponent implements AfterViewInit, OnChanges, OnDestroy 
   @Input() code = '';
   @Input() language: 'html' | 'css' | 'javascript' | 'json' = 'javascript';
   @Input() placeholder = '';
+  @Input() theme: 'vs' | 'vs-dark' = 'vs-dark'; // Default to dark theme for code editors
+  @Input() componentId?: string; // Unique ID to register theme preference
   @Output() codeChange = new EventEmitter<string>();
 
   @ViewChild('editorContainer', { static: true }) editorContainer!: ElementRef<HTMLDivElement>;
@@ -33,13 +36,14 @@ export class CodeEditorComponent implements AfterViewInit, OnChanges, OnDestroy 
   private isUpdatingFromParent = false;
   private static loadedLibraries = new Set<string>();
 
+  constructor(@Optional() private monacoThemeService?: MonacoThemeService) {}
+
   /**
    * Load TypeScript definitions for a library to enable autocomplete
    */
   static async loadLibraryDefinitions(libraryId: string): Promise<void> {
     // Only load once per library
     if (this.loadedLibraries.has(libraryId)) {
-      console.log(`⚠️ Type definitions for ${libraryId} already loaded`);
       return;
     }
 
@@ -50,8 +54,6 @@ export class CodeEditorComponent implements AfterViewInit, OnChanges, OnDestroy 
         return;
       }
 
-      console.log(`🔄 Loading type definitions for ${libraryId}...`);
-
       // Fetch the type definition file
       const response = await fetch(`/assets/type-definitions/${libraryId}.d.ts`);
       if (!response.ok) {
@@ -60,7 +62,6 @@ export class CodeEditorComponent implements AfterViewInit, OnChanges, OnDestroy 
       }
 
       const defs = await response.text();
-      console.log(`📦 Fetched ${defs.length} characters of type definitions for ${libraryId}`);
 
       // Verify the definitions look valid
       if (!defs.includes('declare') && !defs.includes('interface')) {
@@ -80,31 +81,9 @@ export class CodeEditorComponent implements AfterViewInit, OnChanges, OnDestroy 
       );
 
       this.loadedLibraries.add(libraryId);
-      console.log(`✅ Type definitions for ${libraryId} loaded successfully!`);
-      console.log(`💡 Try typing "${this.getGlobalName(libraryId)}." in the editor to see autocomplete`);
     } catch (error) {
       console.error(`❌ Failed to load type definitions for ${libraryId}:`, error);
     }
-  }
-
-  private static getGlobalName(libraryId: string): string {
-    const globalNames: { [key: string]: string } = {
-      'lodash': '_',
-      'jquery': '$',
-      'moment': 'moment',
-      'dayjs': 'dayjs',
-      'axios': 'axios',
-      'chartjs': 'Chart',
-      'chart': 'Chart',
-      'highcharts': 'Highcharts',
-      'd3': 'd3',
-      'gsap': 'gsap',
-      'threejs': 'THREE',
-      'three': 'THREE',
-      'rxjs': 'rxjs',
-      'ramda': 'R'
-    };
-    return globalNames[libraryId] || libraryId;
   }
 
   async ngAfterViewInit(): Promise<void> {
@@ -134,6 +113,17 @@ export class CodeEditorComponent implements AfterViewInit, OnChanges, OnDestroy 
         if (model) {
           monaco.editor.setModelLanguage(model, this.language);
         }
+      }
+    }
+
+    if (changes['theme'] && this.editor) {
+      const monaco = getMonaco();
+      if (monaco) {
+        // Update via service if available
+        if (this.monacoThemeService && this.componentId) {
+          this.monacoThemeService.updateComponentPreference(this.componentId, this.theme, false);
+        }
+        monaco.editor.setTheme(this.theme);
       }
     }
   }
@@ -166,10 +156,15 @@ export class CodeEditorComponent implements AfterViewInit, OnChanges, OnDestroy 
       typeRoots: ['node_modules/@types']
     });
 
+    // Register theme preference with service if available
+    if (this.monacoThemeService && this.componentId) {
+      this.monacoThemeService.registerComponentPreference(this.componentId, this.theme);
+    }
+
     this.editor = monaco.editor.create(this.editorContainer.nativeElement, {
       value: this.code,
       language: this.language,
-      theme: 'vs-dark',
+      theme: this.theme,
       automaticLayout: true,
       minimap: { enabled: false },
       fontSize: 14,

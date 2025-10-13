@@ -1,9 +1,10 @@
-import { Component, ViewChild, ElementRef, AfterViewInit, OnDestroy, OnInit } from '@angular/core';
+import { Component, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import * as monaco from 'monaco-editor';
-import { StateManagerService } from '../../core/services';
+import { StateManagerService, MonacoThemeService } from '../../core/services';
 import { ResetButtonComponent } from '../../shared/components/reset-button/reset-button.component';
+import { StatefulComponent } from '../../core/base';
 
 interface TextEditorState {
   content: string;
@@ -11,6 +12,7 @@ interface TextEditorState {
   showWhitespace: boolean;
   fontSize: number;
   wordWrap: boolean;
+  monacoTheme: 'vs' | 'vs-dark';
 }
 
 @Component({
@@ -20,9 +22,8 @@ interface TextEditorState {
   templateUrl: './text-editor.component.html',
   styleUrl: './text-editor.component.scss'
 })
-export class TextEditorComponent implements OnInit, AfterViewInit, OnDestroy {
-  private readonly TOOL_ID = 'text-editor';
-  private saveStateTimeout: any;
+export class TextEditorComponent extends StatefulComponent<TextEditorState> implements AfterViewInit {
+  protected readonly TOOL_ID = 'text-editor';
 
   @ViewChild('editorContainer', { static: false }) editorContainer!: ElementRef;
 
@@ -39,42 +40,59 @@ export class TextEditorComponent implements OnInit, AfterViewInit, OnDestroy {
   showWhitespace: boolean = false;
   fontSize: number = 14;
   wordWrap: boolean = false;
+  monacoTheme: 'vs' | 'vs-dark' = 'vs';
 
   // Find/Replace
   showFindReplace: boolean = false;
 
-  constructor(private stateManager: StateManagerService) {}
+  constructor(
+    stateManager: StateManagerService,
+    private monacoThemeService: MonacoThemeService
+  ) {
+    super(stateManager);
+  }
 
-  ngOnInit(): void {
-    // State will be loaded after editor initialization in ngAfterViewInit
+  /**
+   * Override ngOnInit to prevent base class from loading state too early
+   * State will be loaded after editor initialization in ngAfterViewInit
+   */
+  override ngOnInit(): void {
+    // Do nothing - state loaded in ngAfterViewInit
   }
 
   ngAfterViewInit(): void {
     this.initializeEditor();
   }
 
-  ngOnDestroy(): void {
-    if (this.saveStateTimeout) {
-      clearTimeout(this.saveStateTimeout);
-    }
+  override ngOnDestroy(): void {
+    super.ngOnDestroy();
     if (this.editor) {
       this.editor.dispose();
     }
   }
 
-  /**
-   * Load saved state after editor initialization
-   */
-  private loadState(): void {
-    const savedState = this.stateManager.loadState<TextEditorState>(this.TOOL_ID);
+  protected getDefaultState(): TextEditorState {
+    return {
+      content: '',
+      showLineNumbers: true,
+      showWhitespace: false,
+      fontSize: 14,
+      wordWrap: false,
+      monacoTheme: 'vs'
+    };
+  }
 
-    if (savedState && this.editor) {
-      // Apply saved settings
-      this.showLineNumbers = savedState.showLineNumbers;
-      this.showWhitespace = savedState.showWhitespace;
-      this.fontSize = savedState.fontSize;
-      this.wordWrap = savedState.wordWrap;
+  protected applyState(state: TextEditorState): void {
+    this.showLineNumbers = state.showLineNumbers;
+    this.showWhitespace = state.showWhitespace;
+    this.fontSize = state.fontSize;
+    this.wordWrap = state.wordWrap;
+    this.monacoTheme = state.monacoTheme || 'vs';
 
+    // Register this component's theme preference with the service
+    this.monacoThemeService.registerComponentPreference('text-editor', this.monacoTheme);
+
+    if (this.editor) {
       // Update editor options
       this.editor.updateOptions({
         lineNumbers: this.showLineNumbers ? 'on' : 'off',
@@ -83,69 +101,38 @@ export class TextEditorComponent implements OnInit, AfterViewInit, OnDestroy {
         wordWrap: this.wordWrap ? 'on' : 'off'
       });
 
-      // Set saved content
-      this.editor.setValue(savedState.content);
-    } else {
-      this.loadDefaultContent();
+      // Apply Monaco theme via service
+      this.monacoThemeService.setTheme(this.monacoTheme);
+
+      // Update body class for theme-specific styling
+      if (this.monacoTheme === 'vs-dark') {
+        document.body.classList.add('editor-dark-theme');
+      } else {
+        document.body.classList.remove('editor-dark-theme');
+      }
+
+      // Set content
+      this.editor.setValue(state.content);
     }
   }
 
-  /**
-   * Save current state (debounced)
-   */
-  saveState(): void {
-    if (this.saveStateTimeout) {
-      clearTimeout(this.saveStateTimeout);
-    }
-
-    this.saveStateTimeout = setTimeout(() => {
-      if (!this.editor) return;
-
-      const state: TextEditorState = {
-        content: this.editor.getValue(),
-        showLineNumbers: this.showLineNumbers,
-        showWhitespace: this.showWhitespace,
-        fontSize: this.fontSize,
-        wordWrap: this.wordWrap
-      };
-      this.stateManager.saveState(this.TOOL_ID, state);
-    }, 500); // Debounce saves by 500ms
+  protected getCurrentState(): TextEditorState {
+    return {
+      content: this.editor?.getValue() || '',
+      showLineNumbers: this.showLineNumbers,
+      showWhitespace: this.showWhitespace,
+      fontSize: this.fontSize,
+      wordWrap: this.wordWrap,
+      monacoTheme: this.monacoTheme
+    };
   }
 
   /**
-   * Reset to default state
+   * Override reset to clear editor properly
    */
-  onReset(): void {
-    this.stateManager.clearState(this.TOOL_ID);
-
-    // Reset settings to defaults
-    this.showLineNumbers = true;
-    this.showWhitespace = false;
-    this.fontSize = 14;
-    this.wordWrap = false;
-
-    if (this.editor) {
-      // Update editor options
-      this.editor.updateOptions({
-        lineNumbers: 'on',
-        renderWhitespace: 'none',
-        fontSize: 14,
-        wordWrap: 'off'
-      });
-
-      // Clear content
-      this.editor.setValue('');
-    }
-  }
-
-  /**
-   * Load default content
-   */
-  private loadDefaultContent(): void {
-    // Editor starts with empty content by default
-    if (this.editor) {
-      this.editor.setValue('');
-    }
+  public override onReset(): void {
+    super.onReset();
+    // applyState will be called by super.onReset()
   }
 
   private initializeEditor(): void {
@@ -156,7 +143,7 @@ export class TextEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     this.editor = monaco.editor.create(this.editorContainer.nativeElement, {
       value: '',
       language: 'plaintext',
-      theme: 'vs',
+      theme: this.monacoTheme,
       automaticLayout: true,
       fontSize: this.fontSize,
       lineNumbers: this.showLineNumbers ? 'on' : 'off',
@@ -412,16 +399,21 @@ export class TextEditorComponent implements OnInit, AfterViewInit, OnDestroy {
 
   toggleTheme(): void {
     if (this.editor) {
-      // Check if current theme is dark
-      const isDark = document.body.classList.contains('editor-dark-theme');
+      // Toggle theme
+      this.monacoTheme = this.monacoTheme === 'vs' ? 'vs-dark' : 'vs';
 
-      if (isDark) {
-        monaco.editor.setTheme('vs');
-        document.body.classList.remove('editor-dark-theme');
-      } else {
-        monaco.editor.setTheme('vs-dark');
+      // Update component preference and apply globally via service
+      this.monacoThemeService.updateComponentPreference('text-editor', this.monacoTheme, true);
+
+      // Update body class
+      if (this.monacoTheme === 'vs-dark') {
         document.body.classList.add('editor-dark-theme');
+      } else {
+        document.body.classList.remove('editor-dark-theme');
       }
+
+      // Save state
+      this.saveState();
     }
   }
 }

@@ -62,18 +62,24 @@
                          [(code)]="htmlCode"
                          (codeChange)="saveState()"
                          language="html"
+                         componentId="js-playground-html"
+                         theme="vs-dark"
                          placeholder="Write your HTML here..."></app-code-editor>
 
         <app-code-editor [style.display]="activeTab === 'css' ? 'block' : 'none'"
                          [(code)]="cssCode"
                          (codeChange)="saveState()"
                          language="css"
+                         componentId="js-playground-css"
+                         theme="vs-dark"
                          placeholder="Write your CSS here..."></app-code-editor>
 
         <app-code-editor [style.display]="activeTab === 'js' ? 'block' : 'none'"
                          [(code)]="jsCode"
                          (codeChange)="saveState()"
                          language="javascript"
+                         componentId="js-playground-js"
+                         theme="vs-dark"
                          placeholder="Write your JavaScript here..."></app-code-editor>
       </div>
     </div>
