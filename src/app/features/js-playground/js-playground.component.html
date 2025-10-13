@@ -1,17 +1,32 @@
-<div class="playground-container">
+<div class="playground-container" [class.full-viewport]="isFullViewport">
   <header class="playground-header">
     <div class="header-content">
       <div class="header-title">
         <h1>JavaScript Playground</h1>
         <p class="subtitle">Write HTML, CSS, and JavaScript code and see it run live</p>
       </div>
-      <app-reset-button (reset)="onReset()"></app-reset-button>
+      <div class="header-actions">
+        <div class="layout-selector">
+          <label class="layout-label">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h4a1 1 0 011 1v7a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM14 5a1 1 0 011-1h4a1 1 0 011 1v7a1 1 0 01-1 1h-4a1 1 0 01-1-1V5zM4 16a1 1 0 011-1h4a1 1 0 011 1v3a1 1 0 01-1 1H5a1 1 0 01-1-1v-3zM14 16a1 1 0 011-1h4a1 1 0 011 1v3a1 1 0 01-1 1h-4a1 1 0 01-1-1v-3z"/>
+            </svg>
+            Layout:
+          </label>
+          <select class="layout-dropdown" [(ngModel)]="layout" (change)="setLayout(layout)">
+            <option *ngFor="let l of layouts" [value]="l.value">
+              {{ l.icon }} {{ l.label }}
+            </option>
+          </select>
+        </div>
+        <app-reset-button (reset)="onReset()"></app-reset-button>
+      </div>
     </div>
   </header>
 
-  <div class="playground-content">
+  <div class="playground-content" [attr.data-layout]="layout">
     <!-- Editor Section -->
-    <div class="editor-section">
+    <div class="editor-section" *ngIf="layout !== 'three-panel'">
       <div class="editor-header">
         <div class="tabs">
           <button class="tab"
@@ -46,6 +61,15 @@
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
             </svg>
             Clear
+          </button>
+
+          <button class="fullscreen-btn" (click)="toggleFullViewport()" [attr.aria-label]="isFullViewport ? 'Exit full viewport' : 'Expand to full viewport'">
+            <svg *ngIf="!isFullViewport" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+            </svg>
+            <svg *ngIf="isFullViewport" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 9V4.5M9 9H4.5M9 9L3.75 3.75M9 15v4.5M9 15H4.5M9 15l-5.25 5.25M15 9h4.5M15 9V4.5M15 9l5.25-5.25M15 15h4.5M15 15v4.5m0-4.5l5.25 5.25" />
+            </svg>
           </button>
 
           <button class="run-btn" (click)="runCode()">
@@ -83,6 +107,87 @@
                          placeholder="Write your JavaScript here..."></app-code-editor>
       </div>
     </div>
+
+    <!-- Three Panel Layout -->
+    <div class="three-panel-editors" *ngIf="layout === 'three-panel'">
+      <div class="panel-editor html-panel">
+        <div class="panel-header">
+          <span class="panel-title">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/>
+            </svg>
+            HTML
+          </span>
+        </div>
+        <div class="panel-content">
+          <app-code-editor
+            [(code)]="htmlCode"
+            (codeChange)="saveState()"
+            language="html"
+            componentId="js-playground-html-panel"
+            theme="vs-dark"
+            placeholder="Write your HTML here..."></app-code-editor>
+        </div>
+      </div>
+
+      <div class="panel-editor css-panel">
+        <div class="panel-header">
+          <span class="panel-title">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"/>
+            </svg>
+            CSS
+          </span>
+        </div>
+        <div class="panel-content">
+          <app-code-editor
+            [(code)]="cssCode"
+            (codeChange)="saveState()"
+            language="css"
+            componentId="js-playground-css-panel"
+            theme="vs-dark"
+            placeholder="Write your CSS here..."></app-code-editor>
+        </div>
+      </div>
+
+      <div class="panel-editor js-panel">
+        <div class="panel-header">
+          <span class="panel-title">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+            </svg>
+            JavaScript
+          </span>
+          <div class="panel-actions">
+            <button class="icon-btn" (click)="toggleFullViewport()" [attr.aria-label]="isFullViewport ? 'Exit full viewport' : 'Expand to full viewport'">
+              <svg *ngIf="!isFullViewport" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+              </svg>
+              <svg *ngIf="isFullViewport" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 9V4.5M9 9H4.5M9 9L3.75 3.75M9 15v4.5M9 15H4.5M9 15l-5.25 5.25M15 9h4.5M15 9V4.5M15 9l5.25-5.25M15 15h4.5M15 15v4.5m0-4.5l5.25 5.25" />
+              </svg>
+            </button>
+            <button class="icon-btn" (click)="runCode()" title="Run Code">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M8 5v14l11-7z"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+        <div class="panel-content">
+          <app-code-editor
+            [(code)]="jsCode"
+            (codeChange)="saveState()"
+            language="javascript"
+            componentId="js-playground-js-panel"
+            theme="vs-dark"
+            placeholder="Write your JavaScript here..."></app-code-editor>
+        </div>
+      </div>
+    </div>
+
+    <!-- Resizer between editor and preview -->
+    <div class="resizer" *ngIf="layout !== 'three-panel'"></div>
 
     <!-- Preview Section -->
     <div class="preview-section">

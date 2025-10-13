@@ -157,3 +157,148 @@ export function convertHtmlToPlainText(html: string): string {
 
   return text;
 }
+
+/**
+ * Convert HTML to YAML format
+ */
+export function convertHtmlToYaml(html: string, theme: string): string {
+  const temp = document.createElement('div');
+  temp.innerHTML = html;
+
+  // Find the first H1 as title
+  const h1Element = temp.querySelector('h1');
+  const title = h1Element ? h1Element.textContent?.trim() || 'Untitled' : 'Untitled';
+
+  // Build YAML content
+  let yaml = '---\n';
+  yaml += `title: "${escapeYamlString(title)}"\n`;
+  yaml += `meta:\n`;
+  yaml += `  generatedAt: "${new Date().toISOString()}"\n`;
+  yaml += `  theme: "${theme}"\n`;
+  yaml += `  converter: "Markdown to HTML Converter"\n`;
+  yaml += `content:\n`;
+
+  // Parse elements
+  const elements = Array.from(temp.children);
+  for (const element of elements) {
+    yaml += parseElementToYaml(element, 2);
+  }
+
+  yaml += '---\n';
+  return yaml;
+}
+
+/**
+ * Parse HTML element to YAML format
+ */
+function parseElementToYaml(element: Element, indent: number): string {
+  const tagName = element.tagName.toLowerCase();
+  const indentStr = ' '.repeat(indent);
+  let yaml = '';
+
+  switch (tagName) {
+    case 'h1':
+    case 'h2':
+    case 'h3':
+    case 'h4':
+    case 'h5':
+    case 'h6':
+      yaml += `${indentStr}- type: heading\n`;
+      yaml += `${indentStr}  level: ${tagName.charAt(1)}\n`;
+      yaml += `${indentStr}  content: "${escapeYamlString(element.textContent?.trim() || '')}"\n`;
+      break;
+
+    case 'p':
+      const pText = element.textContent?.trim();
+      if (pText) {
+        yaml += `${indentStr}- type: paragraph\n`;
+        yaml += `${indentStr}  content: "${escapeYamlString(pText)}"\n`;
+      }
+      break;
+
+    case 'pre':
+      const codeElement = element.querySelector('code');
+      const language = codeElement?.className.match(/language-(\w+)/)?.[1] || '';
+      const code = codeElement?.textContent || element.textContent || '';
+      yaml += `${indentStr}- type: code\n`;
+      if (language) {
+        yaml += `${indentStr}  language: "${language}"\n`;
+      }
+      yaml += `${indentStr}  content: |\n`;
+      const codeLines = code.split('\n');
+      for (const line of codeLines) {
+        yaml += `${indentStr}    ${line}\n`;
+      }
+      break;
+
+    case 'ul':
+      yaml += `${indentStr}- type: list\n`;
+      yaml += `${indentStr}  ordered: false\n`;
+      yaml += `${indentStr}  items:\n`;
+      const ulItems = element.querySelectorAll(':scope > li');
+      ulItems.forEach(li => {
+        const text = li.textContent?.trim() || '';
+        yaml += `${indentStr}    - "${escapeYamlString(text)}"\n`;
+      });
+      break;
+
+    case 'ol':
+      yaml += `${indentStr}- type: list\n`;
+      yaml += `${indentStr}  ordered: true\n`;
+      yaml += `${indentStr}  items:\n`;
+      const olItems = element.querySelectorAll(':scope > li');
+      olItems.forEach(li => {
+        const text = li.textContent?.trim() || '';
+        yaml += `${indentStr}    - "${escapeYamlString(text)}"\n`;
+      });
+      break;
+
+    case 'blockquote':
+      yaml += `${indentStr}- type: blockquote\n`;
+      yaml += `${indentStr}  content: "${escapeYamlString(element.textContent?.trim() || '')}"\n`;
+      break;
+
+    case 'table':
+      yaml += `${indentStr}- type: table\n`;
+      yaml += `${indentStr}  rows:\n`;
+      const rows = element.querySelectorAll('tr');
+      rows.forEach(tr => {
+        yaml += `${indentStr}    - cells:\n`;
+        const cells = tr.querySelectorAll('th, td');
+        cells.forEach(cell => {
+          const cellText = cell.textContent?.trim() || '';
+          const cellType = cell.tagName.toLowerCase() === 'th' ? 'header' : 'cell';
+          yaml += `${indentStr}        - type: ${cellType}\n`;
+          yaml += `${indentStr}          content: "${escapeYamlString(cellText)}"\n`;
+        });
+      });
+      break;
+
+    case 'hr':
+      yaml += `${indentStr}- type: divider\n`;
+      break;
+
+    default:
+      // For other elements, try to extract text
+      const text = element.textContent?.trim();
+      if (text) {
+        yaml += `${indentStr}- type: ${tagName}\n`;
+        yaml += `${indentStr}  content: "${escapeYamlString(text)}"\n`;
+      }
+      break;
+  }
+
+  return yaml;
+}
+
+/**
+ * Escape special characters in YAML strings
+ */
+function escapeYamlString(str: string): string {
+  return str
+    .replace(/\\/g, '\\\\')
+    .replace(/"/g, '\\"')
+    .replace(/\n/g, '\\n')
+    .replace(/\r/g, '\\r')
+    .replace(/\t/g, '\\t');
+}

@@ -127,6 +127,8 @@ export class ThemeService {
         return this.getClaudeThemeStyles();
       case 'claude-web':
         return this.getClaudeWebThemeStyles();
+      case 'claude-chat':
+        return this.getClaudeChatThemeStyles();
       case 'github':
         return this.getGithubThemeStyles();
       case 'dark':
@@ -439,6 +441,292 @@ export class ThemeService {
 
       .theme-claude-web em, .theme-claude-web i {
         font-style: italic;
+      }
+    `;
+  }
+
+  /**
+   * Claude Chat theme styles - Authentic Claude.ai chat interface
+   */
+  private getClaudeChatThemeStyles(): string {
+    return `
+      /* ===== CLAUDE CHAT THEME ===== */
+      /* Authentic Claude.ai chat interface styling with custom fonts */
+
+      /* Font definitions from Claude.ai */
+      @font-face {
+        font-family: 'anthropicSans';
+        src: url('https://cdn.jsdelivr.net/gh/google/fonts@main/ofl/inter/Inter-Regular.ttf') format('truetype');
+        font-weight: 400;
+        font-style: normal;
+        font-display: swap;
+      }
+
+      @font-face {
+        font-family: 'anthropicSans';
+        src: url('https://cdn.jsdelivr.net/gh/google/fonts@main/ofl/inter/Inter-Medium.ttf') format('truetype');
+        font-weight: 500;
+        font-style: normal;
+        font-display: swap;
+      }
+
+      @font-face {
+        font-family: 'anthropicSans';
+        src: url('https://cdn.jsdelivr.net/gh/google/fonts@main/ofl/inter/Inter-SemiBold.ttf') format('truetype');
+        font-weight: 600;
+        font-style: normal;
+        font-display: swap;
+      }
+
+      @font-face {
+        font-family: 'anthropicSerif';
+        src: url('https://cdn.jsdelivr.net/gh/google/fonts@main/ofl/tinosserif/Tinos-Regular.ttf') format('truetype');
+        font-weight: 400;
+        font-style: normal;
+        font-display: swap;
+      }
+
+      /* Theme variables matching Claude.ai */
+      .theme-claude-chat {
+        --font-user-message: 'anthropicSans', ui-sans-serif, system-ui, -apple-system, sans-serif;
+        --font-claude-response: 'anthropicSerif', ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+        --font-sans-serif: 'anthropicSans', ui-sans-serif, system-ui, -apple-system, sans-serif;
+        --font-serif: 'anthropicSerif', ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+        --font-monospace: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', 'Consolas', monospace;
+
+        /* Color palette */
+        --bg-primary: #fafaf8;
+        --bg-secondary: #ffffff;
+        --text-primary: #2c2925;
+        --text-secondary: #59534e;
+        --text-tertiary: #878280;
+        --border-color: #e7e5e4;
+        --accent-color: #cf6c2c;
+        --code-bg: #f5f3f0;
+        --code-border: #e3dfd9;
+
+        /*background-color: var(--bg-primary);*/
+
+        background-color: #f8f7f4;
+      
+        color: var(--text-primary);
+      }
+
+      .theme-claude-chat .markdown-body {
+        font-family: var(--font-claude-response);
+        font-size: 16px;
+        line-height: 1.625;
+        /*background: var(--bg-secondary);*/
+
+        border-radius: 16px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+        max-width: 800px;
+        padding: 32px 40px;
+      }
+
+      /* Headings */
+      .theme-claude-chat h1,
+      .theme-claude-chat h2,
+      .theme-claude-chat h3,
+      .theme-claude-chat h4,
+      .theme-claude-chat h5,
+      .theme-claude-chat h6 {
+        font-family: var(--font-sans-serif);
+        color: var(--text-primary);
+        font-weight: 600;
+        line-height: 1.3;
+        margin-top: 24px;
+        margin-bottom: 12px;
+      }
+
+      .theme-claude-chat h1 {
+        font-size: 28px;
+        letter-spacing: -0.02em;
+        border-bottom: 1px solid var(--border-color);
+        padding-bottom: 12px;
+        margin-top: 0;
+      }
+
+      .theme-claude-chat h2 {
+        font-size: 24px;
+        letter-spacing: -0.015em;
+        border-bottom: 1px solid var(--border-color);
+        padding-bottom: 8px;
+      }
+
+      .theme-claude-chat h3 {
+        font-size: 20px;
+        letter-spacing: -0.01em;
+      }
+
+      .theme-claude-chat h4 {
+        font-size: 18px;
+      }
+
+      .theme-claude-chat h5 {
+        font-size: 16px;
+      }
+
+      .theme-claude-chat h6 {
+        font-size: 14px;
+        color: var(--text-secondary);
+      }
+
+      /* Paragraphs */
+      .theme-claude-chat p {
+        margin: 0 0 16px 0;
+        color: var(--text-primary);
+      }
+
+      /* Links */
+      .theme-claude-chat a {
+        color: var(--accent-color);
+        text-decoration: none;
+        transition: opacity 0.2s ease;
+      }
+
+      .theme-claude-chat a:hover {
+        opacity: 0.7;
+        text-decoration: underline;
+      }
+
+      /* Lists */
+      .theme-claude-chat ul,
+      .theme-claude-chat ol {
+        margin: 0 0 16px 0;
+        padding-left: 28px;
+      }
+
+      .theme-claude-chat li {
+        margin: 6px 0;
+      }
+
+      .theme-claude-chat li > p {
+        margin-bottom: 8px;
+      }
+
+      /* Code */
+      .theme-claude-chat code {
+        font-family: var(--font-monospace);
+        font-size: 14px;
+        background-color: var(--code-bg);
+        color: var(--text-primary);
+        padding: 2px 6px;
+        border-radius: 4px;
+        border: 1px solid var(--code-border);
+      }
+
+      .theme-claude-chat pre {
+        background-color: #ffffff80
+        color: #383a42;
+        padding: 16px 20px;
+        border-radius: 8px;
+        overflow-x: auto;
+        margin: 16px 0;
+        border: 1px solid #1f1e1d26;
+      }
+
+
+
+      .theme-claude-chat pre code {
+        background: none;
+        color: #383a42
+        padding: 0;
+        border: none;
+        font-size: 14px;
+        line-height: 1.5;
+      }
+
+
+      /* Blockquotes */
+      .theme-claude-chat blockquote {
+        border-left: 3px solid var(--border-color);
+        padding: 4px 0 4px 16px;
+        margin: 16px 0;
+        color: var(--text-secondary);
+        font-style: italic;
+      }
+
+      .theme-claude-chat blockquote p {
+        margin: 8px 0;
+      }
+
+      /* Tables */
+      .theme-claude-chat table {
+        border-collapse: collapse;
+        width: 100%;
+        margin: 16px 0;
+        font-size: 15px;
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        overflow: hidden;
+      }
+
+      .theme-claude-chat table th,
+      .theme-claude-chat table td {
+        padding: 10px 14px;
+        text-align: left;
+        border-bottom: 1px solid var(--border-color);
+      }
+
+      .theme-claude-chat table th {
+        font-family: var(--font-sans-serif);
+        font-weight: 600;
+        background-color: var(--code-bg);
+        color: var(--text-primary);
+      }
+
+      .theme-claude-chat table tr:last-child td {
+        border-bottom: none;
+      }
+
+      .theme-claude-chat table tbody tr:hover {
+        background-color: #fafaf8;
+      }
+
+      /* Horizontal rule */
+      .theme-claude-chat hr {
+        border: none;
+        border-top: 1px solid var(--border-color);
+        margin: 28px 0;
+      }
+
+      /* Strong and emphasis */
+      .theme-claude-chat strong,
+      .theme-claude-chat b {
+        font-weight: 600;
+        color: var(--text-primary);
+      }
+
+      .theme-claude-chat em,
+      .theme-claude-chat i {
+        font-style: italic;
+      }
+
+      /* Images */
+      .theme-claude-chat img {
+        max-width: 100%;
+        height: auto;
+        border-radius: 8px;
+        margin: 16px 0;
+      }
+
+      /* Scrollbar styling for code blocks */
+      .theme-claude-chat pre::-webkit-scrollbar {
+        height: 8px;
+      }
+
+      .theme-claude-chat pre::-webkit-scrollbar-track {
+        background: #1e1e1e;
+      }
+
+      .theme-claude-chat pre::-webkit-scrollbar-thumb {
+        background: #444;
+        border-radius: 4px;
+      }
+
+      .theme-claude-chat pre::-webkit-scrollbar-thumb:hover {
+        background: #555;
       }
     `;
   }

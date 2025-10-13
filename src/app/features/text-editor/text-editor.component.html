@@ -116,6 +116,25 @@
 
     <div class="toolbar-divider"></div>
 
+    <!-- Syntax Highlighting -->
+    <div class="toolbar-group">
+      <label class="syntax-label">
+        <span class="icon">🎨</span>
+        Syntax:
+      </label>
+      <select
+        [(ngModel)]="language"
+        (ngModelChange)="setLanguage($event)"
+        class="syntax-select"
+        title="Select syntax highlighting">
+        <option *ngFor="let lang of languageOptions" [value]="lang.value">
+          {{ lang.label }}
+        </option>
+      </select>
+    </div>
+
+    <div class="toolbar-divider"></div>
+
     <!-- Other Operations -->
     <div class="toolbar-group">
       <button (click)="selectAll()" title="Select All (Ctrl+A)" class="toolbar-btn">

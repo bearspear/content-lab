@@ -3,6 +3,7 @@ import { Theme } from '../../core/models';
 export const THEMES: Theme[] = [
   { name: 'Claude AI', value: 'claude', description: 'Clean, modern design inspired by claude.ai' },
   { name: 'Claude Web', value: 'claude-web', description: 'Warm, professional design matching Claude\'s web interface' },
+  { name: 'Claude Chat', value: 'claude-chat', description: 'Authentic Claude.ai chat interface styling with custom fonts' },
   { name: 'GitHub', value: 'github', description: 'GitHub markdown style' },
   { name: 'Dark Mode', value: 'dark', description: 'Dark theme for reduced eye strain' },
   { name: 'Academic', value: 'academic', description: 'Academic paper style' },

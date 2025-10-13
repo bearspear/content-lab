@@ -170,6 +170,9 @@ export class MdConverterComponent extends StatefulComponent<MdConverterState> {
       if (this.editorComponent) {
         this.editorComponent.setContent(result.content);
       }
+
+      // Save state after loading file
+      this.saveState();
     } catch (error) {
       console.error('Error loading markdown file:', error);
       alert(`Failed to load file: ${file.name}`);
