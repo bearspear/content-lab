@@ -1,9 +1,10 @@
-import { Component, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
+import { Component, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
 // Services
 import { MarkdownService, ExportService, ThemeService, FileService, StateManagerService } from '../core/services';
+import { StatefulComponent } from '../core/base';
 
 // Models
 import { EditorAction, ExportFormat } from '../core/models';
@@ -51,9 +52,8 @@ interface MdConverterState {
     }
   `]
 })
-export class MdConverterComponent implements OnInit, OnDestroy {
-  private readonly TOOL_ID = 'md-converter';
-  private saveStateTimeout: any;
+export class MdConverterComponent extends StatefulComponent<MdConverterState> {
+  protected readonly TOOL_ID = 'md-converter';
 
   @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
   @ViewChild(MarkdownEditorComponent) editorComponent!: MarkdownEditorComponent;
@@ -73,69 +73,39 @@ export class MdConverterComponent implements OnInit, OnDestroy {
     private exportService: ExportService,
     private themeService: ThemeService,
     private fileService: FileService,
-    private stateManager: StateManagerService
-  ) {}
-
-  ngOnInit(): void {
-    this.loadState();
+    stateManager: StateManagerService
+  ) {
+    super(stateManager);
   }
 
-  ngOnDestroy(): void {
-    if (this.saveStateTimeout) {
-      clearTimeout(this.saveStateTimeout);
-    }
+  protected getDefaultState(): MdConverterState {
+    return {
+      markdownContent: this.markdownService.getSampleMarkdown(),
+      currentTheme: 'claude',
+      viewMode: 'preview'
+    };
   }
 
-  /**
-   * Load saved state or initialize with sample markdown
-   */
-  private loadState(): void {
-    const savedState = this.stateManager.loadState<MdConverterState>(this.TOOL_ID);
-
-    if (savedState) {
-      this.markdownContent = savedState.markdownContent;
-      this.currentTheme = savedState.currentTheme;
-      this.viewMode = savedState.viewMode;
-      this.convertMarkdown();
-    } else {
-      this.loadSampleMarkdown();
-    }
-  }
-
-  /**
-   * Save current state (debounced)
-   */
-  private saveState(): void {
-    if (this.saveStateTimeout) {
-      clearTimeout(this.saveStateTimeout);
-    }
-
-    this.saveStateTimeout = setTimeout(() => {
-      const state: MdConverterState = {
-        markdownContent: this.markdownContent,
-        currentTheme: this.currentTheme,
-        viewMode: this.viewMode
-      };
-      this.stateManager.saveState(this.TOOL_ID, state);
-    }, 500); // Debounce saves by 500ms
-  }
-
-  /**
-   * Reset to default state
-   */
-  onReset(): void {
-    this.stateManager.clearState(this.TOOL_ID);
-    this.currentTheme = 'claude';
-    this.viewMode = 'preview';
-    this.loadSampleMarkdown();
-  }
-
-  /**
-   * Load sample markdown content on init
-   */
-  private loadSampleMarkdown(): void {
-    this.markdownContent = this.markdownService.getSampleMarkdown();
+  protected applyState(state: MdConverterState): void {
+    this.markdownContent = state.markdownContent;
+    this.currentTheme = state.currentTheme;
+    this.viewMode = state.viewMode;
     this.convertMarkdown();
+  }
+
+  protected getCurrentState(): MdConverterState {
+    return {
+      markdownContent: this.markdownContent,
+      currentTheme: this.currentTheme,
+      viewMode: this.viewMode
+    };
+  }
+
+  /**
+   * Override reset to reload sample markdown
+   */
+  public override onReset(): void {
+    super.onReset();
   }
 
   /**
@@ -284,12 +254,10 @@ export class MdConverterComponent implements OnInit, OnDestroy {
         const fullHtml = this.exportService.getFullHtml(this.htmlContent, this.currentTheme);
         await navigator.clipboard.writeText(fullHtml);
         this.showToast('HTML');
-        console.log('✅ Complete HTML copied to clipboard!');
       } else {
         // Copy raw markdown
         await navigator.clipboard.writeText(this.markdownContent);
         this.showToast('Markdown');
-        console.log('✅ Markdown copied to clipboard!');
       }
     } catch (error) {
       console.error('Failed to copy:', error);
@@ -312,7 +280,6 @@ export class MdConverterComponent implements OnInit, OnDestroy {
       document.execCommand('copy');
       const contentType = this.viewMode === 'preview' ? 'HTML' : 'Markdown';
       this.showToast(contentType);
-      console.log(`✅ ${contentType} copied to clipboard (fallback)!`);
     } catch (error) {
       console.error('Fallback copy failed:', error);
       alert('Failed to copy to clipboard');

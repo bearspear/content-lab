@@ -1,9 +1,10 @@
-import { Component, ViewChild, OnInit, OnDestroy } from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { CodeEditorComponent } from '../js-playground/components/code-editor.component';
 import { CodeBridgeService } from '../../core/services/code-bridge.service';
 import { StateManagerService } from '../../core/services';
 import { ResetButtonComponent } from '../../shared/components/reset-button/reset-button.component';
+import { StatefulComponent } from '../../core/base';
 
 interface ValidationError {
   line: number;
@@ -30,9 +31,8 @@ interface JsonEditorState {
     }
   `]
 })
-export class JsonEditorComponent implements OnInit, OnDestroy {
-  private readonly TOOL_ID = 'json-editor';
-  private saveStateTimeout: any;
+export class JsonEditorComponent extends StatefulComponent<JsonEditorState> {
+  protected readonly TOOL_ID = 'json-editor';
 
   @ViewChild(CodeEditorComponent) editorComponent!: CodeEditorComponent;
 
@@ -49,8 +49,10 @@ export class JsonEditorComponent implements OnInit, OnDestroy {
 
   constructor(
     private codeBridgeService: CodeBridgeService,
-    private stateManager: StateManagerService
-  ) {}
+    stateManager: StateManagerService
+  ) {
+    super(stateManager);
+  }
 
   sampleTemplates = [
     {
@@ -168,65 +170,43 @@ export class JsonEditorComponent implements OnInit, OnDestroy {
     }
   ];
 
-  ngOnInit(): void {
-    this.loadState();
-  }
-
-  ngOnDestroy(): void {
-    if (this.saveStateTimeout) {
-      clearTimeout(this.saveStateTimeout);
-    }
+  /**
+   * Returns the default state for this component
+   */
+  protected getDefaultState(): JsonEditorState {
+    return {
+      jsonContent: this.sampleTemplates[0].content,
+      showStats: false
+    };
   }
 
   /**
-   * Load saved state or initialize with sample JSON
+   * Applies loaded state to component properties
    */
-  private loadState(): void {
-    const savedState = this.stateManager.loadState<JsonEditorState>(this.TOOL_ID);
-
-    if (savedState) {
-      this.jsonContent = savedState.jsonContent;
-      this.showStats = savedState.showStats;
-      this.validateJSON();
-      this.updateStats();
-    } else {
-      this.loadDefaultJSON();
-    }
-  }
-
-  /**
-   * Save current state (debounced)
-   */
-  saveState(): void {
-    if (this.saveStateTimeout) {
-      clearTimeout(this.saveStateTimeout);
-    }
-
-    this.saveStateTimeout = setTimeout(() => {
-      const state: JsonEditorState = {
-        jsonContent: this.jsonContent,
-        showStats: this.showStats
-      };
-      this.stateManager.saveState(this.TOOL_ID, state);
-    }, 500); // Debounce saves by 500ms
-  }
-
-  /**
-   * Reset to default state
-   */
-  onReset(): void {
-    this.stateManager.clearState(this.TOOL_ID);
-    this.showStats = false;
-    this.loadDefaultJSON();
-  }
-
-  /**
-   * Load default sample JSON
-   */
-  private loadDefaultJSON(): void {
-    this.jsonContent = this.sampleTemplates[0].content;
+  protected applyState(state: JsonEditorState): void {
+    this.jsonContent = state.jsonContent;
+    this.showStats = state.showStats;
     this.validateJSON();
     this.updateStats();
+  }
+
+  /**
+   * Returns current state to be saved
+   */
+  protected getCurrentState(): JsonEditorState {
+    return {
+      jsonContent: this.jsonContent,
+      showStats: this.showStats
+    };
+  }
+
+  /**
+   * Override reset to also reset validation state
+   */
+  public override onReset(): void {
+    super.onReset();
+    this.isValid = true;
+    this.validationErrors = [];
   }
 
   onContentChange(content: string): void {

@@ -1,3 +1,5 @@
+@import '../../../styles.scss';
+
 .playground-container {
   display: flex;
   flex-direction: column;
@@ -9,8 +11,7 @@
 
 .playground-header {
   padding: 30px 30px 20px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
+  @include header-gradient;
   flex-shrink: 0;
 
   h1 {
@@ -62,15 +63,15 @@
 .tab {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 12px 20px;
+  gap: $spacing-sm;
+  padding: $spacing-md $spacing-xl;
   background: transparent;
   border: none;
   color: #999;
   font-size: 0.95rem;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: $transition-base;
   border-bottom: 2px solid transparent;
 
   svg {
@@ -99,16 +100,15 @@
 .run-btn {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 10px 20px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
+  gap: $spacing-sm;
+  padding: 10px $spacing-xl;
+  @include header-gradient;
   border: none;
-  border-radius: 6px;
+  border-radius: $border-radius-md;
   font-size: 0.95rem;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: $transition-base;
 
   svg {
     width: 18px;
@@ -117,7 +117,7 @@
 
   &:hover {
     transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    box-shadow: $shadow-primary;
   }
 
   &:active {
@@ -129,15 +129,15 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  padding: 8px 16px;
+  padding: $spacing-sm $spacing-lg;
   background: transparent;
   border: 1px solid #444;
-  border-radius: 6px;
+  border-radius: $border-radius-md;
   color: #999;
   font-size: 0.9rem;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: $transition-base;
 
   svg {
     width: 16px;
@@ -191,14 +191,14 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  padding: 6px 12px;
+  padding: 6px $spacing-md;
   background: white;
   border: 1px solid #cbd5e0;
-  border-radius: 6px;
+  border-radius: $border-radius-md;
   color: #4a5568;
   font-size: 0.875rem;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: $transition-base;
 
   svg {
     width: 16px;
@@ -277,14 +277,14 @@
   }
 
   .clear-btn {
-    padding: 4px 12px;
+    padding: $spacing-xs $spacing-md;
     background: transparent;
     border: 1px solid #444;
-    border-radius: 4px;
+    border-radius: $border-radius-sm;
     color: #999;
     font-size: 0.85rem;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: $transition-base;
 
     &:hover {
       background: rgba(255, 255, 255, 0.05);
@@ -371,14 +371,14 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  padding: 6px 12px;
+  padding: 6px $spacing-md;
   background: white;
   border: 1px solid #cbd5e0;
-  border-radius: 6px;
+  border-radius: $border-radius-md;
   color: #4a5568;
   font-size: 0.875rem;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: $transition-base;
 
   svg {
     width: 16px;
@@ -450,10 +450,10 @@
     height: 32px;
     background: rgba(255, 255, 255, 0.05);
     border: none;
-    border-radius: 6px;
+    border-radius: $border-radius-md;
     color: #a0aec0;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: $transition-base;
 
     svg {
       width: 18px;
@@ -533,7 +533,7 @@
 
   &::-webkit-scrollbar-thumb {
     background: rgba(255, 255, 255, 0.1);
-    border-radius: 4px;
+    border-radius: $border-radius-sm;
 
     &:hover {
       background: rgba(255, 255, 255, 0.2);
@@ -569,8 +569,8 @@
 }
 
 .library-item {
-  border-radius: 8px;
-  transition: all 0.2s;
+  border-radius: $border-radius-lg;
+  transition: $transition-base;
 
   &:hover {
     background: rgba(255, 255, 255, 0.05);

@@ -1,3 +1,5 @@
+@import '../../../styles.scss';
+
 .text-editor-container {
   display: flex;
   flex-direction: column;
@@ -7,8 +9,7 @@
 }
 
 .editor-header {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
+  @include header-gradient;
   padding: 24px 32px 20px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   display: flex;
@@ -60,15 +61,15 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  padding: 8px 12px;
+  padding: $spacing-sm $spacing-md;
   background: white;
   border: 1px solid #d0d0d0;
-  border-radius: 6px;
+  border-radius: $border-radius-md;
   cursor: pointer;
   font-size: 13px;
   font-weight: 500;
   color: #333;
-  transition: all 0.2s ease;
+  transition: $transition-base;
   white-space: nowrap;
 
   .icon {
@@ -87,12 +88,11 @@
   }
 
   &.active {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    border-color: #667eea;
+    @include header-gradient;
+    border-color: $color-primary;
 
     &:hover {
-      background: linear-gradient(135deg, #5568d3 0%, #653a8b 100%);
+      background: linear-gradient(135deg, $color-primary-dark 0%, #653a8b 100%);
     }
   }
 
@@ -150,8 +150,8 @@
   color: #333;
   font-weight: 600;
   background: white;
-  padding: 2px 8px;
-  border-radius: 4px;
+  padding: 2px $spacing-sm;
+  border-radius: $border-radius-sm;
   border: 1px solid #e0e0e0;
 }
 
@@ -288,8 +288,7 @@
     }
 
     &.active {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
+      @include header-gradient;
     }
   }
 

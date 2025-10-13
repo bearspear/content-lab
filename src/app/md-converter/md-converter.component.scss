@@ -1,3 +1,5 @@
+@import '../../styles.scss';
+
 .md-converter-container {
   width: 100%;
   max-width: 100%;
@@ -80,11 +82,11 @@
 
 .upload-section {
   border: 2px dashed #cbd5e0;
-  border-radius: 12px;
+  border-radius: $border-radius-xl;
   padding: 40px 20px;
   text-align: center;
   background-color: #f7fafc;
-  transition: all 0.3s ease;
+  transition: $transition-slow;
   cursor: pointer;
 
   &:hover {
@@ -148,10 +150,10 @@
 .theme-selector {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: $spacing-md;
   background-color: #ffffff;
-  padding: 12px 20px;
-  border-radius: 8px;
+  padding: $spacing-md $spacing-xl;
+  border-radius: $border-radius-lg;
   border: 1px solid #e2e8f0;
   white-space: nowrap;
 
@@ -171,14 +173,14 @@
   }
 
   .theme-dropdown {
-    padding: 8px 12px;
+    padding: $spacing-sm $spacing-md;
     border: 1px solid #cbd5e0;
-    border-radius: 6px;
+    border-radius: $border-radius-md;
     font-size: 0.95rem;
     background-color: #ffffff;
     color: #2d3748;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: $transition-base;
 
     &:hover {
       border-color: #4299e1;
@@ -256,12 +258,12 @@
   min-width: 180px;
   background-color: #ffffff;
   border: 1px solid #e2e8f0;
-  border-radius: 6px;
+  border-radius: $border-radius-md;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   opacity: 0;
   visibility: hidden;
   transform: translateY(-8px);
-  transition: all 0.2s;
+  transition: $transition-base;
   z-index: 1000;
 
   &.show {
@@ -322,8 +324,8 @@
 
 .preview-section {
   background-color: #ffffff;
-  border-radius: 12px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07), 0 1px 3px rgba(0, 0, 0, 0.06);
+  border-radius: $border-radius-xl;
+  box-shadow: $shadow-md;
   overflow: hidden;
   flex: 1;
   display: flex;
@@ -354,10 +356,10 @@
 
   .theme-badge {
     display: inline-block;
-    padding: 6px 12px;
+    padding: 6px $spacing-md;
     background-color: #ebf8ff;
     color: #2c5282;
-    border-radius: 6px;
+    border-radius: $border-radius-md;
     font-size: 0.875rem;
     font-weight: 500;
   }
@@ -366,13 +368,13 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 8px;
+    padding: $spacing-sm;
     background-color: #ffffff;
     color: #4299e1;
     border: 1px solid #cbd5e0;
-    border-radius: 6px;
+    border-radius: $border-radius-md;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: $transition-base;
 
     svg {
       width: 20px;
@@ -396,20 +398,20 @@
 .view-mode-toggle {
   display: inline-flex;
   background-color: #e2e8f0;
-  border-radius: 8px;
-  padding: 4px;
+  border-radius: $border-radius-lg;
+  padding: $spacing-xs;
   gap: 2px;
 
   .toggle-btn {
-    padding: 8px 20px;
+    padding: $spacing-sm $spacing-xl;
     background-color: transparent;
     border: none;
-    border-radius: 6px;
+    border-radius: $border-radius-md;
     font-size: 0.95rem;
     font-weight: 500;
     color: #4a5568;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: $transition-base;
 
     &:hover {
       color: #2d3748;
@@ -432,14 +434,14 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 8px;
+    padding: $spacing-sm;
     background-color: transparent;
     border: none;
-    border-radius: 6px;
+    border-radius: $border-radius-md;
     color: #4a5568;
     cursor: pointer;
-    transition: all 0.2s;
-    margin-left: 4px;
+    transition: $transition-base;
+    margin-left: $spacing-xs;
 
     svg {
       width: 20px;
@@ -501,13 +503,13 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 8px;
+  padding: $spacing-sm;
   background-color: transparent;
   border: 1px solid transparent;
-  border-radius: 6px;
+  border-radius: $border-radius-md;
   color: #4a5568;
   cursor: pointer;
-  transition: all 0.15s;
+  transition: $transition-fast;
   font-size: 0.875rem;
   font-weight: 500;
   min-width: 32px;
@@ -575,7 +577,7 @@
 
   &::-webkit-scrollbar-thumb {
     background: #cbd5e0;
-    border-radius: 6px;
+    border-radius: $border-radius-md;
     border: 3px solid #f7fafc;
 
     &:hover {
@@ -603,22 +605,22 @@
 // Toast Notification
 .toast-notification {
   position: fixed;
-  bottom: 32px;
+  bottom: $spacing-3xl;
   left: 50%;
   transform: translateX(-50%) translateY(100px);
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 14px 24px;
+  gap: $spacing-md;
+  padding: 14px $spacing-2xl;
   background-color: #2d3748;
-  color: white;
-  border-radius: 8px;
+  color: $color-white;
+  border-radius: $border-radius-lg;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(255, 255, 255, 0.1);
   font-size: 0.95rem;
   font-weight: 500;
   opacity: 0;
   visibility: hidden;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: $transition-slow cubic-bezier(0.4, 0, 0.2, 1);
   z-index: 10000;
   pointer-events: none;
 
