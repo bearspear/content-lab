@@ -303,6 +303,7 @@ export class ThemeService {
 
       .theme-claude-chatbox li {
         margin: 4px 0;
+        margin-top: 10px;
       }
 
       .theme-claude-chatbox li > p {
