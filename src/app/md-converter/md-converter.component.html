@@ -70,12 +70,11 @@
         </button>
       </div>
       <div class="preview-actions">
-        <label class="center-content-toggle" title="Center content with 900px max-width">
-          <input type="checkbox"
-                 [checked]="centerContent"
-                 (change)="toggleCenterContent()">
-          <span>Center Content</span>
-        </label>
+        <!-- Display Options Dropdown -->
+        <app-display-options
+          [options]="displayOptions"
+          (optionsChange)="onDisplayOptionsChange($event)">
+        </app-display-options>
         <span class="theme-badge">{{ currentTheme | titlecase }} Theme</span>
         <button class="fullscreen-btn" (click)="toggleFullViewport()" [attr.aria-label]="isFullViewport ? 'Exit full viewport' : 'Expand to full viewport'">
           <svg *ngIf="!isFullViewport" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
@@ -110,7 +109,10 @@
       <app-markdown-preview
         [htmlContent]="htmlContent"
         [theme]="currentTheme"
-        [centerContent]="centerContent">
+        [centerContent]="centerContent"
+        [stylePlaintextCode]="stylePlaintextCode"
+        [hideMarkdownCode]="hideMarkdownCode"
+        [hideImages]="hideImages">
       </app-markdown-preview>
     </div>
   </div>

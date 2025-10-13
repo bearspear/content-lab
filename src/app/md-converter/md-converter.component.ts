@@ -16,6 +16,8 @@ import {
   MarkdownPreviewComponent,
   ThemeSelectorComponent,
   ExportButtonComponent,
+  DisplayOptionsComponent,
+  DisplayOptions,
   EditorContentChange,
   ImageDropEvent,
   MarkdownFileDropEvent
@@ -28,6 +30,9 @@ interface MdConverterState {
   currentTheme: string;
   viewMode: 'write' | 'preview';
   centerContent: boolean;
+  stylePlaintextCode: boolean;
+  hideMarkdownCode: boolean;
+  hideImages: boolean;
 }
 
 @Component({
@@ -41,6 +46,7 @@ interface MdConverterState {
     MarkdownPreviewComponent,
     ThemeSelectorComponent,
     ExportButtonComponent,
+    DisplayOptionsComponent,
     ResetButtonComponent
   ],
   templateUrl: './md-converter.component.html',
@@ -69,6 +75,17 @@ export class MdConverterComponent extends StatefulComponent<MdConverterState> {
   showCopyToast: boolean = false;
   copyToastMessage: string = 'Markdown copied to clipboard!';
   centerContent: boolean = true;
+  stylePlaintextCode: boolean = false;
+  hideMarkdownCode: boolean = false;
+  hideImages: boolean = false;
+
+  // Display options for multi-select dropdown
+  displayOptions: DisplayOptions = {
+    centerContent: true,
+    hidePlaintext: false,
+    hideMarkdown: false,
+    hideImages: false
+  };
 
   constructor(
     private markdownService: MarkdownService,
@@ -85,7 +102,10 @@ export class MdConverterComponent extends StatefulComponent<MdConverterState> {
       markdownContent: this.markdownService.getSampleMarkdown(),
       currentTheme: 'claude',
       viewMode: 'preview',
-      centerContent: true
+      centerContent: true,
+      stylePlaintextCode: false,
+      hideMarkdownCode: false,
+      hideImages: false
     };
   }
 
@@ -94,6 +114,18 @@ export class MdConverterComponent extends StatefulComponent<MdConverterState> {
     this.currentTheme = state.currentTheme;
     this.viewMode = state.viewMode;
     this.centerContent = state.centerContent ?? true; // Default to true if not set
+    this.stylePlaintextCode = state.stylePlaintextCode ?? false; // Default to false if not set
+    this.hideMarkdownCode = state.hideMarkdownCode ?? false; // Default to false if not set
+    this.hideImages = state.hideImages ?? false; // Default to false if not set
+
+    // Update display options object
+    this.displayOptions = {
+      centerContent: this.centerContent,
+      hidePlaintext: this.stylePlaintextCode,
+      hideMarkdown: this.hideMarkdownCode,
+      hideImages: this.hideImages
+    };
+
     this.convertMarkdown();
   }
 
@@ -102,7 +134,10 @@ export class MdConverterComponent extends StatefulComponent<MdConverterState> {
       markdownContent: this.markdownContent,
       currentTheme: this.currentTheme,
       viewMode: this.viewMode,
-      centerContent: this.centerContent
+      centerContent: this.centerContent,
+      stylePlaintextCode: this.stylePlaintextCode,
+      hideMarkdownCode: this.hideMarkdownCode,
+      hideImages: this.hideImages
     };
   }
 
@@ -187,10 +222,14 @@ export class MdConverterComponent extends StatefulComponent<MdConverterState> {
     this.saveState();
   }
 
-  // ===== Center Content Handlers =====
+  // ===== Display Options Handlers =====
 
-  toggleCenterContent(): void {
-    this.centerContent = !this.centerContent;
+  onDisplayOptionsChange(options: DisplayOptions): void {
+    this.centerContent = options.centerContent;
+    this.stylePlaintextCode = options.hidePlaintext;
+    this.hideMarkdownCode = options.hideMarkdown;
+    this.hideImages = options.hideImages;
+    this.displayOptions = options;
     this.saveState();
   }
 
@@ -250,7 +289,7 @@ export class MdConverterComponent extends StatefulComponent<MdConverterState> {
   async onExport(format: ExportFormat): Promise<void> {
     try {
       await this.exportService.export(
-        { format, theme: this.currentTheme, centerContent: this.centerContent },
+        { format, theme: this.currentTheme, centerContent: this.centerContent, stylePlaintextCode: this.stylePlaintextCode, hideMarkdownCode: this.hideMarkdownCode, hideImages: this.hideImages },
         this.markdownContent,
         this.htmlContent
       );
@@ -266,7 +305,7 @@ export class MdConverterComponent extends StatefulComponent<MdConverterState> {
     try {
       if (this.viewMode === 'preview') {
         // Copy complete HTML with styles and theme
-        const fullHtml = this.exportService.getFullHtml(this.htmlContent, this.currentTheme, this.centerContent);
+        const fullHtml = this.exportService.getFullHtml(this.htmlContent, this.currentTheme, this.centerContent, this.stylePlaintextCode, this.hideMarkdownCode, this.hideImages);
         await navigator.clipboard.writeText(fullHtml);
         this.showToast('HTML');
       } else {
@@ -278,7 +317,7 @@ export class MdConverterComponent extends StatefulComponent<MdConverterState> {
       console.error('Failed to copy:', error);
       // Fallback for older browsers
       const content = this.viewMode === 'preview'
-        ? this.exportService.getFullHtml(this.htmlContent, this.currentTheme, this.centerContent)
+        ? this.exportService.getFullHtml(this.htmlContent, this.currentTheme, this.centerContent, this.stylePlaintextCode, this.hideMarkdownCode, this.hideImages)
         : this.markdownContent;
       this.fallbackCopyToClipboard(content);
     }
