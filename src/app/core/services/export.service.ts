@@ -23,13 +23,16 @@ export class ExportService {
   async export(options: ExportOptions, markdownContent: string, htmlContent: string): Promise<void> {
     const filename = options.filename || this.generateFilename(options.format, markdownContent, options.theme);
     const centerContent = options.centerContent ?? true; // Default to true for backwards compatibility
+    const stylePlaintextCode = options.stylePlaintextCode ?? false; // Default to false
+    const hideMarkdownCode = options.hideMarkdownCode ?? false; // Default to false
+    const hideImages = options.hideImages ?? false; // Default to false
 
     switch (options.format) {
       case 'html':
-        this.exportAsHtml(htmlContent, options.theme || 'claude', filename, centerContent);
+        this.exportAsHtml(htmlContent, options.theme || 'claude', filename, centerContent, stylePlaintextCode, hideMarkdownCode, hideImages);
         break;
       case 'pdf':
-        await this.exportAsPdf(htmlContent, options.theme || 'claude', filename, centerContent);
+        await this.exportAsPdf(htmlContent, options.theme || 'claude', filename, centerContent, stylePlaintextCode, hideMarkdownCode, hideImages);
         break;
       case 'markdown':
         this.exportAsMarkdown(markdownContent, filename);
@@ -54,8 +57,8 @@ export class ExportService {
   /**
    * Export as standalone HTML file
    */
-  private exportAsHtml(htmlContent: string, theme: string, filename: string, centerContent: boolean = true): void {
-    const fullHtml = this.themeService.generateFullHtml(htmlContent, theme, centerContent);
+  private exportAsHtml(htmlContent: string, theme: string, filename: string, centerContent: boolean = true, stylePlaintextCode: boolean = false, hideMarkdownCode: boolean = false, hideImages: boolean = false): void {
+    const fullHtml = this.themeService.generateFullHtml(htmlContent, theme, centerContent, stylePlaintextCode, hideMarkdownCode, hideImages, true);
     const blob = createTextBlob(fullHtml, 'text/html');
     downloadBlob(blob, filename);
   }
@@ -63,7 +66,7 @@ export class ExportService {
   /**
    * Export as PDF file
    */
-  private async exportAsPdf(htmlContent: string, theme: string, filename: string, centerContent: boolean = true): Promise<void> {
+  private async exportAsPdf(htmlContent: string, theme: string, filename: string, centerContent: boolean = true, stylePlaintextCode: boolean = false, hideMarkdownCode: boolean = false, hideImages: boolean = false): Promise<void> {
     // Create a styled container for PDF generation
     const container = document.createElement('div');
     container.style.position = 'absolute';
@@ -71,9 +74,9 @@ export class ExportService {
     container.style.top = '0';
     container.style.width = '210mm'; // A4 width
 
-    // Use ThemeService styles for consistency
+    // Use ThemeService styles for consistency - pass true for isExport
     const styleElement = document.createElement('style');
-    const themeStyles = this.themeService.getThemeStyles(theme, centerContent);
+    const themeStyles = this.themeService.getThemeStyles(theme, centerContent, stylePlaintextCode, hideMarkdownCode, hideImages, true);
     // Extract just the CSS content from the style tags
     const cssMatch = themeStyles.match(/<style[^>]*>([\s\S]*?)<\/style>/g);
     if (cssMatch) {
@@ -167,8 +170,8 @@ export class ExportService {
    * Get full HTML document with embedded styles (for copying to clipboard)
    * Uses ThemeService to ensure consistency with preview
    */
-  public getFullHtml(htmlContent: string, theme: string, centerContent: boolean = true): string {
-    return this.themeService.generateFullHtml(htmlContent, theme, centerContent);
+  public getFullHtml(htmlContent: string, theme: string, centerContent: boolean = true, stylePlaintextCode: boolean = false, hideMarkdownCode: boolean = false, hideImages: boolean = false): string {
+    return this.themeService.generateFullHtml(htmlContent, theme, centerContent, stylePlaintextCode, hideMarkdownCode, hideImages, true);
   }
 
   /**
