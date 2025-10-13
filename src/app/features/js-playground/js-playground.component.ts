@@ -19,12 +19,15 @@ interface Library extends LibraryConfig {
   enabled: boolean;
 }
 
+type LayoutType = 'split-vertical' | 'split-horizontal' | 'three-panel';
+
 interface JsPlaygroundState {
   htmlCode: string;
   cssCode: string;
   jsCode: string;
   activeTab: 'html' | 'css' | 'js';
   libraries: Library[];
+  layout: LayoutType;
 }
 
 @Component({
@@ -46,6 +49,13 @@ export class JsPlaygroundComponent extends StatefulComponent<JsPlaygroundState> 
 
   @ViewChild('previewFrame') previewFrame!: ElementRef<HTMLIFrameElement>;
 
+  // Resizer
+  private isResizing = false;
+  private startX = 0;
+  private startY = 0;
+  private startWidth = 0;
+  private startHeight = 0;
+
   // Editor tabs
   activeTab: 'html' | 'css' | 'js' = 'js';
 
@@ -64,10 +74,21 @@ export class JsPlaygroundComponent extends StatefulComponent<JsPlaygroundState> 
 
   // Library panel
   showLibraryPanel = false;
+
+  // Full viewport mode
+  isFullViewport = false;
   libraries: Library[] = LIBRARY_CONFIG.map(config => ({
     ...config,
     enabled: false
   }));
+
+  // Layout configuration
+  layout: LayoutType = 'split-vertical';
+  layouts = [
+    { value: 'split-vertical' as LayoutType, label: 'Split Vertical', icon: '⬌' },
+    { value: 'split-horizontal' as LayoutType, label: 'Split Horizontal', icon: '⬍' },
+    { value: 'three-panel' as LayoutType, label: 'Three Panel', icon: '▦' }
+  ];
 
   constructor(
     private codeBridgeService: CodeBridgeService,
@@ -106,7 +127,8 @@ export class JsPlaygroundComponent extends StatefulComponent<JsPlaygroundState> 
       cssCode: this.cssCode,
       jsCode: this.jsCode,
       activeTab: 'js',
-      libraries: this.libraries.map(lib => ({ ...lib, enabled: false }))
+      libraries: this.libraries.map(lib => ({ ...lib, enabled: false })),
+      layout: 'split-vertical'
     };
   }
 
@@ -115,6 +137,7 @@ export class JsPlaygroundComponent extends StatefulComponent<JsPlaygroundState> 
     this.cssCode = state.cssCode;
     this.jsCode = state.jsCode;
     this.activeTab = state.activeTab;
+    this.layout = state.layout || 'split-vertical';
     // Restore library enabled states while preserving current config
     if (state.libraries) {
       // Merge saved enabled states with current library config
@@ -134,7 +157,8 @@ export class JsPlaygroundComponent extends StatefulComponent<JsPlaygroundState> 
       cssCode: this.cssCode,
       jsCode: this.jsCode,
       activeTab: this.activeTab,
-      libraries: this.libraries
+      libraries: this.libraries,
+      layout: this.layout
     };
   }
 
@@ -310,6 +334,15 @@ ${libraryScripts.join('\n')}
 
   toggleLibraryPanel(): void {
     this.showLibraryPanel = !this.showLibraryPanel;
+  }
+
+  toggleFullViewport(): void {
+    this.isFullViewport = !this.isFullViewport;
+  }
+
+  setLayout(layout: LayoutType): void {
+    this.layout = layout;
+    this.saveState();
   }
 
   async toggleLibrary(library: Library): Promise<void> {
@@ -662,6 +695,9 @@ ${libraryScriptTags}
     // Load saved state
     this.loadState();
 
+    // Setup resizer
+    this.setupResizer();
+
     // Apply JS Playground's preferred dark theme
     // This ensures the dark theme is used when navigating to this component
     this.monacoThemeService.applyComponentTheme('js-playground-js');
@@ -769,5 +805,73 @@ ${libraryScriptTags}
       default:
         return '▶';
     }
+  }
+
+  private setupResizer(): void {
+    const resizer = document.querySelector('.resizer') as HTMLElement;
+    if (!resizer) return;
+
+    const editorSection = document.querySelector('.editor-section') as HTMLElement;
+    const previewSection = document.querySelector('.preview-section') as HTMLElement;
+    const container = document.querySelector('.playground-content') as HTMLElement;
+
+    if (!editorSection || !previewSection || !container) return;
+
+    const onMouseDown = (e: MouseEvent) => {
+      this.isResizing = true;
+      this.startX = e.clientX;
+      this.startY = e.clientY;
+
+      if (this.layout === 'split-vertical') {
+        this.startWidth = editorSection.offsetWidth;
+      } else if (this.layout === 'split-horizontal') {
+        this.startHeight = editorSection.offsetHeight;
+      }
+
+      document.body.style.cursor = this.layout === 'split-vertical' ? 'col-resize' : 'row-resize';
+      document.body.style.userSelect = 'none';
+
+      document.addEventListener('mousemove', onMouseMove);
+      document.addEventListener('mouseup', onMouseUp);
+    };
+
+    const onMouseMove = (e: MouseEvent) => {
+      if (!this.isResizing) return;
+
+      if (this.layout === 'split-vertical') {
+        const deltaX = e.clientX - this.startX;
+        const newWidth = this.startWidth + deltaX;
+        const containerWidth = container.offsetWidth;
+        const minWidth = 300;
+        const maxWidth = containerWidth - minWidth;
+
+        if (newWidth >= minWidth && newWidth <= maxWidth) {
+          editorSection.style.width = `${newWidth}px`;
+          editorSection.style.flex = 'none';
+        }
+      } else if (this.layout === 'split-horizontal') {
+        const deltaY = e.clientY - this.startY;
+        const newHeight = this.startHeight + deltaY;
+        const containerHeight = container.offsetHeight;
+        const minHeight = 200;
+        const maxHeight = containerHeight - minHeight;
+
+        if (newHeight >= minHeight && newHeight <= maxHeight) {
+          editorSection.style.height = `${newHeight}px`;
+          editorSection.style.flex = 'none';
+        }
+      }
+    };
+
+    const onMouseUp = () => {
+      this.isResizing = false;
+      document.body.style.cursor = '';
+      document.body.style.userSelect = '';
+
+      document.removeEventListener('mousemove', onMouseMove);
+      document.removeEventListener('mouseup', onMouseUp);
+    };
+
+    resizer.addEventListener('mousedown', onMouseDown);
   }
 }

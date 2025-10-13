@@ -14,6 +14,23 @@
   @include header-gradient;
   flex-shrink: 0;
 
+  .header-content {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 20px;
+  }
+
+  .header-title {
+    flex: 1;
+  }
+
+  .header-actions {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
   h1 {
     font-size: 2rem;
     font-weight: 700;
@@ -27,13 +44,136 @@
   }
 }
 
+// Layout Selector
+.layout-selector {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 16px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: $border-radius-lg;
+  backdrop-filter: blur(10px);
+
+  .layout-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.9);
+
+    svg {
+      width: 18px;
+      height: 18px;
+    }
+  }
+
+  .layout-dropdown {
+    padding: 6px 12px;
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: $border-radius-md;
+    color: white;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: $transition-base;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.2);
+      border-color: rgba(255, 255, 255, 0.3);
+    }
+
+    &:focus {
+      outline: none;
+      border-color: #4fc3f7;
+      box-shadow: 0 0 0 2px rgba(79, 195, 247, 0.2);
+    }
+
+    option {
+      background: #252526;
+      color: white;
+    }
+  }
+}
+
 .playground-content {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0;
+  display: flex;
   flex: 1;
   min-height: 0;
   overflow: hidden;
+  position: relative;
+
+  // Default: Split Vertical (editor left, preview right)
+  &[data-layout="split-vertical"] {
+    flex-direction: row;
+
+    .editor-section {
+      width: 50%;
+      min-width: 300px;
+    }
+
+    .preview-section {
+      flex: 1;
+      min-width: 300px;
+    }
+
+    .resizer {
+      width: 4px;
+      cursor: col-resize;
+
+      &:hover {
+        width: 6px;
+      }
+    }
+  }
+
+  // Split Horizontal (editor top, preview bottom)
+  &[data-layout="split-horizontal"] {
+    flex-direction: column;
+
+    .editor-section {
+      height: 50%;
+      min-height: 200px;
+    }
+
+    .preview-section {
+      flex: 1;
+      min-height: 200px;
+    }
+
+    .resizer {
+      height: 4px;
+      cursor: row-resize;
+
+      &:hover {
+        height: 6px;
+      }
+    }
+  }
+
+  // Three Panel (HTML | CSS | JS + Preview bottom)
+  &[data-layout="three-panel"] {
+    flex-direction: column;
+
+    .three-panel-editors {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      height: 60%;
+      min-height: 300px;
+      gap: 0;
+      border-bottom: 1px solid #333;
+    }
+
+    .preview-section {
+      flex: 1;
+      min-height: 200px;
+    }
+
+    .resizer {
+      display: none;
+    }
+  }
 }
 
 // Editor Section
@@ -636,16 +776,209 @@
   }
 }
 
-// Responsive
-@media (max-width: 1024px) {
+// Full Viewport Mode
+.playground-container.full-viewport {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1000;
+
+  .playground-header {
+    display: none;
+  }
+
   .playground-content {
-    grid-template-columns: 1fr;
-    grid-template-rows: 1fr 1fr;
+    height: 100vh;
   }
 
   .editor-section {
-    border-right: none;
+    border-radius: 0;
+  }
+
+  .preview-section {
+    border-radius: 0;
+  }
+}
+
+// Fullscreen button styling (in editor header)
+.editor-header .fullscreen-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+  background: transparent;
+  border: 1px solid #444;
+  border-radius: $border-radius-md;
+  color: #999;
+  cursor: pointer;
+  transition: $transition-base;
+
+  svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: #4fc3f7;
+    color: #4fc3f7;
+    transform: translateY(-1px);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+// Resizer
+.resizer {
+  background: #333;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 10;
+
+  &:hover {
+    background: #4fc3f7;
+  }
+
+  &:active {
+    background: #2196f3;
+  }
+}
+
+// Three Panel Layout
+.three-panel-editors {
+  .panel-editor {
+    display: flex;
+    flex-direction: column;
+    background: #1e1e1e;
+    border-right: 1px solid #333;
+    overflow: hidden;
+
+    &:last-child {
+      border-right: none;
+    }
+  }
+
+  .panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 16px;
+    background: #252526;
     border-bottom: 1px solid #333;
+    flex-shrink: 0;
+
+    .panel-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #4fc3f7;
+      font-size: 0.95rem;
+      font-weight: 600;
+
+      svg {
+        width: 18px;
+        height: 18px;
+      }
+    }
+
+    .panel-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .icon-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      background: transparent;
+      border: none;
+      border-radius: $border-radius-md;
+      color: #4fc3f7;
+      cursor: pointer;
+      transition: $transition-base;
+
+      svg {
+        width: 18px;
+        height: 18px;
+      }
+
+      &:hover {
+        background: rgba(79, 195, 247, 0.1);
+      }
+
+      &:active {
+        transform: scale(0.95);
+      }
+    }
+  }
+
+  .panel-content {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .html-panel .panel-title {
+    color: #e44d26;
+  }
+
+  .css-panel .panel-title {
+    color: #264de4;
+  }
+
+  .js-panel .panel-title {
+    color: #f7df1e;
+  }
+}
+
+// Responsive
+@media (max-width: 1024px) {
+  .playground-content {
+    &[data-layout="split-vertical"] {
+      flex-direction: column;
+
+      .editor-section {
+        width: 100%;
+        height: 50%;
+        border-right: none;
+        border-bottom: 1px solid #333;
+      }
+
+      .resizer {
+        width: 100%;
+        height: 4px;
+        cursor: row-resize;
+
+        &:hover {
+          width: 100%;
+          height: 6px;
+        }
+      }
+    }
+
+    &[data-layout="three-panel"] {
+      .three-panel-editors {
+        grid-template-columns: 1fr;
+        grid-template-rows: repeat(3, 1fr);
+        height: 70%;
+
+        .panel-editor {
+          border-right: none;
+          border-bottom: 1px solid #333;
+
+          &:last-child {
+            border-bottom: none;
+          }
+        }
+      }
+    }
   }
 
   .library-panel {

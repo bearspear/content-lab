@@ -15,6 +15,7 @@ interface ValidationError {
 interface JsonEditorState {
   jsonContent: string;
   showStats: boolean;
+  monacoTheme: 'vs' | 'vs-dark';
 }
 
 @Component({
@@ -41,6 +42,7 @@ export class JsonEditorComponent extends StatefulComponent<JsonEditorState> {
   validationErrors: ValidationError[] = [];
   showStats = false;
   isDragging = false;
+  monacoTheme: 'vs' | 'vs-dark' = 'vs-dark';
   stats = {
     characters: 0,
     lines: 0,
@@ -176,7 +178,8 @@ export class JsonEditorComponent extends StatefulComponent<JsonEditorState> {
   protected getDefaultState(): JsonEditorState {
     return {
       jsonContent: this.sampleTemplates[0].content,
-      showStats: false
+      showStats: false,
+      monacoTheme: 'vs-dark'
     };
   }
 
@@ -186,6 +189,7 @@ export class JsonEditorComponent extends StatefulComponent<JsonEditorState> {
   protected applyState(state: JsonEditorState): void {
     this.jsonContent = state.jsonContent;
     this.showStats = state.showStats;
+    this.monacoTheme = state.monacoTheme || 'vs-dark';
     this.validateJSON();
     this.updateStats();
   }
@@ -196,7 +200,8 @@ export class JsonEditorComponent extends StatefulComponent<JsonEditorState> {
   protected getCurrentState(): JsonEditorState {
     return {
       jsonContent: this.jsonContent,
-      showStats: this.showStats
+      showStats: this.showStats,
+      monacoTheme: this.monacoTheme
     };
   }
 
@@ -329,6 +334,11 @@ export class JsonEditorComponent extends StatefulComponent<JsonEditorState> {
 
   toggleStats(): void {
     this.showStats = !this.showStats;
+    this.saveState();
+  }
+
+  toggleTheme(): void {
+    this.monacoTheme = this.monacoTheme === 'vs' ? 'vs-dark' : 'vs';
     this.saveState();
   }
 
