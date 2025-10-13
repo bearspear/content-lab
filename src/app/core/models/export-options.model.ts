@@ -5,6 +5,9 @@ export interface ExportOptions {
   filename?: string;
   theme?: string;
   centerContent?: boolean;
+  stylePlaintextCode?: boolean;
+  hideMarkdownCode?: boolean;
+  hideImages?: boolean;
 }
 
 export interface JsonExportContent {
