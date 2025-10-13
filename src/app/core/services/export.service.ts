@@ -3,6 +3,7 @@ import { ExportOptions } from '../models';
 import {
   convertMarkdownToAsciiDoc,
   convertHtmlToPlainText,
+  convertHtmlToYaml,
   parseHtmlToJson,
   downloadBlob,
   createTextBlob
@@ -41,6 +42,9 @@ export class ExportService {
         break;
       case 'json':
         this.exportAsJson(htmlContent, options.theme || 'claude', filename);
+        break;
+      case 'yaml':
+        this.exportAsYaml(htmlContent, options.theme || 'claude', filename);
         break;
       default:
         throw new Error(`Unsupported export format: ${options.format}`);
@@ -147,6 +151,15 @@ export class ExportService {
     const jsonData = parseHtmlToJson(htmlContent, theme);
     const jsonString = JSON.stringify(jsonData, null, 2);
     const blob = createTextBlob(jsonString, 'application/json');
+    downloadBlob(blob, filename);
+  }
+
+  /**
+   * Export as YAML file
+   */
+  private exportAsYaml(htmlContent: string, theme: string, filename: string): void {
+    const yaml = convertHtmlToYaml(htmlContent, theme);
+    const blob = createTextBlob(yaml, 'text/yaml');
     downloadBlob(blob, filename);
   }
 
@@ -1577,7 +1590,8 @@ export class ExportService {
       markdown: '.md',
       asciidoc: '.adoc',
       plaintext: '.txt',
-      json: '.json'
+      json: '.json',
+      yaml: '.yaml'
     };
 
     const extension = extensions[format] || '.txt';

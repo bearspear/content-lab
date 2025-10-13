@@ -13,6 +13,7 @@ interface TextEditorState {
   fontSize: number;
   wordWrap: boolean;
   monacoTheme: 'vs' | 'vs-dark';
+  language: string;
 }
 
 @Component({
@@ -41,6 +42,20 @@ export class TextEditorComponent extends StatefulComponent<TextEditorState> impl
   fontSize: number = 14;
   wordWrap: boolean = false;
   monacoTheme: 'vs' | 'vs-dark' = 'vs';
+  language: string = 'plaintext';
+
+  // Language options for syntax highlighting
+  languageOptions = [
+    { value: 'plaintext', label: 'Plain Text' },
+    { value: 'json', label: 'JSON' },
+    { value: 'yaml', label: 'YAML' },
+    { value: 'html', label: 'HTML' },
+    { value: 'javascript', label: 'JavaScript' },
+    { value: 'css', label: 'CSS' },
+    { value: 'python', label: 'Python' },
+    { value: 'markdown', label: 'Markdown' },
+    { value: 'typescript', label: 'TypeScript' }
+  ];
 
   // Find/Replace
   showFindReplace: boolean = false;
@@ -78,7 +93,8 @@ export class TextEditorComponent extends StatefulComponent<TextEditorState> impl
       showWhitespace: false,
       fontSize: 14,
       wordWrap: false,
-      monacoTheme: 'vs'
+      monacoTheme: 'vs',
+      language: 'plaintext'
     };
   }
 
@@ -88,6 +104,7 @@ export class TextEditorComponent extends StatefulComponent<TextEditorState> impl
     this.fontSize = state.fontSize;
     this.wordWrap = state.wordWrap;
     this.monacoTheme = state.monacoTheme || 'vs';
+    this.language = state.language || 'plaintext';
 
     // Register this component's theme preference with the service
     this.monacoThemeService.registerComponentPreference('text-editor', this.monacoTheme);
@@ -111,6 +128,12 @@ export class TextEditorComponent extends StatefulComponent<TextEditorState> impl
         document.body.classList.remove('editor-dark-theme');
       }
 
+      // Update language model
+      const model = this.editor.getModel();
+      if (model) {
+        monaco.editor.setModelLanguage(model, this.language);
+      }
+
       // Set content
       this.editor.setValue(state.content);
     }
@@ -123,7 +146,8 @@ export class TextEditorComponent extends StatefulComponent<TextEditorState> impl
       showWhitespace: this.showWhitespace,
       fontSize: this.fontSize,
       wordWrap: this.wordWrap,
-      monacoTheme: this.monacoTheme
+      monacoTheme: this.monacoTheme,
+      language: this.language
     };
   }
 
@@ -142,7 +166,7 @@ export class TextEditorComponent extends StatefulComponent<TextEditorState> impl
 
     this.editor = monaco.editor.create(this.editorContainer.nativeElement, {
       value: '',
-      language: 'plaintext',
+      language: this.language,
       theme: this.monacoTheme,
       automaticLayout: true,
       fontSize: this.fontSize,
@@ -413,6 +437,17 @@ export class TextEditorComponent extends StatefulComponent<TextEditorState> impl
       }
 
       // Save state
+      this.saveState();
+    }
+  }
+
+  setLanguage(language: string): void {
+    this.language = language;
+    if (this.editor) {
+      const model = this.editor.getModel();
+      if (model) {
+        monaco.editor.setModelLanguage(model, language);
+      }
       this.saveState();
     }
   }

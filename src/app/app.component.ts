@@ -5,12 +5,14 @@ import { JsPlaygroundComponent } from './features/js-playground/js-playground.co
 import { JsonEditorComponent } from './features/json-editor/json-editor.component';
 import { TextEditorComponent } from './features/text-editor/text-editor.component';
 import { CsvEditorComponent } from './features/csv-editor/csv-editor.component';
+import { RegexTesterComponent } from './features/regex-tester/regex-tester.component';
+import { TetrisComponent } from './features/tetris/tetris.component';
 import { SidebarComponent } from './shared/components/sidebar/sidebar.component';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, MdConverterComponent, JsPlaygroundComponent, JsonEditorComponent, TextEditorComponent, CsvEditorComponent, SidebarComponent],
+  imports: [CommonModule, MdConverterComponent, JsPlaygroundComponent, JsonEditorComponent, TextEditorComponent, CsvEditorComponent, RegexTesterComponent, TetrisComponent, SidebarComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'
 })
