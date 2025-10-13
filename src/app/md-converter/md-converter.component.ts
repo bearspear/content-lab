@@ -27,6 +27,7 @@ interface MdConverterState {
   markdownContent: string;
   currentTheme: string;
   viewMode: 'write' | 'preview';
+  centerContent: boolean;
 }
 
 @Component({
@@ -67,6 +68,7 @@ export class MdConverterComponent extends StatefulComponent<MdConverterState> {
   viewMode: 'write' | 'preview' = 'preview';
   showCopyToast: boolean = false;
   copyToastMessage: string = 'Markdown copied to clipboard!';
+  centerContent: boolean = true;
 
   constructor(
     private markdownService: MarkdownService,
@@ -82,7 +84,8 @@ export class MdConverterComponent extends StatefulComponent<MdConverterState> {
     return {
       markdownContent: this.markdownService.getSampleMarkdown(),
       currentTheme: 'claude',
-      viewMode: 'preview'
+      viewMode: 'preview',
+      centerContent: true
     };
   }
 
@@ -90,6 +93,7 @@ export class MdConverterComponent extends StatefulComponent<MdConverterState> {
     this.markdownContent = state.markdownContent;
     this.currentTheme = state.currentTheme;
     this.viewMode = state.viewMode;
+    this.centerContent = state.centerContent ?? true; // Default to true if not set
     this.convertMarkdown();
   }
 
@@ -97,7 +101,8 @@ export class MdConverterComponent extends StatefulComponent<MdConverterState> {
     return {
       markdownContent: this.markdownContent,
       currentTheme: this.currentTheme,
-      viewMode: this.viewMode
+      viewMode: this.viewMode,
+      centerContent: this.centerContent
     };
   }
 
@@ -179,6 +184,13 @@ export class MdConverterComponent extends StatefulComponent<MdConverterState> {
     this.saveState();
   }
 
+  // ===== Center Content Handlers =====
+
+  toggleCenterContent(): void {
+    this.centerContent = !this.centerContent;
+    this.saveState();
+  }
+
   // ===== View Mode Handlers =====
 
   setViewMode(mode: 'write' | 'preview'): void {
@@ -235,7 +247,7 @@ export class MdConverterComponent extends StatefulComponent<MdConverterState> {
   async onExport(format: ExportFormat): Promise<void> {
     try {
       await this.exportService.export(
-        { format, theme: this.currentTheme },
+        { format, theme: this.currentTheme, centerContent: this.centerContent },
         this.markdownContent,
         this.htmlContent
       );
@@ -251,7 +263,7 @@ export class MdConverterComponent extends StatefulComponent<MdConverterState> {
     try {
       if (this.viewMode === 'preview') {
         // Copy complete HTML with styles and theme
-        const fullHtml = this.exportService.getFullHtml(this.htmlContent, this.currentTheme);
+        const fullHtml = this.exportService.getFullHtml(this.htmlContent, this.currentTheme, this.centerContent);
         await navigator.clipboard.writeText(fullHtml);
         this.showToast('HTML');
       } else {
@@ -263,7 +275,7 @@ export class MdConverterComponent extends StatefulComponent<MdConverterState> {
       console.error('Failed to copy:', error);
       // Fallback for older browsers
       const content = this.viewMode === 'preview'
-        ? this.exportService.getFullHtml(this.htmlContent, this.currentTheme)
+        ? this.exportService.getFullHtml(this.htmlContent, this.currentTheme, this.centerContent)
         : this.markdownContent;
       this.fallbackCopyToClipboard(content);
     }

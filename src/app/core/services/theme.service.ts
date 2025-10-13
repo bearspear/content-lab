@@ -45,7 +45,7 @@ export class ThemeService {
   /**
    * Get theme styles for iframe rendering
    */
-  getThemeStyles(theme?: string): string {
+  getThemeStyles(theme?: string, centerContent: boolean = true): string {
     const currentTheme = theme || this.getCurrentTheme();
     const highlightCss = currentTheme === 'dark' ? HIGHLIGHT_CSS_DARK : HIGHLIGHT_CSS_LIGHT;
 
@@ -58,7 +58,7 @@ export class ThemeService {
       ${highlightCss}
     </style>
     <style>
-      ${this.getInlineStyles(currentTheme)}
+      ${this.getInlineStyles(currentTheme, centerContent)}
     </style>
     `;
   }
@@ -66,7 +66,7 @@ export class ThemeService {
   /**
    * Generate full HTML with theme applied
    */
-  generateFullHtml(htmlContent: string, theme?: string): string {
+  generateFullHtml(htmlContent: string, theme?: string, centerContent: boolean = true): string {
     const currentTheme = theme || this.getCurrentTheme();
 
     return `<!DOCTYPE html>
@@ -75,7 +75,7 @@ export class ThemeService {
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Markdown Preview</title>
-  ${this.getThemeStyles(currentTheme)}
+  ${this.getThemeStyles(currentTheme, centerContent)}
 </head>
 <body class="theme-${currentTheme}">
   <div class="markdown-body">
@@ -88,9 +88,9 @@ export class ThemeService {
   /**
    * Get inline styles for the selected theme only
    */
-  private getInlineStyles(theme: string): string {
+  private getInlineStyles(theme: string, centerContent: boolean = true): string {
     return `
-      ${this.getBaseStyles()}
+      ${this.getBaseStyles(centerContent)}
       ${this.getThemeSpecificStyles(theme)}
       ${this.getCommonStyles()}
     `;
@@ -99,13 +99,22 @@ export class ThemeService {
   /**
    * Get base styles (applied to all themes)
    */
-  private getBaseStyles(): string {
+  private getBaseStyles(centerContent: boolean = true): string {
+    const centeringStyles = centerContent ? `
+      .markdown-body {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 40px;
+      }
+    ` : '';
+
     return `
       /* Minimal base - only box-sizing */
       * {
         box-sizing: border-box;
       }
 
+      ${centeringStyles}
     `;
   }
 

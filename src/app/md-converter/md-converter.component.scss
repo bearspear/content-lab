@@ -354,6 +354,33 @@
     gap: 12px;
   }
 
+  .center-content-toggle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px;
+    background-color: #ffffff;
+    border: 1px solid #cbd5e0;
+    border-radius: $border-radius-md;
+    cursor: pointer;
+    transition: $transition-base;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #2d3748;
+
+    input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      cursor: pointer;
+      accent-color: #4299e1;
+    }
+
+    &:hover {
+      background-color: #f7fafc;
+      border-color: #4299e1;
+    }
+  }
+
   .theme-badge {
     display: inline-block;
     padding: 6px $spacing-md;
