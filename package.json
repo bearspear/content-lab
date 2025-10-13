@@ -1,6 +1,27 @@
 {
-  "name": "md-html-converter",
-  "version": "0.0.0",
+  "name": "content-lab",
+  "version": "1.0.0",
+  "description": "Laboratory for content transformation - multi-tool editor with markdown, JSON, CSV, and JavaScript support",
+  "keywords": [
+    "markdown",
+    "editor",
+    "converter",
+    "content",
+    "laboratory",
+    "json",
+    "csv",
+    "javascript",
+    "playground",
+    "text-editor",
+    "angular"
+  ],
+  "author": "Marcus Behringer",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mbehringer/content-lab.git"
+  },
+  "homepage": "https://github.com/mbehringer/content-lab#readme",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
