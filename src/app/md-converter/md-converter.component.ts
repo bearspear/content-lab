@@ -3,7 +3,8 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
 // Services
-import { MarkdownService, ExportService, ThemeService, FileService, StateManagerService } from '../core/services';
+import { MarkdownService, ExportService, ThemeService, FileService, StateManagerService, EpubExportService, EpubOptions } from '../core/services';
+import { EpubPreparationService, PrepareOptions, EpubAnalysis, TransformedMarkdown } from '../core/services/epub-preparation.service';
 import { StatefulComponent } from '../core/base';
 
 // Models
@@ -22,6 +23,8 @@ import {
   ImageDropEvent,
   MarkdownFileDropEvent
 } from '../features/markdown-converter/components';
+import { EpubPublishButtonComponent } from '../features/markdown-converter/components/epub-publish-button.component';
+import { EpubPrepareModalComponent } from '../features/markdown-converter/components/epub-prepare-modal.component';
 import { ResetButtonComponent } from '../shared/components/reset-button/reset-button.component';
 
 // State interface
@@ -46,6 +49,8 @@ interface MdConverterState {
     MarkdownPreviewComponent,
     ThemeSelectorComponent,
     ExportButtonComponent,
+    EpubPublishButtonComponent,
+    EpubPrepareModalComponent,
     DisplayOptionsComponent,
     ResetButtonComponent
   ],
@@ -64,6 +69,7 @@ export class MdConverterComponent extends StatefulComponent<MdConverterState> {
 
   @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
   @ViewChild(MarkdownEditorComponent) editorComponent!: MarkdownEditorComponent;
+  @ViewChild(EpubPrepareModalComponent) epubPrepareModal!: EpubPrepareModalComponent;
 
   // State
   markdownContent: string = '';
@@ -87,9 +93,15 @@ export class MdConverterComponent extends StatefulComponent<MdConverterState> {
     hideImages: false
   };
 
+  // EPUB Prepare Modal State
+  isEpubPrepareModalOpen: boolean = false;
+  epubPrepareAnalysis: EpubAnalysis | null = null;
+
   constructor(
     private markdownService: MarkdownService,
     private exportService: ExportService,
+    private epubExportService: EpubExportService,
+    private epubPreparationService: EpubPreparationService,
     private themeService: ThemeService,
     private fileService: FileService,
     stateManager: StateManagerService
@@ -250,6 +262,13 @@ export class MdConverterComponent extends StatefulComponent<MdConverterState> {
   // ===== Editor Handlers =====
 
   onEditorAction(action: EditorAction): void {
+    // Handle EPUB prepare action at this component level
+    if (action.type === 'epubPrepare') {
+      this.openEpubPrepareModal();
+      return;
+    }
+
+    // Pass all other actions to the editor component
     if (this.editorComponent) {
       this.editorComponent.handleAction(action);
     }
@@ -296,6 +315,22 @@ export class MdConverterComponent extends StatefulComponent<MdConverterState> {
     } catch (error) {
       console.error(`Export to ${format} failed:`, error);
       alert(`Failed to export as ${format}. Please try again.`);
+    }
+  }
+
+  async onPublishEpub(options: EpubOptions): Promise<void> {
+    try {
+      // Parse markdown into EPUB structure
+      const structure = this.epubExportService.parseMarkdownToEpub(this.markdownContent);
+
+      // Generate EPUB with user-selected options
+      await this.epubExportService.generateEpub(structure, options);
+
+      // Show success message
+      this.showToast('EPUB generated successfully');
+    } catch (error) {
+      console.error('EPUB export failed:', error);
+      alert('Failed to generate EPUB. Please check your markdown structure and try again.');
     }
   }
 
@@ -347,5 +382,69 @@ export class MdConverterComponent extends StatefulComponent<MdConverterState> {
     setTimeout(() => {
       this.showCopyToast = false;
     }, 2000);
+  }
+
+  // ===== EPUB Prepare Handlers =====
+
+  /**
+   * Open EPUB prepare modal and analyze current markdown
+   */
+  openEpubPrepareModal(): void {
+    if (!this.markdownContent || this.markdownContent.trim() === '') {
+      alert('No markdown content to prepare');
+      return;
+    }
+
+    // Analyze the markdown
+    this.epubPrepareAnalysis = this.epubPreparationService.analyzeMarkdown(this.markdownContent);
+
+    // Open the modal
+    this.isEpubPrepareModalOpen = true;
+  }
+
+  /**
+   * Handle preview request from modal
+   */
+  onEpubPreparePreview(options: PrepareOptions): void {
+    // Transform the markdown with selected options
+    const result = this.epubPreparationService.transformMarkdown(this.markdownContent, options);
+
+    // Pass the result back to the modal
+    if (this.epubPrepareModal) {
+      this.epubPrepareModal.setTransformed(result);
+    }
+  }
+
+  /**
+   * Apply transformed markdown to editor
+   */
+  onEpubPrepareApply(transformedContent: string): void {
+    // Update the markdown content
+    this.markdownContent = transformedContent;
+
+    // Update the editor
+    if (this.editorComponent) {
+      this.editorComponent.setContent(transformedContent);
+    }
+
+    // Convert and save state
+    this.convertMarkdown();
+    this.saveState();
+
+    // Show success toast
+    this.showToast('EPUB preparation complete');
+  }
+
+  /**
+   * Close EPUB prepare modal
+   */
+  closeEpubPrepareModal(): void {
+    this.isEpubPrepareModalOpen = false;
+    this.epubPrepareAnalysis = null;
+
+    // Reset modal state
+    if (this.epubPrepareModal) {
+      this.epubPrepareModal.reset();
+    }
   }
 }

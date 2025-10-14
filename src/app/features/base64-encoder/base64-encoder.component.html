@@ -1,0 +1,406 @@
+<div class="base64-encoder-container">
+  <!-- Header -->
+  <div class="encoder-header">
+    <div class="header-content">
+      <h1>Base64 Encoder/Decoder</h1>
+      <p class="subtitle">Professional Base64 encoding toolkit with file support and multiple formats</p>
+    </div>
+    <app-reset-button (reset)="onReset()"></app-reset-button>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <button
+      class="tab-btn"
+      [class.active]="activeTab === 'converter'"
+      (click)="setTab('converter')">
+      <span class="icon">⇄</span>
+      Converter
+    </button>
+    <button
+      class="tab-btn"
+      [class.active]="activeTab === 'data-uri'"
+      (click)="setTab('data-uri')">
+      <span class="icon">🔗</span>
+      Data URI
+    </button>
+    <button
+      class="tab-btn"
+      [class.active]="activeTab === 'file-converter'"
+      (click)="setTab('file-converter')">
+      <span class="icon">📁</span>
+      File Converter
+    </button>
+    <button
+      class="tab-btn"
+      [class.active]="activeTab === 'history'"
+      (click)="setTab('history')">
+      <span class="icon">🕐</span>
+      History
+    </button>
+  </div>
+
+  <!-- Converter Tab -->
+  <div class="tab-content" *ngIf="activeTab === 'converter'">
+    <!-- Toolbar -->
+    <div class="toolbar">
+      <!-- Mode Toggle -->
+      <div class="toolbar-group">
+        <button
+          (click)="switchMode()"
+          class="toolbar-btn primary"
+          [title]="'Switch to ' + (mode === 'encode' ? 'decode' : 'encode') + ' mode'">
+          <span class="icon">⇄</span>
+          {{ mode === 'encode' ? 'Encode' : 'Decode' }} → {{ mode === 'encode' ? 'Decode' : 'Encode' }}
+        </button>
+      </div>
+
+      <div class="toolbar-divider"></div>
+
+      <!-- Variant Selection -->
+      <div class="toolbar-group">
+        <label class="toolbar-label">Variant:</label>
+        <button
+          (click)="setVariant('standard')"
+          [class.active]="variant === 'standard'"
+          class="toolbar-btn"
+          title="Standard Base64 (RFC 4648)">
+          Standard
+        </button>
+        <button
+          (click)="setVariant('url-safe')"
+          [class.active]="variant === 'url-safe'"
+          class="toolbar-btn"
+          title="URL-safe Base64">
+          URL-Safe
+        </button>
+        <button
+          (click)="setVariant('mime')"
+          [class.active]="variant === 'mime'"
+          class="toolbar-btn"
+          title="MIME Base64 (line-wrapped at 76 chars)">
+          MIME
+        </button>
+      </div>
+
+      <div class="toolbar-divider"></div>
+
+      <!-- Encoding -->
+      <div class="toolbar-group">
+        <label class="toolbar-label">Encoding:</label>
+        <select
+          [(ngModel)]="encoding"
+          (ngModelChange)="setEncoding($event)"
+          class="toolbar-select">
+          <option value="utf-8">UTF-8</option>
+          <option value="utf-16">UTF-16</option>
+          <option value="ascii">ASCII</option>
+          <option value="latin1">Latin-1</option>
+        </select>
+      </div>
+
+      <div class="toolbar-divider"></div>
+
+      <!-- Options -->
+      <div class="toolbar-group">
+        <label class="checkbox-label">
+          <input
+            type="checkbox"
+            [(ngModel)]="removePadding"
+            (ngModelChange)="processConversion(); saveState()">
+          <span>Remove Padding</span>
+        </label>
+      </div>
+
+      <div class="toolbar-divider"></div>
+
+      <!-- Theme Toggle -->
+      <div class="toolbar-group">
+        <button
+          (click)="toggleTheme()"
+          class="toolbar-btn"
+          title="Toggle light/dark theme">
+          <span class="icon">🌓</span>
+          Theme
+        </button>
+      </div>
+    </div>
+
+    <!-- Main Content Area -->
+    <div class="content-wrapper">
+      <!-- Input Section -->
+      <div class="editor-section">
+        <div class="section-header">
+          <div class="section-title">
+            <span class="icon">📝</span>
+            <span>INPUT {{ mode === 'encode' ? '(Plain Text)' : '(Base64)' }}</span>
+          </div>
+          <div class="section-stats">
+            <span class="stat">{{ inputLength | number }} chars</span>
+            <span class="stat-divider">|</span>
+            <span class="stat">{{ formatBytes(inputBytes) }}</span>
+            <span class="stat-divider">|</span>
+            <span class="stat">{{ encoding.toUpperCase() }}</span>
+          </div>
+        </div>
+
+        <!-- File Upload Area -->
+        <div
+          class="drop-zone"
+          [class.drag-over]="isDragOver"
+          (dragover)="onDragOver($event)"
+          (dragleave)="onDragLeave($event)"
+          (drop)="onDrop($event)"
+          (click)="openFileDialog()">
+          <input
+            #fileInput
+            type="file"
+            (change)="onFileSelected($event)"
+            style="display: none">
+          <span class="drop-icon">📁</span>
+          <p class="drop-text">
+            <strong>Drag & drop</strong> a file here or <strong>click</strong> to browse
+          </p>
+          <p class="drop-hint">Maximum file size: 10MB</p>
+        </div>
+
+        <!-- Current File Info -->
+        <div class="file-info" *ngIf="currentFile">
+          <div class="file-details">
+            <span class="file-icon">{{ currentFile.isImage ? '🖼️' : '📄' }}</span>
+            <div class="file-meta">
+              <div class="file-name">{{ currentFile.name }}</div>
+              <div class="file-size">
+                {{ formatBytes(currentFile.size) }} • {{ currentFile.type }}
+                <span *ngIf="currentFile.dimensions">
+                  • {{ currentFile.dimensions.width }}×{{ currentFile.dimensions.height }}
+                </span>
+              </div>
+            </div>
+          </div>
+          <button class="clear-btn" (click)="clearFile()" title="Clear file">
+            <span class="icon">✕</span>
+          </button>
+        </div>
+
+        <!-- Monaco Editor -->
+        <div #inputEditorContainer class="monaco-container"></div>
+      </div>
+
+      <!-- Separator -->
+      <div class="section-separator">
+        <button
+          class="switch-btn"
+          (click)="switchMode()"
+          title="Switch mode">
+          <span class="icon">⇄</span>
+        </button>
+      </div>
+
+      <!-- Output Section -->
+      <div class="editor-section">
+        <div class="section-header">
+          <div class="section-title">
+            <span class="icon">✨</span>
+            <span>OUTPUT {{ mode === 'encode' ? '(Base64)' : '(Plain Text)' }}</span>
+          </div>
+          <div class="section-stats">
+            <span class="stat">{{ outputLength | number }} chars</span>
+            <span class="stat-divider">|</span>
+            <span class="stat">{{ formatBytes(outputBytes) }}</span>
+            <span class="stat-divider">|</span>
+            <span
+              class="stat"
+              [class.positive]="sizeChange > 0"
+              [class.negative]="sizeChange < 0">
+              {{ sizeChange > 0 ? '+' : '' }}{{ sizeChange }}%
+            </span>
+          </div>
+        </div>
+
+        <!-- Validation Message -->
+        <div class="validation-message" *ngIf="!isValid">
+          <span class="icon">⚠️</span>
+          <span>{{ validationMessage }}</span>
+        </div>
+
+        <!-- Monaco Editor -->
+        <div #outputEditorContainer class="monaco-container"></div>
+
+        <!-- Action Buttons -->
+        <div class="action-buttons">
+          <button
+            (click)="copyOutput()"
+            class="action-btn primary"
+            [disabled]="!outputText">
+            <span class="icon">📋</span>
+            Copy
+          </button>
+          <button
+            (click)="downloadOutput()"
+            class="action-btn"
+            [disabled]="!outputText">
+            <span class="icon">💾</span>
+            Download
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Data URI Tab -->
+  <div class="tab-content" *ngIf="activeTab === 'data-uri'">
+    <div class="data-uri-container">
+      <div class="uri-config">
+        <h3>Data URI Generator</h3>
+        <p class="hint">Generate complete data URIs for embedding in HTML/CSS</p>
+
+        <div class="form-group">
+          <label>MIME Type:</label>
+          <select [(ngModel)]="mimeType" class="form-select">
+            <option *ngFor="let type of commonMimeTypes" [value]="type.value">
+              {{ type.label }} ({{ type.value }})
+            </option>
+          </select>
+        </div>
+
+        <div class="uri-output">
+          <h4>Generated Data URI:</h4>
+          <textarea
+            class="uri-textarea"
+            [value]="generateDataURI()"
+            readonly></textarea>
+          <button
+            (click)="copyDataURI()"
+            class="action-btn primary">
+            <span class="icon">📋</span>
+            Copy Data URI
+          </button>
+        </div>
+
+        <!-- HTML Examples -->
+        <div class="examples">
+          <h4>Usage Examples:</h4>
+          <div class="example-block">
+            <strong>HTML Image:</strong>
+            <code>&lt;img src="{{ generateDataURI() }}"&gt;</code>
+          </div>
+          <div class="example-block">
+            <strong>CSS Background:</strong>
+            <code>background-image: url('{{ generateDataURI() }}');</code>
+          </div>
+        </div>
+      </div>
+
+      <!-- Preview (for images) -->
+      <div class="uri-preview" *ngIf="currentFile?.isImage">
+        <h4>Preview:</h4>
+        <img
+          #imagePreview
+          [src]="generateDataURI()"
+          alt="Preview"
+          class="preview-image">
+      </div>
+    </div>
+  </div>
+
+  <!-- File Converter Tab -->
+  <div class="tab-content" *ngIf="activeTab === 'file-converter'">
+    <div class="file-converter-container">
+      <h3>File Converter</h3>
+      <p class="hint">Convert files to Base64 and vice versa</p>
+
+      <div
+        class="drop-zone large"
+        [class.drag-over]="isDragOver"
+        (dragover)="onDragOver($event)"
+        (dragleave)="onDragLeave($event)"
+        (drop)="onDrop($event)"
+        (click)="openFileDialog()">
+        <span class="drop-icon">📁</span>
+        <p class="drop-text">
+          <strong>Drag & drop</strong> files here or <strong>click</strong> to browse
+        </p>
+        <p class="drop-hint">Supports images, documents, and more • Max 10MB per file</p>
+      </div>
+
+      <div class="file-result" *ngIf="currentFile">
+        <h4>File Information:</h4>
+        <ul class="file-details-list">
+          <li><strong>Name:</strong> {{ currentFile.name }}</li>
+          <li><strong>Type:</strong> {{ currentFile.type }}</li>
+          <li><strong>Size:</strong> {{ formatBytes(currentFile.size) }}</li>
+          <li *ngIf="currentFile.dimensions">
+            <strong>Dimensions:</strong> {{ currentFile.dimensions.width }}×{{ currentFile.dimensions.height }}
+          </li>
+        </ul>
+
+        <div class="file-actions">
+          <button (click)="copyOutput()" class="action-btn primary">
+            <span class="icon">📋</span>
+            Copy Base64
+          </button>
+          <button (click)="downloadOutput()" class="action-btn">
+            <span class="icon">💾</span>
+            Download
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- History Tab -->
+  <div class="tab-content" *ngIf="activeTab === 'history'">
+    <div class="history-container">
+      <div class="history-header">
+        <h3>Conversion History</h3>
+        <button
+          (click)="clearHistory()"
+          class="action-btn danger"
+          [disabled]="history.length === 0">
+          <span class="icon">🗑️</span>
+          Clear All
+        </button>
+      </div>
+
+      <div class="history-list" *ngIf="history.length > 0">
+        <div
+          class="history-item"
+          *ngFor="let item of history"
+          (click)="loadFromHistory(item)">
+          <div class="history-mode">
+            <span class="mode-badge" [class.encode]="item.mode === 'encode'">
+              {{ item.mode }}
+            </span>
+          </div>
+          <div class="history-content">
+            <div class="history-preview">
+              <strong>Input:</strong> {{ item.inputPreview }}
+            </div>
+            <div class="history-preview">
+              <strong>Output:</strong> {{ item.outputPreview }}
+            </div>
+          </div>
+          <div class="history-time">
+            {{ item.timestamp | date:'short' }}
+          </div>
+        </div>
+      </div>
+
+      <div class="empty-state" *ngIf="history.length === 0">
+        <span class="empty-icon">📋</span>
+        <p>No conversion history yet</p>
+        <p class="empty-hint">Your recent conversions will appear here</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tips Section -->
+  <div class="tips-section">
+    <div class="tip">
+      <strong>💡 Quick Tips:</strong>
+      Use Standard for general encoding • URL-Safe for URLs and filenames •
+      MIME for email attachments • Drag & drop files for quick conversion
+    </div>
+  </div>
+</div>
