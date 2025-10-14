@@ -7,12 +7,15 @@ import { TextEditorComponent } from './features/text-editor/text-editor.componen
 import { CsvEditorComponent } from './features/csv-editor/csv-editor.component';
 import { RegexTesterComponent } from './features/regex-tester/regex-tester.component';
 import { TetrisComponent } from './features/tetris/tetris.component';
+import { Base64EncoderComponent } from './features/base64-encoder/base64-encoder.component';
+import { DiffCheckerComponent } from './features/diff-checker/diff-checker.component';
+import { SvgEditorComponent } from './features/svg-editor/svg-editor.component';
 import { SidebarComponent } from './shared/components/sidebar/sidebar.component';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, MdConverterComponent, JsPlaygroundComponent, JsonEditorComponent, TextEditorComponent, CsvEditorComponent, RegexTesterComponent, TetrisComponent, SidebarComponent],
+  imports: [CommonModule, MdConverterComponent, JsPlaygroundComponent, JsonEditorComponent, TextEditorComponent, CsvEditorComponent, RegexTesterComponent, TetrisComponent, Base64EncoderComponent, DiffCheckerComponent, SvgEditorComponent, SidebarComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'
 })

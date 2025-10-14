@@ -40,6 +40,12 @@
         (export)="onExport($event)">
       </app-export-button>
 
+      <!-- EPUB Publish Button Component -->
+      <app-epub-publish-button
+        [hasContent]="!!markdownContent"
+        (publish)="onPublishEpub($event)">
+      </app-epub-publish-button>
+
       <!-- Reset Button Component -->
       <app-reset-button
         (reset)="onReset()">
@@ -124,4 +130,14 @@
     </svg>
     <span>{{ copyToastMessage }}</span>
   </div>
+
+  <!-- EPUB Prepare Modal -->
+  <app-epub-prepare-modal
+    [isOpen]="isEpubPrepareModalOpen"
+    [originalMarkdown]="markdownContent"
+    [analysis]="epubPrepareAnalysis"
+    (close$)="closeEpubPrepareModal()"
+    (apply$)="onEpubPrepareApply($event)"
+    (previewRequest)="onEpubPreparePreview($event)">
+  </app-epub-prepare-modal>
 </div>

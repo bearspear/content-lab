@@ -37,7 +37,10 @@ export class MarkdownService {
       // Handle inline math: $...$
       text = text.replace(/\$([^$]+)\$/g, (match, math) => {
         try {
-          return katex.renderToString(math, { throwOnError: false });
+          return katex.renderToString(math, {
+            throwOnError: false,
+            output: 'html'  // Force HTML-only output, no MathML
+          });
         } catch (e) {
           return match;
         }
@@ -45,23 +48,8 @@ export class MarkdownService {
       return originalParagraph(text);
     };
 
-    // Handle block-level math: $$...$$
-    const originalBlockquote = renderer.blockquote.bind(renderer);
-    renderer.blockquote = (quote: string): string => {
-      // Check if this is a math block
-      const mathMatch = quote.match(/^\s*\$\$([\s\S]+)\$\$/);
-      if (mathMatch) {
-        try {
-          return `<div class="math-block">${katex.renderToString(mathMatch[1], {
-            throwOnError: false,
-            displayMode: true
-          })}</div>`;
-        } catch (e) {
-          return originalBlockquote(quote);
-        }
-      }
-      return originalBlockquote(quote);
-    };
+    // Note: Block math ($$...$$) is now handled via preprocessing in convertToHtml()
+    // to avoid conflicts with marked's line break processing
 
     // Support footnotes rendering
     renderer.link = (href: string, title: string | null | undefined, text: string): string => {
@@ -94,18 +82,45 @@ export class MarkdownService {
     }
 
     try {
+      // Store math blocks to protect them from markdown processing
+      const mathBlocks: string[] = [];
+
+      // Extract and protect block math ($$...$$) using HTML comments
+      markdown = markdown.replace(/\$\$([\s\S]+?)\$\$/g, (_match, math) => {
+        const index = mathBlocks.length;
+        mathBlocks.push(math);
+        return `<!--MATH_BLOCK_${index}-->`;
+      });
+
       // Convert markdown to HTML
       let html = marked.parse(markdown) as string;
 
-      // Handle math blocks ($$...$$) in the markdown
-      html = html.replace(/```math\n([\s\S]+?)```/g, (match, math) => {
+      // Restore and render math blocks
+      html = html.replace(/<!--MATH_BLOCK_(\d+)-->/g, (_match, indexStr) => {
+        const index = parseInt(indexStr, 10);
+        const math = mathBlocks[index];
+        try {
+          const rendered = katex.renderToString(math.trim(), {
+            throwOnError: false,
+            displayMode: true,
+            output: 'html'  // Force HTML-only output, no MathML
+          });
+          return `<div class="math-block">${rendered}</div>`;
+        } catch (e) {
+          return `<pre class="math-error">$$${math}$$</pre>`;
+        }
+      });
+
+      // Handle math blocks (```math...```) in the markdown
+      html = html.replace(/```math\n([\s\S]+?)```/g, (_match, math) => {
         try {
           return `<div class="math-block">${katex.renderToString(math.trim(), {
             throwOnError: false,
-            displayMode: true
+            displayMode: true,
+            output: 'html'  // Force HTML-only output, no MathML
           })}</div>`;
         } catch (e) {
-          return `<pre class="math-error">${match}</pre>`;
+          return `<pre class="math-error">${_match}</pre>`;
         }
       });
 
@@ -126,13 +141,13 @@ export class MarkdownService {
     const footnotes: { id: string; content: string }[] = [];
 
     // Extract footnote definitions [^1]: content
-    html = html.replace(/\[(\^[\w]+)\]:\s*(.+)/g, (match, id, content) => {
+    html = html.replace(/\[(\^[\w]+)\]:\s*(.+)/g, (_match, id, content) => {
       footnotes.push({ id: id.slice(1), content });
       return '';
     });
 
     // Replace footnote references [^1]
-    html = html.replace(/\[(\^[\w]+)\]/g, (match, id) => {
+    html = html.replace(/\[(\^[\w]+)\]/g, (_match, id) => {
       const fnId = id.slice(1);
       return `<sup><a href="#fn-${fnId}" class="footnote-ref" id="fnref-${fnId}">[${fnId}]</a></sup>`;
     });

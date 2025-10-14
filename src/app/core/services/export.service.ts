@@ -10,12 +10,16 @@ import {
 } from '../../shared/utils';
 import { KATEX_CSS, HIGHLIGHT_CSS_LIGHT, HIGHLIGHT_CSS_DARK } from '../../embedded-styles';
 import { ThemeService } from './theme.service';
+import { EpubExportService, EpubOptions } from './epub-export.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ExportService {
-  constructor(private themeService: ThemeService) {}
+  constructor(
+    private themeService: ThemeService,
+    private epubExportService: EpubExportService
+  ) {}
 
   /**
    * Export content based on the specified format
@@ -48,6 +52,9 @@ export class ExportService {
         break;
       case 'yaml':
         this.exportAsYaml(htmlContent, options.theme || 'claude', filename);
+        break;
+      case 'epub':
+        await this.exportAsEpub(markdownContent, filename);
         break;
       default:
         throw new Error(`Unsupported export format: ${options.format}`);
@@ -164,6 +171,28 @@ export class ExportService {
     const yaml = convertHtmlToYaml(htmlContent, theme);
     const blob = createTextBlob(yaml, 'text/yaml');
     downloadBlob(blob, filename);
+  }
+
+  /**
+   * Export as EPUB file
+   */
+  private async exportAsEpub(markdownContent: string, filename: string): Promise<void> {
+    // Parse markdown into EPUB structure
+    const structure = this.epubExportService.parseMarkdownToEpub(markdownContent);
+
+    // Default EPUB options
+    const options: EpubOptions = {
+      includeCover: false,
+      includeToc: true,
+      tocDepth: 1,
+      fontEmbedding: false,
+      hyphenation: true,
+      textAlign: 'justify',
+      theme: 'light'
+    };
+
+    // Generate and download EPUB
+    await this.epubExportService.generateEpub(structure, options, filename);
   }
 
   /**
@@ -1594,7 +1623,8 @@ export class ExportService {
       asciidoc: '.adoc',
       plaintext: '.txt',
       json: '.json',
-      yaml: '.yaml'
+      yaml: '.yaml',
+      epub: '.epub'
     };
 
     const extension = extensions[format] || '.txt';

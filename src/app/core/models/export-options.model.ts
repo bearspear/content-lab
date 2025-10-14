@@ -1,4 +1,4 @@
-export type ExportFormat = 'html' | 'pdf' | 'markdown' | 'asciidoc' | 'plaintext' | 'json' | 'yaml';
+export type ExportFormat = 'html' | 'pdf' | 'markdown' | 'asciidoc' | 'plaintext' | 'json' | 'yaml' | 'epub';
 
 export interface ExportOptions {
   format: ExportFormat;

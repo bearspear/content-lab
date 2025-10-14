@@ -130,6 +130,17 @@ import { EditorAction, EditorActionType } from '../../../core/models';
           </svg>
         </button>
       </div>
+
+      <div class="toolbar-divider"></div>
+
+      <div class="toolbar-group">
+        <button class="toolbar-btn epub-prepare-btn" (click)="emitAction('epubPrepare')" title="Prepare for EPUB Publishing">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 20l-3-3 13-13 3 3L6 20z"/>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 4l1-1M18 8l1-1M15 7l1-1M13 11l1-1"/>
+          </svg>
+        </button>
+      </div>
     </div>
   `,
   styles: [`
@@ -193,6 +204,34 @@ import { EditorAction, EditorActionType } from '../../../core/models';
       outline: none;
       box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.15);
       border-color: #4299e1;
+    }
+
+    /* EPUB Prepare Button - Purple Gradient */
+    .epub-prepare-btn {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border-color: transparent;
+      box-shadow: 0 2px 4px rgba(102, 126, 234, 0.2);
+    }
+
+    .epub-prepare-btn svg {
+      stroke: white;
+    }
+
+    .epub-prepare-btn:hover {
+      background: linear-gradient(135deg, #5a67d8 0%, #6b3fa0 100%);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 8px rgba(102, 126, 234, 0.3);
+    }
+
+    .epub-prepare-btn:active {
+      background: linear-gradient(135deg, #4c51bf 0%, #5a32a3 100%);
+      transform: translateY(0);
+    }
+
+    .epub-prepare-btn:focus {
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.25);
+      border-color: transparent;
     }
 
     @media (max-width: 768px) {
