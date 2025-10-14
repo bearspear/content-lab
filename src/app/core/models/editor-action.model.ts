@@ -15,7 +15,8 @@ export type EditorActionType =
   | 'table'
   | 'blockquote'
   | 'horizontalRule'
-  | 'math';
+  | 'math'
+  | 'epubPrepare';
 
 export interface EditorAction {
   type: EditorActionType;
