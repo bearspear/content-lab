@@ -1,0 +1,278 @@
+<div class="timeline-container">
+  <!-- Header -->
+  <div class="header">
+    <div class="header-left">
+      <h1 class="title">Timeline Visualizer</h1>
+      <p class="subtitle">Create and explore interactive timelines</p>
+    </div>
+    <div class="header-right">
+      <button class="btn btn-icon" (click)="resetTimeline()" title="Reset Timeline">
+        🔄
+      </button>
+      <button class="btn btn-icon" (click)="exportToPng()" title="Export to PNG">
+        📥
+      </button>
+    </div>
+  </div>
+
+  <!-- Toolbar -->
+  <div class="toolbar">
+    <!-- Add Event Button -->
+    <div class="toolbar-section">
+      <button class="btn btn-primary" (click)="openAddEventModal()">
+        + Add Event
+      </button>
+    </div>
+
+    <!-- Zoom Controls -->
+    <div class="toolbar-section ml-auto">
+      <span class="toolbar-label">Zoom:</span>
+      <div class="btn-group">
+        <button class="btn" (click)="zoomOut()" title="Zoom Out">−</button>
+        <button class="btn" (click)="resetZoom()" title="Reset Zoom">{{ (state.zoom * 100).toFixed(0) }}%</button>
+        <button class="btn" (click)="zoomIn()" title="Zoom In">+</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Timeline Canvas -->
+  <div class="timeline-canvas-wrapper">
+    <svg
+      #timelineCanvas
+      [attr.viewBox]="'0 0 ' + canvasWidth + ' ' + canvasHeight"
+      [attr.width]="canvasWidth"
+      [attr.height]="canvasHeight"
+      class="timeline-canvas"
+      preserveAspectRatio="xMidYMid meet"
+      (mousedown)="onMouseDown($event)"
+      (mousemove)="onMouseMove($event)"
+      (mouseup)="onMouseUp()"
+      (mouseleave)="onMouseUp()"
+      (wheel)="onWheel($event)"
+    >
+      <!-- Background -->
+      <rect [attr.width]="canvasWidth" [attr.height]="canvasHeight" fill="#ffffff"/>
+
+      <!-- Timeline Bar -->
+      <line
+        [attr.x1]="timelineStartX"
+        [attr.y1]="timelineY"
+        [attr.x2]="timelineEndX"
+        [attr.y2]="timelineY"
+        stroke="#667eea"
+        stroke-width="4"
+        stroke-linecap="round"
+      />
+
+      <!-- Time Ticks -->
+      <g *ngFor="let tick of getTimeTicks()">
+        <line
+          [attr.x1]="tick.x"
+          [attr.y1]="timelineY - 10"
+          [attr.x2]="tick.x"
+          [attr.y2]="timelineY + 10"
+          stroke="#495057"
+          stroke-width="2"
+        />
+        <text
+          [attr.x]="tick.x"
+          [attr.y]="timelineY + 30"
+          text-anchor="middle"
+          font-size="12"
+          fill="#6c757d"
+        >
+          {{ tick.label }}
+        </text>
+      </g>
+
+      <!-- Events -->
+      <g *ngFor="let event of state.events" class="event-group">
+        <!-- Connecting Line -->
+        <line
+          [attr.x1]="event.x"
+          [attr.y1]="timelineY"
+          [attr.x2]="event.x"
+          [attr.y2]="event.y"
+          stroke="#adb5bd"
+          stroke-width="2"
+          stroke-dasharray="4"
+        />
+
+        <!-- Event Dot on Timeline -->
+        <circle
+          [attr.cx]="event.x"
+          [attr.cy]="timelineY"
+          r="6"
+          [attr.fill]="event.color"
+          stroke="#ffffff"
+          stroke-width="2"
+        />
+
+        <!-- Event Card (using foreignObject) -->
+        <foreignObject
+          [attr.x]="event.x! - 75"
+          [attr.y]="event.position === 'top' ? event.y! - 70 : event.y! + 10"
+          width="150"
+          height="70"
+        >
+          <div xmlns="http://www.w3.org/1999/xhtml" class="event-card" [style.border-left-color]="event.color">
+            <div class="event-card-header">
+              <span class="event-icon" *ngIf="event.icon">{{ event.icon }}</span>
+              <span class="event-title">{{ event.title }}</span>
+              <button class="btn-close" (click)="deleteEvent(event.id)" title="Delete">×</button>
+            </div>
+            <div class="event-date">{{ formatDate(event.date) }}</div>
+            <div class="event-category" *ngIf="event.category">
+              <span class="category-badge">{{ event.category }}</span>
+            </div>
+            <div class="event-description" *ngIf="event.description">
+              {{ event.description }}
+            </div>
+          </div>
+        </foreignObject>
+      </g>
+
+      <!-- Empty State -->
+      <g *ngIf="state.events.length === 0">
+        <text
+          [attr.x]="canvasWidth / 2"
+          [attr.y]="canvasHeight / 2 - 20"
+          text-anchor="middle"
+          font-size="20"
+          fill="#adb5bd"
+          font-weight="600"
+        >
+          No events yet
+        </text>
+        <text
+          [attr.x]="canvasWidth / 2"
+          [attr.y]="canvasHeight / 2 + 10"
+          text-anchor="middle"
+          font-size="14"
+          fill="#adb5bd"
+        >
+          Add your first event using the form above
+        </text>
+      </g>
+    </svg>
+  </div>
+
+  <!-- Info Bar -->
+  <div class="info-bar">
+    <div class="info-item">
+      <span class="info-label">Events:</span>
+      <span class="info-value">{{ state.events.length }}</span>
+    </div>
+    <div class="info-item">
+      <span class="info-label">Scale:</span>
+      <span class="info-value">Days</span>
+    </div>
+    <div class="info-item">
+      <span class="info-label">Zoom:</span>
+      <span class="info-value">{{ (state.zoom * 100).toFixed(0) }}%</span>
+    </div>
+    <div class="info-item ml-auto">
+      <span class="info-value text-muted">Drag to pan • Scroll to zoom</span>
+    </div>
+  </div>
+
+  <!-- Add Event Modal -->
+  <div class="modal-overlay" *ngIf="showAddEventModal" (click)="closeAddEventModal()">
+    <div class="modal-panel" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Add New Event</h3>
+        <button class="btn-close" (click)="closeAddEventModal()">×</button>
+      </div>
+
+      <div class="modal-body">
+        <div class="form-row">
+          <div class="form-group flex-2">
+            <label for="event-date">Date *</label>
+            <input
+              id="event-date"
+              type="date"
+              [(ngModel)]="newEvent.date"
+              class="input-field"
+              placeholder="Select date"
+            />
+          </div>
+
+          <div class="form-group flex-1">
+            <label for="event-category">Category</label>
+            <select
+              id="event-category"
+              [(ngModel)]="newEvent.category"
+              class="input-field"
+            >
+              <option value="">Select category</option>
+              <option *ngFor="let cat of categories" [value]="cat">{{ cat }}</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="event-title">Title *</label>
+          <input
+            id="event-title"
+            type="text"
+            [(ngModel)]="newEvent.title"
+            class="input-field"
+            placeholder="Enter event title"
+            (keyup.enter)="addEvent()"
+            autofocus
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="event-description">Description</label>
+          <textarea
+            id="event-description"
+            [(ngModel)]="newEvent.description"
+            class="input-field textarea"
+            placeholder="Enter event description (optional)"
+            rows="3"
+          ></textarea>
+        </div>
+
+        <div class="form-group">
+          <label>Icon (optional)</label>
+          <div class="icon-picker">
+            <button
+              type="button"
+              *ngFor="let icon of icons"
+              class="icon-btn"
+              [class.selected]="newEvent.icon === icon"
+              (click)="newEvent.icon = newEvent.icon === icon ? '' : icon"
+              [title]="icon"
+            >
+              {{ icon }}
+            </button>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Color</label>
+          <div class="color-picker">
+            <button
+              type="button"
+              *ngFor="let color of colors"
+              class="color-btn"
+              [class.selected]="newEvent.color === color.value"
+              [style.background-color]="color.value"
+              (click)="newEvent.color = newEvent.color === color.value ? '' : color.value"
+              [title]="color.name"
+            >
+              <span class="check-icon" *ngIf="newEvent.color === color.value">✓</span>
+            </button>
+          </div>
+          <small class="help-text" *ngIf="!newEvent.color">Random color will be assigned if not selected</small>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn" (click)="closeAddEventModal()">Cancel</button>
+        <button class="btn btn-primary" (click)="addEvent()">Add Event</button>
+      </div>
+    </div>
+  </div>
+</div>

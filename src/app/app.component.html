@@ -1,19 +1,10 @@
 <div class="app-container">
-  <app-sidebar
-    (toolSelected)="onToolSelected($event)"
-    (sidebarToggled)="onSidebarToggled($event)">
-  </app-sidebar>
+  <app-sidebar (sidebarToggled)="onSidebarToggled($event)"></app-sidebar>
 
   <main class="main-content" [class.sidebar-collapsed]="isSidebarCollapsed">
-    <app-md-converter *ngIf="activeTool === 'md-html'"></app-md-converter>
-    <app-text-editor *ngIf="activeTool === 'text-editor'"></app-text-editor>
-    <app-js-playground *ngIf="activeTool === 'js-playground'"></app-js-playground>
-    <app-json-editor *ngIf="activeTool === 'json-editor'"></app-json-editor>
-    <app-csv-editor *ngIf="activeTool === 'csv-editor'"></app-csv-editor>
-    <app-regex-tester *ngIf="activeTool === 'regex-tester'"></app-regex-tester>
-    <app-base64-encoder *ngIf="activeTool === 'base64-encoder'"></app-base64-encoder>
-    <app-diff-checker *ngIf="activeTool === 'diff-checker'"></app-diff-checker>
-    <app-svg-editor *ngIf="activeTool === 'svg-editor'"></app-svg-editor>
-    <app-tetris *ngIf="activeTool === 'tetris'"></app-tetris>
+    <router-outlet></router-outlet>
   </main>
+
+  <!-- Loading spinner for route transitions -->
+  <app-loading-spinner *ngIf="isLoading"></app-loading-spinner>
 </div>
