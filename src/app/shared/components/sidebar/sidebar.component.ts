@@ -1,17 +1,28 @@
 import { Component, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 
 export interface ToolItem {
   id: string;
   name: string;
+  route: string;
   icon: string;
   description: string;
+  badge?: string;
+  badgeClass?: string;
+}
+
+export interface ToolCategory {
+  id: string;
+  name: string;
+  icon: string;
+  tools: ToolItem[];
 }
 
 @Component({
   selector: 'app-sidebar',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterLink, RouterLinkActive],
   template: `
     <aside class="sidebar" [class.collapsed]="isCollapsed">
       <div class="sidebar-header">
@@ -33,18 +44,34 @@ export interface ToolItem {
       </div>
 
       <nav class="sidebar-nav">
-        <ul class="tool-list">
-          <li *ngFor="let tool of tools"
-              class="tool-item"
-              [class.active]="tool.id === activeToolId"
-              (click)="selectTool(tool.id)">
-            <div class="tool-icon" [innerHTML]="tool.icon"></div>
-            <div class="tool-info" *ngIf="!isCollapsed">
-              <span class="tool-name">{{ tool.name }}</span>
-              <span class="tool-description">{{ tool.description }}</span>
+        <div class="category-list">
+          <div *ngFor="let category of categories" class="category">
+            <div class="category-header"
+                 (click)="toggleCategory(category.id)"
+                 [class.collapsed]="isCategoryCollapsed(category.id)">
+              <div class="category-icon" [innerHTML]="category.icon"></div>
+              <span class="category-name" *ngIf="!isCollapsed">{{ category.name }}</span>
+              <svg *ngIf="!isCollapsed" class="category-chevron" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+              </svg>
             </div>
-          </li>
-        </ul>
+            <ul class="tool-list" *ngIf="!isCategoryCollapsed(category.id) && !isCollapsed">
+              <li *ngFor="let tool of category.tools"
+                  class="tool-item"
+                  [routerLink]="tool.route"
+                  routerLinkActive="active">
+                <div class="tool-icon" [innerHTML]="tool.icon"></div>
+                <div class="tool-info">
+                  <div class="tool-name-wrapper">
+                    <span class="tool-name">{{ tool.name }}</span>
+                    <span *ngIf="tool.badge" [class]="'badge ' + (tool.badgeClass || '')" [title]="'Work in Progress'">{{ tool.badge }}</span>
+                  </div>
+                  <span class="tool-description">{{ tool.description }}</span>
+                </div>
+              </li>
+            </ul>
+          </div>
+        </div>
       </nav>
 
       <div class="sidebar-footer" *ngIf="!isCollapsed">
@@ -166,18 +193,81 @@ export interface ToolItem {
       background: rgba(255, 255, 255, 0.2);
     }
 
+    .category-list {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .category {
+      margin-bottom: 4px;
+    }
+
+    .category-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 16px;
+      margin: 0 8px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      user-select: none;
+    }
+
+    .category-header:hover {
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .category-icon {
+      width: 20px;
+      height: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      color: #4299e1;
+      transition: color 0.2s ease;
+    }
+
+    .category-icon :deep(svg) {
+      width: 20px;
+      height: 20px;
+    }
+
+    .category-name {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #cbd5e0;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      flex: 1;
+    }
+
+    .category-chevron {
+      width: 16px;
+      height: 16px;
+      color: #a0aec0;
+      transition: transform 0.2s ease;
+      flex-shrink: 0;
+    }
+
+    .category-header.collapsed .category-chevron {
+      transform: rotate(-90deg);
+    }
+
     .tool-list {
       list-style: none;
       padding: 0;
-      margin: 0;
+      margin: 0 0 8px 0;
     }
 
     .tool-item {
       display: flex;
       align-items: center;
       gap: 12px;
-      padding: 12px 16px;
-      margin: 4px 8px;
+      padding: 10px 16px 10px 48px;
+      margin: 2px 8px;
       border-radius: 8px;
       cursor: pointer;
       transition: all 0.2s ease;
@@ -238,6 +328,12 @@ export interface ToolItem {
       min-width: 0;
     }
 
+    .tool-name-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
     .tool-name {
       font-size: 0.95rem;
       font-weight: 500;
@@ -245,6 +341,25 @@ export interface ToolItem {
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
+    }
+
+    .badge {
+      font-size: 0.85rem;
+      flex-shrink: 0;
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% {
+        opacity: 1;
+      }
+      50% {
+        opacity: 0.6;
+      }
+    }
+
+    .badge-wip {
+      filter: grayscale(0);
     }
 
     .tool-description {
@@ -294,93 +409,200 @@ export interface ToolItem {
   `]
 })
 export class SidebarComponent {
-  @Output() toolSelected = new EventEmitter<string>();
   @Output() sidebarToggled = new EventEmitter<boolean>();
 
   isCollapsed = false;
-  activeToolId = 'md-html';
+  collapsedCategories = new Set<string>(['code-dev', 'data-text', 'utilities', 'visualizations', 'games']);
 
-  tools: ToolItem[] = [
+  categories: ToolCategory[] = [
     {
-      id: 'md-html',
-      name: 'Markdown to HTML',
-      icon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-      </svg>`,
-      description: 'Convert markdown to HTML'
-    },
-    {
-      id: 'text-editor',
-      name: 'Text Editor',
-      icon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-      </svg>`,
-      description: 'Full-featured text editor'
-    },
-    {
-      id: 'js-playground',
-      name: 'JavaScript Playground',
-      icon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/>
-      </svg>`,
-      description: 'Run HTML, CSS & JavaScript'
-    },
-    {
-      id: 'json-editor',
-      name: 'JSON Editor',
-      icon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/>
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M20 9h2M2 9h2m18 6h2M2 15h2M16.5 3.5l-1 1m-7-1l1 1m-1 13l1-1m7 1l-1-1"/>
-      </svg>`,
-      description: 'Format & validate JSON'
-    },
-    {
-      id: 'csv-editor',
-      name: 'CSV/TSV Editor',
-      icon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
-      </svg>`,
-      description: 'Edit & convert CSV data'
-    },
-    {
-      id: 'regex-tester',
-      name: 'RegEx Tester',
-      icon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14" />
-      </svg>`,
-      description: 'Test & debug regex patterns'
-    },
-    {
-      id: 'base64-encoder',
-      name: 'Base64 Encoder',
-      icon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
-      </svg>`,
-      description: 'Encode/decode Base64 strings'
-    },
-    {
-      id: 'diff-checker',
-      name: 'Diff Checker',
-      icon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
-      </svg>`,
-      description: 'Compare text & code side-by-side'
-    },
-    {
-      id: 'svg-editor',
-      name: 'SVG Editor',
+      id: 'content-design',
+      name: 'Content & Design',
       icon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
       </svg>`,
-      description: 'Edit & optimize SVG files'
+      tools: [
+        {
+          id: 'md-html',
+          name: 'Markdown to HTML',
+          route: '/tools/md-html',
+          icon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          </svg>`,
+          description: 'Convert markdown to HTML'
+        },
+        {
+          id: 'text-editor',
+          name: 'Text Editor',
+          route: '/tools/text-editor',
+          icon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+          </svg>`,
+          description: 'Full-featured text editor'
+        },
+        {
+          id: 'svg-editor',
+          name: 'SVG Editor',
+          route: '/tools/svg-editor',
+          icon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
+          </svg>`,
+          description: 'Edit & optimize SVG files'
+        }
+      ]
     },
     {
-      id: 'tetris',
-      name: 'Tetris Game',
+      id: 'code-dev',
+      name: 'Code & Development',
+      icon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/>
+      </svg>`,
+      tools: [
+        {
+          id: 'js-playground',
+          name: 'JavaScript Playground',
+          route: '/tools/js-playground',
+          icon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/>
+          </svg>`,
+          description: 'Run HTML, CSS & JavaScript'
+        },
+        {
+          id: 'json-editor',
+          name: 'JSON Editor',
+          route: '/tools/json-editor',
+          icon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M20 9h2M2 9h2m18 6h2M2 15h2M16.5 3.5l-1 1m-7-1l1 1m-1 13l1-1m7 1l-1-1"/>
+          </svg>`,
+          description: 'Format & validate JSON'
+        },
+        {
+          id: 'regex-tester',
+          name: 'RegEx Tester',
+          route: '/tools/regex-tester',
+          icon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14" />
+          </svg>`,
+          description: 'Test & debug regex patterns'
+        },
+        {
+          id: 'diff-checker',
+          name: 'Diff Checker',
+          route: '/tools/diff-checker',
+          icon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+          </svg>`,
+          description: 'Compare text & code side-by-side'
+        }
+      ]
+    },
+    {
+      id: 'data-text',
+      name: 'Data & Text',
+      icon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+      </svg>`,
+      tools: [
+        {
+          id: 'csv-editor',
+          name: 'CSV/TSV Editor',
+          route: '/tools/csv-editor',
+          icon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+          </svg>`,
+          description: 'Edit & convert CSV data'
+        },
+        {
+          id: 'word-counter',
+          name: 'Word Counter',
+          route: '/tools/word-counter',
+          icon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m0 4v2" />
+          </svg>`,
+          description: 'Text analytics & readability'
+        }
+      ]
+    },
+    {
+      id: 'utilities',
+      name: 'Utilities',
+      icon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+      </svg>`,
+      tools: [
+        {
+          id: 'base64-encoder',
+          name: 'Base64 Encoder',
+          route: '/tools/base64-encoder',
+          icon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+          </svg>`,
+          description: 'Encode/decode Base64 strings'
+        },
+        {
+          id: 'world-clock',
+          name: 'World Clock',
+          route: '/tools/world-clock',
+          icon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <circle cx="12" cy="12" r="10" stroke-width="2"/>
+            <polyline points="12 6 12 12 16 14" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>`,
+          description: 'View time across time zones'
+        }
+      ]
+    },
+    {
+      id: 'visualizations',
+      name: 'Visualizations',
+      icon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <circle cx="12" cy="12" r="10" stroke-width="2" stroke-linecap="round"/>
+        <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" stroke-width="2" stroke-linecap="round"/>
+      </svg>`,
+      tools: [
+        {
+          id: 'timeline-visualizer',
+          name: 'Timeline Visualizer',
+          route: '/tools/timeline-visualizer',
+          icon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+          </svg>`,
+          description: 'Create interactive timelines',
+          badge: '🚧',
+          badgeClass: 'badge-wip'
+        },
+        {
+          id: 'globe-visualizer',
+          name: '3D Earth Globe',
+          route: '/tools/globe-visualizer',
+          icon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <circle cx="12" cy="12" r="10" stroke-width="2" stroke-linecap="round"/>
+            <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" stroke-width="2" stroke-linecap="round"/>
+          </svg>`,
+          description: 'Interactive 3D globe with pins',
+          badge: '🚧',
+          badgeClass: 'badge-wip'
+        }
+      ]
+    },
+    {
+      id: 'games',
+      name: 'Games',
       icon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 4H4v7h7V4zM20 4h-7v7h7V4zM11 13H4v7h7v-7zM20 13h-7v7h7v-7z" />
       </svg>`,
-      description: 'Classic block puzzle game'
+      tools: [
+        {
+          id: 'tetris',
+          name: 'Tetris Game',
+          route: '/tools/tetris',
+          icon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 4H4v7h7V4zM20 4h-7v7h7V4zM11 13H4v7h7v-7zM20 13h-7v7h7v-7z" />
+          </svg>`,
+          description: 'Classic block puzzle game'
+        }
+      ]
     }
   ];
 
@@ -389,8 +611,15 @@ export class SidebarComponent {
     this.sidebarToggled.emit(this.isCollapsed);
   }
 
-  selectTool(toolId: string): void {
-    this.activeToolId = toolId;
-    this.toolSelected.emit(toolId);
+  toggleCategory(categoryId: string): void {
+    if (this.collapsedCategories.has(categoryId)) {
+      this.collapsedCategories.delete(categoryId);
+    } else {
+      this.collapsedCategories.add(categoryId);
+    }
+  }
+
+  isCategoryCollapsed(categoryId: string): boolean {
+    return this.collapsedCategories.has(categoryId);
   }
 }
