@@ -452,4 +452,65 @@ export class TimelineVisualizerComponent extends StatefulComponent<TimelineState
 
     return ticks;
   }
+
+  /**
+   * Generate subticks for finer granularity
+   */
+  getTimeSubticks(): Array<{ x: number; label: string }> {
+    if (!this.minDate || !this.maxDate) {
+      return [];
+    }
+
+    const subticks: Array<{ x: number; label: string }> = [];
+    const timeRange = this.maxDate.getTime() - this.minDate.getTime();
+    const spaceRange = this.timelineEndX - this.timelineStartX;
+
+    // Calculate pixels per day to determine if we should show subticks
+    const dayInMs = 24 * 60 * 60 * 1000;
+    const numDays = Math.ceil(timeRange / dayInMs);
+    const tickInterval = Math.max(1, Math.floor(numDays / 10));
+
+    // Calculate pixel spacing between main ticks
+    const pixelsPerTick = (spaceRange * this.state.zoom) / (numDays / tickInterval);
+
+    // Only show subticks if there's enough space (more than 80 pixels between main ticks)
+    if (pixelsPerTick < 80) {
+      return subticks;
+    }
+
+    // Generate hourly subticks between day ticks
+    const hourInMs = 60 * 60 * 1000;
+    const numHours = Math.ceil(timeRange / hourInMs);
+
+    // Show subticks every N hours based on available space
+    let subtickInterval = 6; // Default: every 6 hours
+    if (pixelsPerTick > 200) {
+      subtickInterval = 3; // More space: every 3 hours
+    }
+    if (pixelsPerTick > 400) {
+      subtickInterval = 1; // Lots of space: every hour
+    }
+
+    for (let i = 0; i <= numHours; i += subtickInterval) {
+      const subtickDate = new Date(this.minDate.getTime() + i * hourInMs);
+
+      // Skip subticks that fall on main tick positions (midnight)
+      if (subtickDate.getHours() === 0) {
+        continue;
+      }
+
+      const normalizedTime = (subtickDate.getTime() - this.minDate.getTime()) / timeRange;
+      const x = this.timelineStartX + (normalizedTime * spaceRange * this.state.zoom) + this.state.panX;
+
+      // Format hour label (e.g., "6am", "12pm", "6pm")
+      const hours = subtickDate.getHours();
+      const ampm = hours >= 12 ? 'pm' : 'am';
+      const displayHour = hours % 12 === 0 ? 12 : hours % 12;
+      const label = `${displayHour}${ampm}`;
+
+      subticks.push({ x, label });
+    }
+
+    return subticks;
+  }
 }

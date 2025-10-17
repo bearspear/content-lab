@@ -90,6 +90,9 @@ export class JsPlaygroundComponent extends StatefulComponent<JsPlaygroundState> 
     { value: 'three-panel' as LayoutType, label: 'Three Panel', icon: '▦' }
   ];
 
+  // Monaco theme
+  monacoTheme: 'vs' | 'vs-dark' = 'vs-dark';
+
   constructor(
     private codeBridgeService: CodeBridgeService,
     private scriptLoaderService: ScriptLoaderService,
@@ -105,7 +108,10 @@ export class JsPlaygroundComponent extends StatefulComponent<JsPlaygroundState> 
    * State will be loaded after preview iframe initialization in ngAfterViewInit
    */
   override ngOnInit(): void {
-    // Do nothing - state loaded in ngAfterViewInit
+    // Subscribe to global theme changes
+    this.monacoThemeService.theme$.subscribe(theme => {
+      this.monacoTheme = theme;
+    });
   }
 
   override ngOnDestroy(): void {
@@ -698,9 +704,8 @@ ${libraryScriptTags}
     // Setup resizer
     this.setupResizer();
 
-    // Apply JS Playground's preferred dark theme
-    // This ensures the dark theme is used when navigating to this component
-    this.monacoThemeService.applyComponentTheme('js-playground-js');
+    // Note: We don't apply the theme here to avoid interfering with other Monaco editors
+    // The theme will be applied by individual code-editor components when they initialize
 
     // Create and store message listener for cleanup
     this.messageListener = (event: MessageEvent) => {
@@ -874,4 +879,5 @@ ${libraryScriptTags}
 
     resizer.addEventListener('mousedown', onMouseDown);
   }
+
 }

@@ -59,10 +59,32 @@
         [attr.y1]="timelineY"
         [attr.x2]="timelineEndX"
         [attr.y2]="timelineY"
-        stroke="#667eea"
-        stroke-width="4"
+        stroke="#2d3748"
+        stroke-width="1"
         stroke-linecap="round"
       />
+
+      <!-- Time Subticks (hourly) -->
+      <g *ngFor="let subtick of getTimeSubticks()">
+        <line
+          [attr.x1]="subtick.x"
+          [attr.y1]="timelineY - 5"
+          [attr.x2]="subtick.x"
+          [attr.y2]="timelineY + 5"
+          stroke="#adb5bd"
+          stroke-width="0.5"
+          opacity="0.5"
+        />
+        <text
+          [attr.x]="subtick.x"
+          [attr.y]="timelineY + 20"
+          text-anchor="middle"
+          font-size="10"
+          fill="#adb5bd"
+        >
+          {{ subtick.label }}
+        </text>
+      </g>
 
       <!-- Time Ticks -->
       <g *ngFor="let tick of getTimeTicks()">
@@ -72,7 +94,7 @@
           [attr.x2]="tick.x"
           [attr.y2]="timelineY + 10"
           stroke="#495057"
-          stroke-width="2"
+          stroke-width="0.5"
         />
         <text
           [attr.x]="tick.x"

@@ -100,10 +100,18 @@
         border-radius: 0.5rem;
         padding: 0.625rem 1.25rem;
         display: flex;
+        justify-content: space-between;
         align-items: center;
         gap: 0.75rem;
         font-size: 0.9375rem;
         backdrop-filter: blur(4px);
+        width: 370px;
+
+        .coord-item {
+          display: flex;
+          gap: 2px;
+          justify-items: center;
+        }
 
         .coord-label {
           font-weight: 500;
@@ -817,9 +825,12 @@
 
 // Animations
 @keyframes pulse {
-  0%, 100% {
+
+  0%,
+  100% {
     opacity: 1;
   }
+
   50% {
     opacity: 0.7;
   }
