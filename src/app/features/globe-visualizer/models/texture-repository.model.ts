@@ -194,6 +194,12 @@ export const TEXTURE_REPOSITORY: PlanetTextureCollection[] = [
             path: '/assets/textures/hash/bac68e49.jpg',
             size: '487KB'
           }],
+          '4k': [{
+            hash: 'fd77fe53bff190283238a400c3c3689f',
+            humanName: 'Hubble OPAL Map',
+            path: '/assets/textures/hash/fd77fe53.jpg',
+            size: '1.0MB'
+          }],
           '8k': [{
             hash: 'c147e262013b259c840c2a72c8cf18d4',
             humanName: 'Realistic Bands',

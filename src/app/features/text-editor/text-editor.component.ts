@@ -29,6 +29,7 @@ export class TextEditorComponent extends StatefulComponent<TextEditorState> impl
   @ViewChild('editorContainer', { static: false }) editorContainer!: ElementRef;
 
   editor: monaco.editor.IStandaloneCodeEditor | null = null;
+  private themeSubscription: any;
 
   // Statistics
   characterCount: number = 0;
@@ -72,7 +73,14 @@ export class TextEditorComponent extends StatefulComponent<TextEditorState> impl
    * State will be loaded after editor initialization in ngAfterViewInit
    */
   override ngOnInit(): void {
-    // Do nothing - state loaded in ngAfterViewInit
+    // Subscribe to global theme changes
+    this.themeSubscription = this.monacoThemeService.theme$.subscribe(theme => {
+      this.monacoTheme = theme;
+      if (this.editor) {
+        monaco.editor.setTheme(theme);
+        this.updateThemeClass();
+      }
+    });
   }
 
   ngAfterViewInit(): void {
@@ -81,6 +89,9 @@ export class TextEditorComponent extends StatefulComponent<TextEditorState> impl
 
   override ngOnDestroy(): void {
     super.ngOnDestroy();
+    if (this.themeSubscription) {
+      this.themeSubscription.unsubscribe();
+    }
     if (this.editor) {
       this.editor.dispose();
     }
@@ -103,11 +114,10 @@ export class TextEditorComponent extends StatefulComponent<TextEditorState> impl
     this.showWhitespace = state.showWhitespace;
     this.fontSize = state.fontSize;
     this.wordWrap = state.wordWrap;
-    this.monacoTheme = state.monacoTheme || 'vs';
     this.language = state.language || 'plaintext';
 
-    // Register this component's theme preference with the service
-    this.monacoThemeService.registerComponentPreference('text-editor', this.monacoTheme);
+    // Theme is managed globally via subscription
+    this.monacoTheme = this.monacoThemeService.currentTheme;
 
     if (this.editor) {
       // Update editor options
@@ -118,15 +128,8 @@ export class TextEditorComponent extends StatefulComponent<TextEditorState> impl
         wordWrap: this.wordWrap ? 'on' : 'off'
       });
 
-      // Apply Monaco theme via service
-      this.monacoThemeService.setTheme(this.monacoTheme);
-
       // Update body class for theme-specific styling
-      if (this.monacoTheme === 'vs-dark') {
-        document.body.classList.add('editor-dark-theme');
-      } else {
-        document.body.classList.remove('editor-dark-theme');
-      }
+      this.updateThemeClass();
 
       // Update language model
       const model = this.editor.getModel();
@@ -136,6 +139,14 @@ export class TextEditorComponent extends StatefulComponent<TextEditorState> impl
 
       // Set content
       this.editor.setValue(state.content);
+    }
+  }
+
+  private updateThemeClass(): void {
+    if (this.monacoTheme === 'vs-dark') {
+      document.body.classList.add('editor-dark-theme');
+    } else {
+      document.body.classList.remove('editor-dark-theme');
     }
   }
 
@@ -219,6 +230,8 @@ export class TextEditorComponent extends StatefulComponent<TextEditorState> impl
 
     // Load saved state after editor is initialized
     this.loadState();
+
+    // Note: Don't apply theme here to avoid global Monaco theme interference
   }
 
   private updateStatistics(): void {
@@ -421,25 +434,7 @@ export class TextEditorComponent extends StatefulComponent<TextEditorState> impl
     }
   }
 
-  toggleTheme(): void {
-    if (this.editor) {
-      // Toggle theme
-      this.monacoTheme = this.monacoTheme === 'vs' ? 'vs-dark' : 'vs';
-
-      // Update component preference and apply globally via service
-      this.monacoThemeService.updateComponentPreference('text-editor', this.monacoTheme, true);
-
-      // Update body class
-      if (this.monacoTheme === 'vs-dark') {
-        document.body.classList.add('editor-dark-theme');
-      } else {
-        document.body.classList.remove('editor-dark-theme');
-      }
-
-      // Save state
-      this.saveState();
-    }
-  }
+  // Theme toggle removed - now controlled globally via sidebar
 
   setLanguage(language: string): void {
     this.language = language;

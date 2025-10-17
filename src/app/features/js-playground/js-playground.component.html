@@ -26,7 +26,7 @@
 
   <div class="playground-content" [attr.data-layout]="layout">
     <!-- Editor Section -->
-    <div class="editor-section" *ngIf="layout !== 'three-panel'">
+    <div class="editor-section" [class.light-theme]="monacoTheme === 'vs'" *ngIf="layout !== 'three-panel'">
       <div class="editor-header">
         <div class="tabs">
           <button class="tab"
@@ -87,7 +87,7 @@
                          (codeChange)="saveState()"
                          language="html"
                          componentId="js-playground-html"
-                         theme="vs-dark"
+                         [theme]="monacoTheme"
                          placeholder="Write your HTML here..."></app-code-editor>
 
         <app-code-editor [style.display]="activeTab === 'css' ? 'block' : 'none'"
@@ -95,7 +95,7 @@
                          (codeChange)="saveState()"
                          language="css"
                          componentId="js-playground-css"
-                         theme="vs-dark"
+                         [theme]="monacoTheme"
                          placeholder="Write your CSS here..."></app-code-editor>
 
         <app-code-editor [style.display]="activeTab === 'js' ? 'block' : 'none'"
@@ -103,13 +103,13 @@
                          (codeChange)="saveState()"
                          language="javascript"
                          componentId="js-playground-js"
-                         theme="vs-dark"
+                         [theme]="monacoTheme"
                          placeholder="Write your JavaScript here..."></app-code-editor>
       </div>
     </div>
 
     <!-- Three Panel Layout -->
-    <div class="three-panel-editors" *ngIf="layout === 'three-panel'">
+    <div class="three-panel-editors" [class.light-theme]="monacoTheme === 'vs'" *ngIf="layout === 'three-panel'">
       <div class="panel-editor html-panel">
         <div class="panel-header">
           <span class="panel-title">
@@ -125,7 +125,7 @@
             (codeChange)="saveState()"
             language="html"
             componentId="js-playground-html-panel"
-            theme="vs-dark"
+            [theme]="monacoTheme"
             placeholder="Write your HTML here..."></app-code-editor>
         </div>
       </div>
@@ -145,7 +145,7 @@
             (codeChange)="saveState()"
             language="css"
             componentId="js-playground-css-panel"
-            theme="vs-dark"
+            [theme]="monacoTheme"
             placeholder="Write your CSS here..."></app-code-editor>
         </div>
       </div>
@@ -180,7 +180,7 @@
             (codeChange)="saveState()"
             language="javascript"
             componentId="js-playground-js-panel"
-            theme="vs-dark"
+            [theme]="monacoTheme"
             placeholder="Write your JavaScript here..."></app-code-editor>
         </div>
       </div>
@@ -221,7 +221,7 @@
                 sandbox="allow-scripts"
                 title="Code Preview"></iframe>
 
-        <div class="console-panel" *ngIf="showConsole">
+        <div class="console-panel" [class.light-theme]="monacoTheme === 'vs'" *ngIf="showConsole">
           <div class="console-header">
             <span class="console-title">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">

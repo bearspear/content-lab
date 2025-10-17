@@ -938,6 +938,162 @@
   }
 }
 
+// Light Theme Styles
+.editor-section.light-theme {
+  background: #ffffff;
+  border-right: 1px solid #e0e0e0;
+
+  .editor-header {
+    background: #f3f3f3;
+    border-bottom: 1px solid #e0e0e0;
+  }
+
+  .tab {
+    color: #616161;
+
+    &:hover {
+      color: #2d3748;
+      background: rgba(0, 0, 0, 0.05);
+    }
+
+    &.active {
+      color: #1976d2;
+      border-bottom-color: #1976d2;
+      background: rgba(25, 118, 210, 0.1);
+    }
+  }
+
+  .clear-btn {
+    border-color: #cbd5e0;
+    color: #4a5568;
+
+    &:hover {
+      background: rgba(0, 0, 0, 0.05);
+      border-color: #ef4444;
+      color: #ef4444;
+    }
+  }
+
+  .fullscreen-btn {
+    border-color: #cbd5e0;
+    color: #4a5568;
+
+    &:hover {
+      background: rgba(0, 0, 0, 0.05);
+      border-color: #1976d2;
+      color: #1976d2;
+    }
+  }
+}
+
+.console-panel.light-theme {
+  background: #ffffff;
+  border-top: 1px solid #e0e0e0;
+
+  .console-header {
+    background: #f3f3f3;
+    border-bottom: 1px solid #e0e0e0;
+
+    .console-title {
+      color: #2d3748;
+
+      svg {
+        color: #1976d2;
+      }
+    }
+
+    .clear-btn {
+      border-color: #cbd5e0;
+      color: #4a5568;
+
+      &:hover {
+        background: rgba(0, 0, 0, 0.05);
+        border-color: #718096;
+        color: #2d3748;
+      }
+    }
+  }
+
+  .console-content {
+    background: #ffffff;
+
+    &::-webkit-scrollbar-track {
+      background: #ffffff;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: #cbd5e0;
+
+      &:hover {
+        background: #a0aec0;
+      }
+    }
+  }
+
+  .console-log {
+    color: #2d3748;
+
+    &:hover {
+      background: rgba(0, 0, 0, 0.03);
+    }
+
+    &.error {
+      color: #c53030;
+      background: rgba(197, 48, 48, 0.1);
+    }
+
+    &.warn {
+      color: #d69e2e;
+      background: rgba(214, 158, 46, 0.1);
+    }
+
+    &.info {
+      color: #1976d2;
+      background: rgba(25, 118, 210, 0.1);
+    }
+  }
+
+  .console-empty {
+    color: #a0aec0;
+  }
+}
+
+.three-panel-editors.light-theme {
+  .panel-editor {
+    background: #ffffff;
+    border-right: 1px solid #e0e0e0;
+  }
+
+  .panel-header {
+    background: #f3f3f3;
+    border-bottom: 1px solid #e0e0e0;
+
+    .panel-title {
+      color: #2d3748;
+    }
+
+    .icon-btn {
+      color: #1976d2;
+
+      &:hover {
+        background: rgba(25, 118, 210, 0.1);
+      }
+    }
+  }
+
+  .html-panel .panel-title {
+    color: #e44d26;
+  }
+
+  .css-panel .panel-title {
+    color: #264de4;
+  }
+
+  .js-panel .panel-title {
+    color: #b7950b;
+  }
+}
+
 // Responsive
 @media (max-width: 1024px) {
   .playground-content {
