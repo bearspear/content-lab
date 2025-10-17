@@ -34,8 +34,8 @@ export class MarkdownService {
     // Override paragraph rendering to handle inline math
     const originalParagraph = renderer.paragraph.bind(renderer);
     renderer.paragraph = (text: string): string => {
-      // Handle inline math: $...$
-      text = text.replace(/\$([^$]+)\$/g, (match, math) => {
+      // Handle inline math: $$...$$
+      text = text.replace(/\$\$([^$]+?)\$\$/g, (match, math) => {
         try {
           return katex.renderToString(math, {
             throwOnError: false,
@@ -48,8 +48,8 @@ export class MarkdownService {
       return originalParagraph(text);
     };
 
-    // Note: Block math ($$...$$) is now handled via preprocessing in convertToHtml()
-    // to avoid conflicts with marked's line break processing
+    // Note: Block math (multi-line $$...$$) is handled via preprocessing in convertToHtml()
+    // to avoid conflicts with marked's line break processing. Inline math uses $$...$$ on same line.
 
     // Support footnotes rendering
     renderer.link = (href: string, title: string | null | undefined, text: string): string => {
@@ -203,7 +203,7 @@ function fibonacci(n: number): number {
 
 ## Math Equations
 
-Inline math: The formula $E = mc^2$ is Einstein's famous equation.
+Inline math: The formula $$E = mc^2$$ is Einstein's famous equation.
 
 Block math (use \`\`\` blocks with "math" language):
 
