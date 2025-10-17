@@ -109,6 +109,55 @@ Try pasting an article, blog post, essay, or any text you want to analyze. The t
         </div>
       </div>
 
+      <!-- Page Count Estimates Card -->
+      <div class="stat-card">
+        <h3 class="card-title">📄 Page Count Estimates</h3>
+        <div class="page-estimates-intro">
+          Estimated pages when printed or exported to PDF
+        </div>
+        <div class="stat-grid">
+          <div class="stat-row highlight-row">
+            <div style="display: flex; flex-direction: column; gap: 0.25rem;">
+              <div style="display: flex; justify-content: space-between; width: 100%;">
+                <span class="stat-name">📃 Double-spaced:</span>
+                <span class="stat-value-text">{{ statistics.pagesDoublespaced }} {{ statistics.pagesDoublespaced === 1 ? 'page' : 'pages' }}</span>
+              </div>
+              <span class="stat-detail">~250 words/page</span>
+            </div>
+          </div>
+          <div class="stat-row">
+            <div style="display: flex; flex-direction: column; gap: 0.25rem; width: 100%;">
+              <div style="display: flex; justify-content: space-between; width: 100%;">
+                <span class="stat-name">📄 Single-spaced:</span>
+                <span class="stat-value-text">{{ statistics.pagesSingleSpaced }} {{ statistics.pagesSingleSpaced === 1 ? 'page' : 'pages' }}</span>
+              </div>
+              <span class="stat-detail">~500 words/page</span>
+            </div>
+          </div>
+          <div class="stat-row">
+            <div style="display: flex; flex-direction: column; gap: 0.25rem; width: 100%;">
+              <div style="display: flex; justify-content: space-between; width: 100%;">
+                <span class="stat-name">🎓 Academic format:</span>
+                <span class="stat-value-text">{{ statistics.pagesAcademic }} {{ statistics.pagesAcademic === 1 ? 'page' : 'pages' }}</span>
+              </div>
+              <span class="stat-detail">~275 words/page (12pt, double-spaced)</span>
+            </div>
+          </div>
+          <div class="stat-row">
+            <div style="display: flex; flex-direction: column; gap: 0.25rem; width: 100%;">
+              <div style="display: flex; justify-content: space-between; width: 100%;">
+                <span class="stat-name">📚 Novel format:</span>
+                <span class="stat-value-text">{{ statistics.pagesNovel }} {{ statistics.pagesNovel === 1 ? 'page' : 'pages' }}</span>
+              </div>
+              <span class="stat-detail">~300 words/page (paperback)</span>
+            </div>
+          </div>
+        </div>
+        <div class="tip-box">
+          💡 <strong>Note:</strong> Page counts are estimates based on standard formatting. Actual page count may vary depending on font, margins, and line spacing.
+        </div>
+      </div>
+
       <!-- Readability Scores Card -->
       <div class="stat-card readability-card">
         <h3 class="card-title">Readability Scores</h3>
@@ -242,6 +291,7 @@ Try pasting an article, blog post, essay, or any text you want to analyze. The t
       <ul class="feature-list">
         <li>✓ Word, character, and sentence counts</li>
         <li>✓ Reading time estimates</li>
+        <li>✓ Page count estimates for printing/PDF export</li>
         <li>✓ Readability scores (Flesch, Gunning Fog, etc.)</li>
         <li>✓ Word frequency analysis</li>
         <li>✓ Sentence and paragraph analysis</li>

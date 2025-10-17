@@ -123,6 +123,12 @@ export class WordCounterComponent extends StatefulComponent<WordCounterState> im
     // Speaking time (average 130 WPM)
     const speakingTimeMinutes = Math.floor(wordCount / 130);
 
+    // Page estimates (for printing/PDF export)
+    const pagesDoublespaced = Math.ceil(wordCount / 250);      // Standard double-spaced
+    const pagesSingleSpaced = Math.ceil(wordCount / 500);       // Standard single-spaced
+    const pagesAcademic = Math.ceil(wordCount / 275);           // Academic format (double-spaced, 12pt Times)
+    const pagesNovel = Math.ceil(wordCount / 300);              // Typical paperback novel format
+
     // Readability scores
     const fleschReadingEase = this.calculateFleschReadingEase(
       wordCount,
@@ -167,6 +173,10 @@ export class WordCounterComponent extends StatefulComponent<WordCounterState> im
       readingTimeMinutes,
       readingTimeSeconds,
       speakingTimeMinutes,
+      pagesDoublespaced,
+      pagesSingleSpaced,
+      pagesAcademic,
+      pagesNovel,
       fleschReadingEase,
       fleschKincaidGrade,
       gunningFogIndex,
@@ -369,6 +379,13 @@ Characters: ${this.statistics.characterCount}
 Sentences: ${this.statistics.sentenceCount}
 Paragraphs: ${this.statistics.paragraphCount}
 Reading Time: ${this.formatReadingTime(this.statistics.readingTimeMinutes, this.statistics.readingTimeSeconds)}
+
+Page Count Estimates
+====================
+Double-spaced: ${this.statistics.pagesDoublespaced} pages (~250 words/page)
+Single-spaced: ${this.statistics.pagesSingleSpaced} pages (~500 words/page)
+Academic format: ${this.statistics.pagesAcademic} pages (~275 words/page)
+Novel format: ${this.statistics.pagesNovel} pages (~300 words/page)
 
 Readability
 ===========

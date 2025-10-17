@@ -27,6 +27,12 @@ export interface TextStatistics {
   readingTimeSeconds: number;
   speakingTimeMinutes: number;
 
+  // Page estimates
+  pagesDoublespaced: number;        // ~250 words per page
+  pagesSingleSpaced: number;         // ~500 words per page
+  pagesAcademic: number;             // ~275 words per page (double-spaced, 12pt)
+  pagesNovel: number;                // ~300 words per page (typical paperback)
+
   // Readability scores
   fleschReadingEase: number;
   fleschKincaidGrade: number;
