@@ -337,10 +337,7 @@ export class JsonEditorComponent extends StatefulComponent<JsonEditorState> {
     this.saveState();
   }
 
-  toggleTheme(): void {
-    this.monacoTheme = this.monacoTheme === 'vs' ? 'vs-dark' : 'vs';
-    this.saveState();
-  }
+  // Theme toggle removed - now controlled globally via sidebar
 
   insertToJsPlayground(): void {
     if (!this.isValid) {

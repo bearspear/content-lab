@@ -7,10 +7,6 @@
     </div>
     <div class="header-right">
       <app-reset-button (reset)="onReset()"></app-reset-button>
-      <button class="btn btn-icon" (click)="toggleTheme()" [title]="'Toggle theme'">
-        <span *ngIf="monacoTheme === 'vs'">🌙</span>
-        <span *ngIf="monacoTheme === 'vs-dark'">☀️</span>
-      </button>
     </div>
   </div>
 

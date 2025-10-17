@@ -35,6 +35,7 @@ export class CodeEditorComponent implements AfterViewInit, OnChanges, OnDestroy 
   private editor: any = null;
   private isUpdatingFromParent = false;
   private static loadedLibraries = new Set<string>();
+  private themeSubscription: any;
 
   constructor(@Optional() private monacoThemeService?: MonacoThemeService) {}
 
@@ -89,6 +90,18 @@ export class CodeEditorComponent implements AfterViewInit, OnChanges, OnDestroy 
   async ngAfterViewInit(): Promise<void> {
     try {
       await loadMonaco();
+
+      // Subscribe to global theme changes
+      if (this.monacoThemeService) {
+        this.themeSubscription = this.monacoThemeService.theme$.subscribe(theme => {
+          this.theme = theme;
+          const monaco = getMonaco();
+          if (monaco && this.editor) {
+            monaco.editor.setTheme(theme);
+          }
+        });
+      }
+
       setTimeout(() => this.initEditor(), 100);
     } catch (error) {
       console.error('Failed to load Monaco Editor:', error);
@@ -116,19 +129,13 @@ export class CodeEditorComponent implements AfterViewInit, OnChanges, OnDestroy 
       }
     }
 
-    if (changes['theme'] && this.editor) {
-      const monaco = getMonaco();
-      if (monaco) {
-        // Update via service if available
-        if (this.monacoThemeService && this.componentId) {
-          this.monacoThemeService.updateComponentPreference(this.componentId, this.theme, false);
-        }
-        monaco.editor.setTheme(this.theme);
-      }
-    }
+    // Theme changes are now handled by subscription to monacoThemeService.theme$
   }
 
   ngOnDestroy(): void {
+    if (this.themeSubscription) {
+      this.themeSubscription.unsubscribe();
+    }
     if (this.editor) {
       this.editor.dispose();
     }
@@ -156,9 +163,9 @@ export class CodeEditorComponent implements AfterViewInit, OnChanges, OnDestroy 
       typeRoots: ['node_modules/@types']
     });
 
-    // Register theme preference with service if available
-    if (this.monacoThemeService && this.componentId) {
-      this.monacoThemeService.registerComponentPreference(this.componentId, this.theme);
+    // Use current global theme
+    if (this.monacoThemeService) {
+      this.theme = this.monacoThemeService.currentTheme;
     }
 
     this.editor = monaco.editor.create(this.editorContainer.nativeElement, {

@@ -4,88 +4,87 @@ import { BehaviorSubject, Observable } from 'rxjs';
 export type MonacoTheme = 'vs' | 'vs-dark';
 
 /**
- * Service to manage Monaco editor themes globally
- * Since monaco.editor.setTheme() is global, this service coordinates
- * theme changes across all Monaco editor instances
+ * Service to manage global Monaco editor theme
+ *
+ * IMPORTANT: Monaco's setTheme() is global and affects ALL editor instances.
+ * This service manages a global theme that all Monaco components use.
  */
 @Injectable({
   providedIn: 'root'
 })
 export class MonacoThemeService {
-  private currentThemeSubject = new BehaviorSubject<MonacoTheme>('vs-dark');
-  private componentPreferences = new Map<string, MonacoTheme>();
+  private readonly GLOBAL_THEME_KEY = 'app-global-monaco-theme';
+  private themeSubject: BehaviorSubject<MonacoTheme>;
 
-  /**
-   * Observable of the current global Monaco theme
-   */
-  public currentTheme$: Observable<MonacoTheme> = this.currentThemeSubject.asObservable();
-
-  /**
-   * Get the current global Monaco theme
-   */
-  getCurrentTheme(): MonacoTheme {
-    return this.currentThemeSubject.value;
+  constructor() {
+    const storedTheme = this.getStoredTheme();
+    this.themeSubject = new BehaviorSubject<MonacoTheme>(storedTheme);
+    this.applyTheme(storedTheme);
   }
 
   /**
-   * Set the global Monaco theme
-   * This will affect all Monaco editor instances
+   * Get the current global theme as an observable
    */
-  setTheme(theme: MonacoTheme): void {
-    this.currentThemeSubject.next(theme);
+  get theme$(): Observable<MonacoTheme> {
+    return this.themeSubject.asObservable();
+  }
 
-    // Apply theme globally to all Monaco editors
+  /**
+   * Get the current global theme value
+   */
+  get currentTheme(): MonacoTheme {
+    return this.themeSubject.value;
+  }
+
+  /**
+   * Set the global theme
+   * @param theme Theme to set globally
+   */
+  setGlobalTheme(theme: MonacoTheme): void {
+    localStorage.setItem(this.GLOBAL_THEME_KEY, theme);
+    this.themeSubject.next(theme);
+    this.applyTheme(theme);
+  }
+
+  /**
+   * Toggle between light and dark themes
+   */
+  toggleTheme(): void {
+    const newTheme = this.currentTheme === 'vs' ? 'vs-dark' : 'vs';
+    this.setGlobalTheme(newTheme);
+  }
+
+  /**
+   * Get the stored global theme from localStorage
+   */
+  private getStoredTheme(): MonacoTheme {
+    const stored = localStorage.getItem(this.GLOBAL_THEME_KEY);
+    return (stored as MonacoTheme) || 'vs-dark';
+  }
+
+  /**
+   * Apply a theme to Monaco Editor globally
+   * Note: This affects ALL editor instances
+   * @param theme Theme to apply
+   */
+  private applyTheme(theme: MonacoTheme): void {
     try {
-      // Dynamically import monaco if available
       import('monaco-editor').then(monaco => {
         monaco.editor.setTheme(theme);
       }).catch(() => {
-        // Monaco not loaded yet, theme will be applied when editors initialize
+        // Monaco not loaded yet
       });
     } catch {
       // Monaco not available
     }
   }
 
-  /**
-   * Register a component's theme preference
-   * @param componentId Unique identifier for the component
-   * @param theme Preferred theme for this component
-   */
-  registerComponentPreference(componentId: string, theme: MonacoTheme): void {
-    this.componentPreferences.set(componentId, theme);
+  // Legacy methods for backward compatibility - now use global theme
+  getComponentTheme(componentId: string, defaultTheme: MonacoTheme = 'vs-dark'): MonacoTheme {
+    return this.currentTheme;
   }
 
-  /**
-   * Get a component's theme preference
-   * @param componentId Unique identifier for the component
-   * @returns The component's preferred theme, or the current global theme if no preference set
-   */
-  getComponentPreference(componentId: string): MonacoTheme {
-    return this.componentPreferences.get(componentId) || this.getCurrentTheme();
-  }
-
-  /**
-   * Apply a component's preferred theme when it becomes active
-   * @param componentId Unique identifier for the component
-   */
-  applyComponentTheme(componentId: string): void {
-    const preferredTheme = this.componentPreferences.get(componentId);
-    if (preferredTheme) {
-      this.setTheme(preferredTheme);
-    }
-  }
-
-  /**
-   * Update a component's theme preference and optionally apply it
-   * @param componentId Unique identifier for the component
-   * @param theme New preferred theme
-   * @param applyNow Whether to apply the theme immediately (default: true)
-   */
-  updateComponentPreference(componentId: string, theme: MonacoTheme, applyNow: boolean = true): void {
-    this.componentPreferences.set(componentId, theme);
-    if (applyNow) {
-      this.setTheme(theme);
-    }
+  setComponentTheme(componentId: string, theme: MonacoTheme): void {
+    this.setGlobalTheme(theme);
   }
 }

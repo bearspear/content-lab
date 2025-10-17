@@ -8,11 +8,16 @@
     <div class="header-center">
       <!-- Coordinates Display -->
       <div class="coordinates-display" *ngIf="currentLat !== null && currentLong !== null">
-        <span class="coord-label">Latitude:</span>
-        <span class="coord-value">{{ currentLat }}°</span>
-        <span class="coord-separator">|</span>
-        <span class="coord-label">Longitude:</span>
-        <span class="coord-value">{{ currentLong }}°</span>
+        <span class="coord-item">
+          <span class="coord-label">Latitude:</span>
+          <span class="coord-value">{{ currentLat }}°</span>
+        </span>
+         <span class="coord-separator">|</span>
+        <span class="coord-item">
+         
+          <span class="coord-label">Longitude:</span>
+          <span class="coord-value">{{ currentLong }}°</span>
+        </span>
       </div>
     </div>
     <div class="header-right">

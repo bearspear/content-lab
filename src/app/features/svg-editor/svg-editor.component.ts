@@ -31,6 +31,7 @@ export class SvgEditorComponent extends StatefulComponent<SvgEditorState> implem
   @ViewChild('svgPreview') svgPreview!: ElementRef<HTMLDivElement>;
 
   codeEditor: monaco.editor.IStandaloneCodeEditor | null = null;
+  private themeSubscription: any;
 
   // State properties
   svgCode: string = this.getDefaultSvg();
@@ -82,7 +83,14 @@ export class SvgEditorComponent extends StatefulComponent<SvgEditorState> implem
   }
 
   override ngOnInit(): void {
-    // Do nothing - state loaded in ngAfterViewInit
+    // Subscribe to global theme changes
+    this.themeSubscription = this.monacoThemeService.theme$.subscribe(theme => {
+      this.monacoTheme = theme;
+      if (this.codeEditor) {
+        monaco.editor.setTheme(theme);
+        this.updateThemeClass();
+      }
+    });
   }
 
   ngAfterViewInit(): void {
@@ -92,6 +100,9 @@ export class SvgEditorComponent extends StatefulComponent<SvgEditorState> implem
 
   override ngOnDestroy(): void {
     super.ngOnDestroy();
+    if (this.themeSubscription) {
+      this.themeSubscription.unsubscribe();
+    }
     if (this.codeEditor) {
       this.codeEditor.dispose();
     }
@@ -114,13 +125,12 @@ export class SvgEditorComponent extends StatefulComponent<SvgEditorState> implem
     this.width = state.width;
     this.height = state.height;
     this.viewBox = state.viewBox;
-    this.monacoTheme = state.monacoTheme || 'vs';
 
-    this.monacoThemeService.registerComponentPreference('svg-editor', this.monacoTheme);
+    // Theme is managed globally via subscription
+    this.monacoTheme = this.monacoThemeService.currentTheme;
 
     if (this.codeEditor) {
       this.codeEditor.setValue(state.svgCode);
-      this.monacoThemeService.setTheme(this.monacoTheme);
       this.updateThemeClass();
       this.updatePreview();
     }
@@ -197,6 +207,8 @@ export class SvgEditorComponent extends StatefulComponent<SvgEditorState> implem
 
       // Update preview with loaded content
       this.updatePreview();
+
+      // Note: Don't apply theme here to avoid global Monaco theme interference
     }, 0);
   }
 
@@ -559,13 +571,7 @@ export default {
     });
   }
 
-  // Theme
-  toggleTheme(): void {
-    this.monacoTheme = this.monacoTheme === 'vs' ? 'vs-dark' : 'vs';
-    this.monacoThemeService.updateComponentPreference('svg-editor', this.monacoTheme, true);
-    this.updateThemeClass();
-    this.saveState();
-  }
+  // Theme toggle removed - now controlled globally via sidebar
 
   private updateThemeClass(): void {
     if (this.monacoTheme === 'vs-dark') {

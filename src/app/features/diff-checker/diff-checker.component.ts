@@ -34,6 +34,7 @@ export class DiffCheckerComponent extends StatefulComponent<DiffCheckerState> im
   @ViewChild('modifiedFileInput') modifiedFileInput!: ElementRef<HTMLInputElement>;
 
   diffEditor: monaco.editor.IStandaloneDiffEditor | null = null;
+  private themeSubscription: any;
 
   // State properties
   originalText: string = '';
@@ -101,7 +102,14 @@ export class DiffCheckerComponent extends StatefulComponent<DiffCheckerState> im
   }
 
   override ngOnInit(): void {
-    // Do nothing - state loaded in ngAfterViewInit
+    // Subscribe to global theme changes
+    this.themeSubscription = this.monacoThemeService.theme$.subscribe(theme => {
+      this.monacoTheme = theme;
+      if (this.diffEditor) {
+        monaco.editor.setTheme(theme);
+        this.updateThemeClass();
+      }
+    });
   }
 
   ngAfterViewInit(): void {
@@ -110,6 +118,9 @@ export class DiffCheckerComponent extends StatefulComponent<DiffCheckerState> im
 
   override ngOnDestroy(): void {
     super.ngOnDestroy();
+    if (this.themeSubscription) {
+      this.themeSubscription.unsubscribe();
+    }
     if (this.diffEditor) {
       this.diffEditor.dispose();
     }
@@ -136,14 +147,13 @@ export class DiffCheckerComponent extends StatefulComponent<DiffCheckerState> im
     this.ignoreCase = state.ignoreCase;
     this.ignoreComments = state.ignoreComments;
     this.language = state.language;
-    this.monacoTheme = state.monacoTheme || 'vs';
 
-    this.monacoThemeService.registerComponentPreference('diff-checker', this.monacoTheme);
+    // Theme is managed globally via subscription
+    this.monacoTheme = this.monacoThemeService.currentTheme;
 
     if (this.diffEditor) {
       this.updateEditorContent(state.originalText, state.modifiedText);
       this.updateEditorOptions();
-      this.monacoThemeService.setTheme(this.monacoTheme);
       this.updateThemeClass();
     }
   }
@@ -210,6 +220,8 @@ export class DiffCheckerComponent extends StatefulComponent<DiffCheckerState> im
 
     this.loadState();
     this.updateStatistics();
+
+    // Note: Don't apply theme here to avoid global Monaco theme interference
   }
 
   private updateEditorContent(original: string, modified: string): void {
@@ -526,13 +538,7 @@ export class DiffCheckerComponent extends StatefulComponent<DiffCheckerState> im
     URL.revokeObjectURL(url);
   }
 
-  // Theme
-  toggleTheme(): void {
-    this.monacoTheme = this.monacoTheme === 'vs' ? 'vs-dark' : 'vs';
-    this.monacoThemeService.updateComponentPreference('diff-checker', this.monacoTheme, true);
-    this.updateThemeClass();
-    this.saveState();
-  }
+  // Theme toggle removed - now controlled globally via sidebar
 
   private updateThemeClass(): void {
     if (this.monacoTheme === 'vs-dark') {

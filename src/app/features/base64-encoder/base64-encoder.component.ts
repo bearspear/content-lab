@@ -55,6 +55,7 @@ export class Base64EncoderComponent extends StatefulComponent<Base64State> imple
 
   inputEditor: monaco.editor.IStandaloneCodeEditor | null = null;
   outputEditor: monaco.editor.IStandaloneCodeEditor | null = null;
+  private themeSubscription: any;
 
   // State properties
   inputText: string = '';
@@ -113,7 +114,14 @@ export class Base64EncoderComponent extends StatefulComponent<Base64State> imple
   }
 
   override ngOnInit(): void {
-    // Do nothing - state loaded in ngAfterViewInit
+    // Subscribe to global theme changes
+    this.themeSubscription = this.monacoThemeService.theme$.subscribe(theme => {
+      this.monacoTheme = theme;
+      if (this.inputEditor && this.outputEditor) {
+        monaco.editor.setTheme(theme);
+        this.updateThemeClass();
+      }
+    });
   }
 
   ngAfterViewInit(): void {
@@ -122,6 +130,9 @@ export class Base64EncoderComponent extends StatefulComponent<Base64State> imple
 
   override ngOnDestroy(): void {
     super.ngOnDestroy();
+    if (this.themeSubscription) {
+      this.themeSubscription.unsubscribe();
+    }
     if (this.inputEditor) {
       this.inputEditor.dispose();
     }
@@ -157,13 +168,12 @@ export class Base64EncoderComponent extends StatefulComponent<Base64State> imple
     this.lineWrap = state.lineWrap;
     this.customWrapLength = state.customWrapLength;
     this.removePadding = state.removePadding;
-    this.monacoTheme = state.monacoTheme || 'vs';
 
-    this.monacoThemeService.registerComponentPreference('base64-encoder', this.monacoTheme);
+    // Theme is managed globally via subscription
+    this.monacoTheme = this.monacoThemeService.currentTheme;
 
     if (this.inputEditor) {
       this.inputEditor.setValue(state.inputText);
-      this.monacoThemeService.setTheme(this.monacoTheme);
       this.updateThemeClass();
     }
     if (this.outputEditor) {
@@ -239,6 +249,8 @@ export class Base64EncoderComponent extends StatefulComponent<Base64State> imple
 
     this.updateStatistics();
     this.loadState();
+
+    // Note: Don't apply theme here to avoid global Monaco theme interference
   }
 
   // Main conversion logic
@@ -550,13 +562,7 @@ export class Base64EncoderComponent extends StatefulComponent<Base64State> imple
     }
   }
 
-  // Theme
-  toggleTheme(): void {
-    this.monacoTheme = this.monacoTheme === 'vs' ? 'vs-dark' : 'vs';
-    this.monacoThemeService.updateComponentPreference('base64-encoder', this.monacoTheme, true);
-    this.updateThemeClass();
-    this.saveState();
-  }
+  // Theme toggle removed - now controlled globally via sidebar
 
   private updateThemeClass(): void {
     if (this.monacoTheme === 'vs-dark') {
