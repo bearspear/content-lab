@@ -80,6 +80,11 @@ export const routes: Routes = [
     data: { preload: true } // Preload this useful tool
   },
   {
+    path: 'tools/star-map',
+    loadComponent: () => import('./features/star-map/star-map.component')
+      .then(m => m.StarMapComponent)
+  },
+  {
     path: '**',
     redirectTo: 'tools/md-html'
   }

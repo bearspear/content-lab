@@ -1,0 +1,62 @@
+[
+  {
+    "id": "ORI",
+    "name": "Orion",
+    "abbreviation": "Ori",
+    "lines": [
+      ["5", "11"],
+      ["11", "12"],
+      ["12", "13"],
+      ["13", "15"],
+      ["11", "7"],
+      ["7", "12"],
+      ["7", "14"],
+      ["14", "12"],
+      ["13", "15"]
+    ],
+    "center": { "ra": 5.5, "dec": 5.0 },
+    "mythology": "The great hunter of Greek mythology"
+  },
+  {
+    "id": "UMA",
+    "name": "Ursa Major",
+    "abbreviation": "UMa",
+    "lines": [
+      ["17", "18"],
+      ["18", "19"],
+      ["19", "17"]
+    ],
+    "center": { "ra": 11.0, "dec": 55.0 },
+    "mythology": "The Great Bear"
+  },
+  {
+    "id": "CYG",
+    "name": "Cygnus",
+    "abbreviation": "Cyg",
+    "lines": [
+      ["20", "8"]
+    ],
+    "center": { "ra": 20.5, "dec": 45.0 },
+    "mythology": "The Swan or Northern Cross"
+  },
+  {
+    "id": "LEO",
+    "name": "Leo",
+    "abbreviation": "Leo",
+    "lines": [
+      ["26", "27"]
+    ],
+    "center": { "ra": 10.5, "dec": 15.0 },
+    "mythology": "The Lion"
+  },
+  {
+    "id": "TAU",
+    "name": "Taurus",
+    "abbreviation": "Tau",
+    "lines": [
+      ["21", "30"]
+    ],
+    "center": { "ra": 4.5, "dec": 15.0 },
+    "mythology": "The Bull"
+  }
+]

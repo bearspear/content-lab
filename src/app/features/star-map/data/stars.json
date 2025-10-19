@@ -1,0 +1,302 @@
+[
+  {
+    "id": "1",
+    "ra": 6.752,
+    "dec": -16.716,
+    "magnitude": -1.46,
+    "spectralClass": "A1V",
+    "name": "Sirius",
+    "bayer": "α CMa",
+    "constellation": "CMa"
+  },
+  {
+    "id": "2",
+    "ra": 14.660,
+    "dec": 19.182,
+    "magnitude": -0.04,
+    "spectralClass": "K1.5III",
+    "name": "Arcturus",
+    "bayer": "α Boo",
+    "constellation": "Boo"
+  },
+  {
+    "id": "3",
+    "ra": 18.615,
+    "dec": 38.783,
+    "magnitude": 0.03,
+    "spectralClass": "A0V",
+    "name": "Vega",
+    "bayer": "α Lyr",
+    "constellation": "Lyr"
+  },
+  {
+    "id": "4",
+    "ra": 5.242,
+    "dec": 45.998,
+    "magnitude": 0.08,
+    "spectralClass": "A0V",
+    "name": "Capella",
+    "bayer": "α Aur",
+    "constellation": "Aur"
+  },
+  {
+    "id": "5",
+    "ra": 5.438,
+    "dec": -8.201,
+    "magnitude": 0.12,
+    "spectralClass": "B8Iae",
+    "name": "Rigel",
+    "bayer": "β Ori",
+    "constellation": "Ori"
+  },
+  {
+    "id": "6",
+    "ra": 7.655,
+    "dec": 5.225,
+    "magnitude": 0.38,
+    "spectralClass": "F5IV",
+    "name": "Procyon",
+    "bayer": "α CMi",
+    "constellation": "CMi"
+  },
+  {
+    "id": "7",
+    "ra": 5.919,
+    "dec": 7.407,
+    "magnitude": 0.50,
+    "spectralClass": "M1-2Ia-Iab",
+    "name": "Betelgeuse",
+    "bayer": "α Ori",
+    "constellation": "Ori"
+  },
+  {
+    "id": "8",
+    "ra": 19.846,
+    "dec": 8.868,
+    "magnitude": 0.77,
+    "spectralClass": "A7V",
+    "name": "Altair",
+    "bayer": "α Aql",
+    "constellation": "Aql"
+  },
+  {
+    "id": "9",
+    "ra": 16.490,
+    "dec": -26.432,
+    "magnitude": 0.96,
+    "spectralClass": "M1.5Iab-Ib",
+    "name": "Antares",
+    "bayer": "α Sco",
+    "constellation": "Sco"
+  },
+  {
+    "id": "10",
+    "ra": 12.263,
+    "dec": -63.099,
+    "magnitude": 0.98,
+    "spectralClass": "B0.5IV",
+    "name": "Acrux",
+    "bayer": "α Cru",
+    "constellation": "Cru"
+  },
+  {
+    "id": "11",
+    "ra": 5.603,
+    "dec": -1.202,
+    "magnitude": 1.64,
+    "spectralClass": "B8Ia",
+    "name": "Bellatrix",
+    "bayer": "γ Ori",
+    "constellation": "Ori"
+  },
+  {
+    "id": "12",
+    "ra": 5.533,
+    "dec": -0.299,
+    "magnitude": 2.06,
+    "spectralClass": "O9.5II",
+    "name": "Alnilam",
+    "bayer": "ε Ori",
+    "constellation": "Ori"
+  },
+  {
+    "id": "13",
+    "ra": 5.679,
+    "dec": -1.943,
+    "magnitude": 1.70,
+    "spectralClass": "B0Ia",
+    "name": "Alnitak",
+    "bayer": "ζ Ori",
+    "constellation": "Ori"
+  },
+  {
+    "id": "14",
+    "ra": 5.388,
+    "dec": -1.201,
+    "magnitude": 2.23,
+    "spectralClass": "O9.5Iab",
+    "name": "Mintaka",
+    "bayer": "δ Ori",
+    "constellation": "Ori"
+  },
+  {
+    "id": "15",
+    "ra": 5.919,
+    "dec": -9.670,
+    "magnitude": 1.70,
+    "spectralClass": "B0.5Ia",
+    "name": "Saiph",
+    "bayer": "κ Ori",
+    "constellation": "Ori"
+  },
+  {
+    "id": "16",
+    "ra": 1.093,
+    "dec": 60.717,
+    "magnitude": 2.02,
+    "spectralClass": "F5Ib",
+    "name": "Polaris",
+    "bayer": "α UMi",
+    "constellation": "UMi"
+  },
+  {
+    "id": "17",
+    "ra": 13.792,
+    "dec": 49.313,
+    "magnitude": 1.86,
+    "spectralClass": "A0p",
+    "name": "Alioth",
+    "bayer": "ε UMa",
+    "constellation": "UMa"
+  },
+  {
+    "id": "18",
+    "ra": 11.062,
+    "dec": 61.751,
+    "magnitude": 1.79,
+    "spectralClass": "A0Ve",
+    "name": "Dubhe",
+    "bayer": "α UMa",
+    "constellation": "UMa"
+  },
+  {
+    "id": "19",
+    "ra": 11.897,
+    "dec": 53.695,
+    "magnitude": 2.37,
+    "spectralClass": "A0V",
+    "name": "Merak",
+    "bayer": "β UMa",
+    "constellation": "UMa"
+  },
+  {
+    "id": "20",
+    "ra": 20.690,
+    "dec": 45.280,
+    "magnitude": 1.25,
+    "spectralClass": "A2Ia",
+    "name": "Deneb",
+    "bayer": "α Cyg",
+    "constellation": "Cyg"
+  },
+  {
+    "id": "21",
+    "ra": 3.906,
+    "dec": 24.105,
+    "magnitude": 0.87,
+    "spectralClass": "K5III",
+    "name": "Aldebaran",
+    "bayer": "α Tau",
+    "constellation": "Tau"
+  },
+  {
+    "id": "22",
+    "ra": 16.729,
+    "dec": 36.460,
+    "magnitude": 0.03,
+    "spectralClass": "A0V",
+    "name": "Vega",
+    "bayer": "α Lyr",
+    "constellation": "Lyr"
+  },
+  {
+    "id": "23",
+    "ra": 12.900,
+    "dec": -11.161,
+    "magnitude": 1.35,
+    "spectralClass": "B1III-IV",
+    "name": "Spica",
+    "bayer": "α Vir",
+    "constellation": "Vir"
+  },
+  {
+    "id": "24",
+    "ra": 7.576,
+    "dec": 28.026,
+    "magnitude": 1.93,
+    "spectralClass": "A3V",
+    "name": "Castor",
+    "bayer": "α Gem",
+    "constellation": "Gem"
+  },
+  {
+    "id": "25",
+    "ra": 7.755,
+    "dec": 28.026,
+    "magnitude": 1.14,
+    "spectralClass": "K0IIIb",
+    "name": "Pollux",
+    "bayer": "β Gem",
+    "constellation": "Gem"
+  },
+  {
+    "id": "26",
+    "ra": 9.139,
+    "dec": -43.433,
+    "magnitude": 1.98,
+    "spectralClass": "B3V",
+    "name": "Regulus",
+    "bayer": "α Leo",
+    "constellation": "Leo"
+  },
+  {
+    "id": "27",
+    "ra": 10.139,
+    "dec": 11.967,
+    "magnitude": 1.35,
+    "spectralClass": "B7V",
+    "name": "Regulus",
+    "bayer": "α Leo",
+    "constellation": "Leo"
+  },
+  {
+    "id": "28",
+    "ra": 14.066,
+    "dec": 19.533,
+    "magnitude": 2.14,
+    "spectralClass": "A5V",
+    "name": "Muphrid",
+    "bayer": "η Boo",
+    "constellation": "Boo"
+  },
+  {
+    "id": "29",
+    "ra": 22.961,
+    "dec": -29.622,
+    "magnitude": 1.16,
+    "spectralClass": "A3V",
+    "name": "Fomalhaut",
+    "bayer": "α PsA",
+    "constellation": "PsA"
+  },
+  {
+    "id": "30",
+    "ra": 3.579,
+    "dec": 24.053,
+    "magnitude": 2.87,
+    "spectralClass": "B7III",
+    "name": "Alcyone",
+    "bayer": "η Tau",
+    "constellation": "Tau"
+  }
+]
