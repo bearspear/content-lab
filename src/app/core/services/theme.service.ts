@@ -45,7 +45,7 @@ export class ThemeService {
   /**
    * Get theme styles for iframe rendering
    */
-  getThemeStyles(theme?: string, centerContent: boolean = true, stylePlaintextCode: boolean = false, hideMarkdownCode: boolean = false, hideImages: boolean = false, isExport: boolean = false): string {
+  getThemeStyles(theme?: string, centerContent: boolean = true, stylePlaintextCode: boolean = false, hideMarkdownCode: boolean = false, hideJavaScriptCode: boolean = false, hideImages: boolean = false, isExport: boolean = false): string {
     const currentTheme = theme || this.getCurrentTheme();
     const highlightCss = currentTheme === 'dark' ? HIGHLIGHT_CSS_DARK : HIGHLIGHT_CSS_LIGHT;
 
@@ -61,6 +61,7 @@ export class ThemeService {
       ${this.getInlineStyles(currentTheme, centerContent, isExport)}
       ${stylePlaintextCode ? this.getPlaintextCodeStyles() : ''}
       ${hideMarkdownCode ? this.getMarkdownCodeStyles() : ''}
+      ${hideJavaScriptCode ? this.getHideJavaScriptStyles() : ''}
       ${hideImages ? this.getHideImagesStyles() : ''}
     </style>
     `;
@@ -69,7 +70,7 @@ export class ThemeService {
   /**
    * Generate full HTML with theme applied
    */
-  generateFullHtml(htmlContent: string, theme?: string, centerContent: boolean = true, stylePlaintextCode: boolean = false, hideMarkdownCode: boolean = false, hideImages: boolean = false, isExport: boolean = false): string {
+  generateFullHtml(htmlContent: string, theme?: string, centerContent: boolean = true, stylePlaintextCode: boolean = false, hideMarkdownCode: boolean = false, hideJavaScriptCode: boolean = false, hideImages: boolean = false, isExport: boolean = false): string {
     const currentTheme = theme || this.getCurrentTheme();
 
     return `<!DOCTYPE html>
@@ -78,7 +79,7 @@ export class ThemeService {
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Markdown Preview</title>
-  ${this.getThemeStyles(currentTheme, centerContent, stylePlaintextCode, hideMarkdownCode, hideImages, isExport)}
+  ${this.getThemeStyles(currentTheme, centerContent, stylePlaintextCode, hideMarkdownCode, hideJavaScriptCode, hideImages, isExport)}
 </head>
 <body class="theme-${currentTheme}">
   <div class="markdown-body">
@@ -109,11 +110,6 @@ export class ThemeService {
         margin: 0 auto;
         padding: 40px;
       }
-
-      pre:has(.hljs.language-javascript){
-        display: none;
-      }
-
     ` : '';
 
     return `
@@ -2400,6 +2396,26 @@ export class ThemeService {
 
       /* Hide picture elements */
       picture {
+        display: none !important;
+      }
+    `;
+  }
+
+  /**
+   * Get styles to hide JavaScript code blocks
+   */
+  private getHideJavaScriptStyles(): string {
+    return `
+      /* ===== HIDE JAVASCRIPT CODE ===== */
+      code.hljs.language-javascript {
+        display: none !important;
+      }
+
+      pre code.hljs.language-javascript {
+        display: none !important;
+      }
+
+      pre:has(code.hljs.language-javascript) {
         display: none !important;
       }
     `;

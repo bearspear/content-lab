@@ -36,6 +36,7 @@ export class MarkdownPreviewComponent implements OnChanges, OnDestroy {
   @Input() centerContent: boolean = true;
   @Input() stylePlaintextCode: boolean = false;
   @Input() hideMarkdownCode: boolean = false;
+  @Input() hideJavaScriptCode: boolean = false;
   @Input() hideImages: boolean = false;
 
   private currentBlobUrl: string | null = null;
@@ -43,7 +44,7 @@ export class MarkdownPreviewComponent implements OnChanges, OnDestroy {
   constructor(private themeService: ThemeService) {}
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['htmlContent'] || changes['theme'] || changes['centerContent'] || changes['stylePlaintextCode'] || changes['hideMarkdownCode'] || changes['hideImages']) {
+    if (changes['htmlContent'] || changes['theme'] || changes['centerContent'] || changes['stylePlaintextCode'] || changes['hideMarkdownCode'] || changes['hideJavaScriptCode'] || changes['hideImages']) {
       this.updateIframe();
     }
   }
@@ -62,7 +63,7 @@ export class MarkdownPreviewComponent implements OnChanges, OnDestroy {
         this.currentBlobUrl = null;
       }
 
-      const fullHtml = this.themeService.generateFullHtml(this.htmlContent, this.theme, this.centerContent, this.stylePlaintextCode, this.hideMarkdownCode, this.hideImages);
+      const fullHtml = this.themeService.generateFullHtml(this.htmlContent, this.theme, this.centerContent, this.stylePlaintextCode, this.hideMarkdownCode, this.hideJavaScriptCode, this.hideImages);
       const blob = new Blob([fullHtml], { type: 'text/html' });
       this.currentBlobUrl = URL.createObjectURL(blob);
       iframe.src = this.currentBlobUrl;

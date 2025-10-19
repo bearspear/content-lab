@@ -5,6 +5,7 @@ export interface DisplayOptions {
   centerContent: boolean;
   hidePlaintext: boolean;
   hideMarkdown: boolean;
+  hideJavaScript: boolean;
   hideImages: boolean;
 }
 
@@ -48,6 +49,14 @@ export interface DisplayOptions {
                  (change)="toggleOption('hideMarkdown')">
           <span class="option-label">Hide Markdown</span>
           <span class="option-description">Hide markdown code blocks</span>
+        </label>
+
+        <label class="option-item">
+          <input type="checkbox"
+                 [checked]="options.hideJavaScript"
+                 (change)="toggleOption('hideJavaScript')">
+          <span class="option-label">Hide JavaScript</span>
+          <span class="option-description">Hide JavaScript code blocks</span>
         </label>
 
         <label class="option-item">
@@ -191,6 +200,7 @@ export class DisplayOptionsComponent {
     centerContent: true,
     hidePlaintext: false,
     hideMarkdown: false,
+    hideJavaScript: false,
     hideImages: false
   };
   @Output() optionsChange = new EventEmitter<DisplayOptions>();

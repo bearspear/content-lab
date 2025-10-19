@@ -35,6 +35,7 @@ interface MdConverterState {
   centerContent: boolean;
   stylePlaintextCode: boolean;
   hideMarkdownCode: boolean;
+  hideJavaScriptCode: boolean;
   hideImages: boolean;
 }
 
@@ -83,6 +84,7 @@ export class MarkdownToHtmlComponent extends StatefulComponent<MdConverterState>
   centerContent: boolean = true;
   stylePlaintextCode: boolean = false;
   hideMarkdownCode: boolean = false;
+  hideJavaScriptCode: boolean = false;
   hideImages: boolean = false;
 
   // Display options for multi-select dropdown
@@ -90,6 +92,7 @@ export class MarkdownToHtmlComponent extends StatefulComponent<MdConverterState>
     centerContent: true,
     hidePlaintext: false,
     hideMarkdown: false,
+    hideJavaScript: false,
     hideImages: false
   };
 
@@ -117,6 +120,7 @@ export class MarkdownToHtmlComponent extends StatefulComponent<MdConverterState>
       centerContent: true,
       stylePlaintextCode: false,
       hideMarkdownCode: false,
+      hideJavaScriptCode: false,
       hideImages: false
     };
   }
@@ -128,6 +132,7 @@ export class MarkdownToHtmlComponent extends StatefulComponent<MdConverterState>
     this.centerContent = state.centerContent ?? true; // Default to true if not set
     this.stylePlaintextCode = state.stylePlaintextCode ?? false; // Default to false if not set
     this.hideMarkdownCode = state.hideMarkdownCode ?? false; // Default to false if not set
+    this.hideJavaScriptCode = state.hideJavaScriptCode ?? false; // Default to false if not set
     this.hideImages = state.hideImages ?? false; // Default to false if not set
 
     // Update display options object
@@ -135,6 +140,7 @@ export class MarkdownToHtmlComponent extends StatefulComponent<MdConverterState>
       centerContent: this.centerContent,
       hidePlaintext: this.stylePlaintextCode,
       hideMarkdown: this.hideMarkdownCode,
+      hideJavaScript: this.hideJavaScriptCode,
       hideImages: this.hideImages
     };
 
@@ -149,6 +155,7 @@ export class MarkdownToHtmlComponent extends StatefulComponent<MdConverterState>
       centerContent: this.centerContent,
       stylePlaintextCode: this.stylePlaintextCode,
       hideMarkdownCode: this.hideMarkdownCode,
+      hideJavaScriptCode: this.hideJavaScriptCode,
       hideImages: this.hideImages
     };
   }
@@ -240,6 +247,7 @@ export class MarkdownToHtmlComponent extends StatefulComponent<MdConverterState>
     this.centerContent = options.centerContent;
     this.stylePlaintextCode = options.hidePlaintext;
     this.hideMarkdownCode = options.hideMarkdown;
+    this.hideJavaScriptCode = options.hideJavaScript;
     this.hideImages = options.hideImages;
     this.displayOptions = options;
     this.saveState();
@@ -308,7 +316,7 @@ export class MarkdownToHtmlComponent extends StatefulComponent<MdConverterState>
   async onExport(format: ExportFormat): Promise<void> {
     try {
       await this.exportService.export(
-        { format, theme: this.currentTheme, centerContent: this.centerContent, stylePlaintextCode: this.stylePlaintextCode, hideMarkdownCode: this.hideMarkdownCode, hideImages: this.hideImages },
+        { format, theme: this.currentTheme, centerContent: this.centerContent, stylePlaintextCode: this.stylePlaintextCode, hideMarkdownCode: this.hideMarkdownCode, hideJavaScriptCode: this.hideJavaScriptCode, hideImages: this.hideImages },
         this.markdownContent,
         this.htmlContent
       );
@@ -340,7 +348,7 @@ export class MarkdownToHtmlComponent extends StatefulComponent<MdConverterState>
     try {
       if (this.viewMode === 'preview') {
         // Copy complete HTML with styles and theme
-        const fullHtml = this.exportService.getFullHtml(this.htmlContent, this.currentTheme, this.centerContent, this.stylePlaintextCode, this.hideMarkdownCode, this.hideImages);
+        const fullHtml = this.exportService.getFullHtml(this.htmlContent, this.currentTheme, this.centerContent, this.stylePlaintextCode, this.hideMarkdownCode, this.hideJavaScriptCode, this.hideImages);
         await navigator.clipboard.writeText(fullHtml);
         this.showToast('HTML');
       } else {
@@ -352,7 +360,7 @@ export class MarkdownToHtmlComponent extends StatefulComponent<MdConverterState>
       console.error('Failed to copy:', error);
       // Fallback for older browsers
       const content = this.viewMode === 'preview'
-        ? this.exportService.getFullHtml(this.htmlContent, this.currentTheme, this.centerContent, this.stylePlaintextCode, this.hideMarkdownCode, this.hideImages)
+        ? this.exportService.getFullHtml(this.htmlContent, this.currentTheme, this.centerContent, this.stylePlaintextCode, this.hideMarkdownCode, this.hideJavaScriptCode, this.hideImages)
         : this.markdownContent;
       this.fallbackCopyToClipboard(content);
     }
