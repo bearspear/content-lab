@@ -4,7 +4,7 @@
   "cli": {
     "packageManager": "yarn"
   },
-  "newProjectRoot": "projects",
+  "newProjectRoot": "apps",
   "projects": {
     "content-lab": {
       "projectType": "application",
@@ -13,24 +13,24 @@
           "style": "scss"
         }
       },
-      "root": "",
-      "sourceRoot": "src",
+      "root": "apps/content-lab",
+      "sourceRoot": "apps/content-lab/src",
       "prefix": "app",
       "architect": {
         "build": {
           "builder": "@angular-devkit/build-angular:application",
           "options": {
-            "outputPath": "dist/content-lab",
-            "index": "src/index.html",
-            "browser": "src/main.ts",
+            "outputPath": "dist/apps/content-lab",
+            "index": "apps/content-lab/src/index.html",
+            "browser": "apps/content-lab/src/main.ts",
             "polyfills": [
               "zone.js"
             ],
-            "tsConfig": "tsconfig.app.json",
+            "tsConfig": "apps/content-lab/tsconfig.app.json",
             "inlineStyleLanguage": "scss",
             "assets": [
-              "src/favicon.ico",
-              "src/assets",
+              "apps/content-lab/src/favicon.ico",
+              "apps/content-lab/src/assets",
               {
                 "glob": "**/*",
                 "input": "node_modules/monaco-editor",
@@ -38,7 +38,7 @@
               }
             ],
             "styles": [
-              "src/styles.scss"
+              "apps/content-lab/src/styles.scss"
             ],
             "scripts": [],
             "allowedCommonJsDependencies": [
@@ -97,14 +97,14 @@
               "zone.js",
               "zone.js/testing"
             ],
-            "tsConfig": "tsconfig.spec.json",
+            "tsConfig": "apps/content-lab/tsconfig.spec.json",
             "inlineStyleLanguage": "scss",
             "assets": [
-              "src/favicon.ico",
-              "src/assets"
+              "apps/content-lab/src/favicon.ico",
+              "apps/content-lab/src/assets"
             ],
             "styles": [
-              "src/styles.scss"
+              "apps/content-lab/src/styles.scss"
             ],
             "scripts": []
           }

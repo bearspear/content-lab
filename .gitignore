@@ -1,6 +1,7 @@
 # Angular / Node.js
 node_modules/
 dist/
+docs/
 tmp/
 out-tsc/
 bazel-out/
