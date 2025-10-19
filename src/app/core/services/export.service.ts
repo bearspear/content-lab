@@ -29,14 +29,15 @@ export class ExportService {
     const centerContent = options.centerContent ?? true; // Default to true for backwards compatibility
     const stylePlaintextCode = options.stylePlaintextCode ?? false; // Default to false
     const hideMarkdownCode = options.hideMarkdownCode ?? false; // Default to false
+    const hideJavaScriptCode = options.hideJavaScriptCode ?? false; // Default to false
     const hideImages = options.hideImages ?? false; // Default to false
 
     switch (options.format) {
       case 'html':
-        this.exportAsHtml(htmlContent, options.theme || 'claude', filename, centerContent, stylePlaintextCode, hideMarkdownCode, hideImages);
+        this.exportAsHtml(htmlContent, options.theme || 'claude', filename, centerContent, stylePlaintextCode, hideMarkdownCode, hideJavaScriptCode, hideImages);
         break;
       case 'pdf':
-        await this.exportAsPdf(htmlContent, options.theme || 'claude', filename, centerContent, stylePlaintextCode, hideMarkdownCode, hideImages);
+        await this.exportAsPdf(htmlContent, options.theme || 'claude', filename, centerContent, stylePlaintextCode, hideMarkdownCode, hideJavaScriptCode, hideImages);
         break;
       case 'markdown':
         this.exportAsMarkdown(markdownContent, filename);
@@ -64,8 +65,8 @@ export class ExportService {
   /**
    * Export as standalone HTML file
    */
-  private exportAsHtml(htmlContent: string, theme: string, filename: string, centerContent: boolean = true, stylePlaintextCode: boolean = false, hideMarkdownCode: boolean = false, hideImages: boolean = false): void {
-    const fullHtml = this.themeService.generateFullHtml(htmlContent, theme, centerContent, stylePlaintextCode, hideMarkdownCode, hideImages, true);
+  private exportAsHtml(htmlContent: string, theme: string, filename: string, centerContent: boolean = true, stylePlaintextCode: boolean = false, hideMarkdownCode: boolean = false, hideJavaScriptCode: boolean = false, hideImages: boolean = false): void {
+    const fullHtml = this.themeService.generateFullHtml(htmlContent, theme, centerContent, stylePlaintextCode, hideMarkdownCode, hideJavaScriptCode, hideImages, true);
     const blob = createTextBlob(fullHtml, 'text/html');
     downloadBlob(blob, filename);
   }
@@ -73,7 +74,7 @@ export class ExportService {
   /**
    * Export as PDF file
    */
-  private async exportAsPdf(htmlContent: string, theme: string, filename: string, centerContent: boolean = true, stylePlaintextCode: boolean = false, hideMarkdownCode: boolean = false, hideImages: boolean = false): Promise<void> {
+  private async exportAsPdf(htmlContent: string, theme: string, filename: string, centerContent: boolean = true, stylePlaintextCode: boolean = false, hideMarkdownCode: boolean = false, hideJavaScriptCode: boolean = false, hideImages: boolean = false): Promise<void> {
     // Create a styled container for PDF generation
     const container = document.createElement('div');
     container.style.position = 'absolute';
@@ -83,7 +84,7 @@ export class ExportService {
 
     // Use ThemeService styles for consistency - pass true for isExport
     const styleElement = document.createElement('style');
-    const themeStyles = this.themeService.getThemeStyles(theme, centerContent, stylePlaintextCode, hideMarkdownCode, hideImages, true);
+    const themeStyles = this.themeService.getThemeStyles(theme, centerContent, stylePlaintextCode, hideMarkdownCode, hideJavaScriptCode, hideImages, true);
     // Extract just the CSS content from the style tags
     const cssMatch = themeStyles.match(/<style[^>]*>([\s\S]*?)<\/style>/g);
     if (cssMatch) {
@@ -199,8 +200,8 @@ export class ExportService {
    * Get full HTML document with embedded styles (for copying to clipboard)
    * Uses ThemeService to ensure consistency with preview
    */
-  public getFullHtml(htmlContent: string, theme: string, centerContent: boolean = true, stylePlaintextCode: boolean = false, hideMarkdownCode: boolean = false, hideImages: boolean = false): string {
-    return this.themeService.generateFullHtml(htmlContent, theme, centerContent, stylePlaintextCode, hideMarkdownCode, hideImages, true);
+  public getFullHtml(htmlContent: string, theme: string, centerContent: boolean = true, stylePlaintextCode: boolean = false, hideMarkdownCode: boolean = false, hideJavaScriptCode: boolean = false, hideImages: boolean = false): string {
+    return this.themeService.generateFullHtml(htmlContent, theme, centerContent, stylePlaintextCode, hideMarkdownCode, hideJavaScriptCode, hideImages, true);
   }
 
   /**

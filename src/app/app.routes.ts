@@ -85,6 +85,11 @@ export const routes: Routes = [
       .then(m => m.StarMapComponent)
   },
   {
+    path: 'tools/flac-player',
+    loadComponent: () => import('./features/flac-player/flac-player.component')
+      .then(m => m.FlacPlayerComponent)
+  },
+  {
     path: '**',
     redirectTo: 'tools/md-html'
   }

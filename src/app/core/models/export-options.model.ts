@@ -7,6 +7,7 @@ export interface ExportOptions {
   centerContent?: boolean;
   stylePlaintextCode?: boolean;
   hideMarkdownCode?: boolean;
+  hideJavaScriptCode?: boolean;
   hideImages?: boolean;
 }
 
