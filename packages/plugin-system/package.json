@@ -1,0 +1,17 @@
+{
+  "name": "@content-lab/plugin-system",
+  "version": "1.0.0",
+  "description": "Plugin system infrastructure for Content Lab",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "peerDependencies": {
+    "@angular/common": "^17.3.0",
+    "@angular/core": "^17.3.0",
+    "@angular/router": "^17.3.0",
+    "@content-lab/core": "^1.0.0",
+    "rxjs": "~7.8.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

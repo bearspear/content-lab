@@ -1,0 +1,92 @@
+{
+  "name": "content-lab",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "prefix": "app",
+  "sourceRoot": "apps/content-lab/src",
+  "tags": ["type:app", "scope:main"],
+  "targets": {
+    "build": {
+      "executor": "@angular-devkit/build-angular:application",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/apps/content-lab",
+        "index": "apps/content-lab/src/index.html",
+        "browser": "apps/content-lab/src/main.ts",
+        "polyfills": ["zone.js"],
+        "tsConfig": "apps/content-lab/tsconfig.app.json",
+        "inlineStyleLanguage": "scss",
+        "assets": [
+          "apps/content-lab/src/favicon.ico",
+          "apps/content-lab/src/assets",
+          {
+            "glob": "**/*",
+            "input": "node_modules/monaco-editor",
+            "output": "assets/monaco-editor"
+          }
+        ],
+        "styles": ["apps/content-lab/src/styles.scss"],
+        "scripts": [],
+        "allowedCommonJsDependencies": ["html2pdf.js"]
+      },
+      "configurations": {
+        "production": {
+          "budgets": [
+            {
+              "type": "initial",
+              "maximumWarning": "1.5mb",
+              "maximumError": "2mb"
+            },
+            {
+              "type": "anyComponentStyle",
+              "maximumWarning": "4kb",
+              "maximumError": "8kb"
+            }
+          ],
+          "outputHashing": "all"
+        },
+        "development": {
+          "optimization": false,
+          "extractLicenses": false,
+          "sourceMap": true
+        }
+      },
+      "defaultConfiguration": "production"
+    },
+    "serve": {
+      "executor": "@angular-devkit/build-angular:dev-server",
+      "options": {
+        "port": 5001
+      },
+      "configurations": {
+        "production": {
+          "buildTarget": "content-lab:build:production"
+        },
+        "development": {
+          "buildTarget": "content-lab:build:development"
+        }
+      },
+      "defaultConfiguration": "development"
+    },
+    "extract-i18n": {
+      "executor": "@angular-devkit/build-angular:extract-i18n",
+      "options": {
+        "buildTarget": "content-lab:build"
+      }
+    },
+    "test": {
+      "executor": "@angular-devkit/build-angular:karma",
+      "options": {
+        "polyfills": ["zone.js", "zone.js/testing"],
+        "tsConfig": "apps/content-lab/tsconfig.spec.json",
+        "inlineStyleLanguage": "scss",
+        "assets": [
+          "apps/content-lab/src/favicon.ico",
+          "apps/content-lab/src/assets"
+        ],
+        "styles": ["apps/content-lab/src/styles.scss"],
+        "scripts": []
+      }
+    }
+  }
+}

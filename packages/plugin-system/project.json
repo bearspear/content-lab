@@ -1,0 +1,19 @@
+{
+  "name": "@content-lab/plugin-system",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "packages/plugin-system/src",
+  "projectType": "library",
+  "tags": ["type:library", "scope:shared"],
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/packages/plugin-system",
+        "main": "packages/plugin-system/src/index.ts",
+        "tsConfig": "packages/plugin-system/tsconfig.json",
+        "assets": []
+      }
+    }
+  }
+}

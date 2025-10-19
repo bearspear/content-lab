@@ -26,8 +26,14 @@
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build",
+    "build:full": "bash scripts/build-with-config.sh full",
+    "build:lightweight": "bash scripts/build-with-config.sh lightweight",
+    "build:developer": "bash scripts/build-with-config.sh developer",
+    "build:writer": "bash scripts/build-with-config.sh writer",
+    "build:all": "npm run build:full && npm run build:lightweight && npm run build:developer && npm run build:writer",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "test": "ng test",
+    "analyze": "ng build --configuration production --stats-json && npx webpack-bundle-analyzer dist/content-lab/browser/stats.json"
   },
   "private": true,
   "dependencies": {
@@ -63,6 +69,8 @@
     "@angular-devkit/build-angular": "^17.3.17",
     "@angular/cli": "^17.3.17",
     "@angular/compiler-cli": "^17.3.0",
+    "@nx/angular": "^21.6.5",
+    "@nx/workspace": "^21.6.5",
     "@types/file-saver": "^2.0.7",
     "@types/html2pdf.js": "^0.10.0",
     "@types/jasmine": "~5.1.0",
@@ -75,6 +83,7 @@
     "karma-coverage": "~2.2.0",
     "karma-jasmine": "~5.1.0",
     "karma-jasmine-html-reporter": "~2.1.0",
+    "nx": "^21.6.5",
     "typescript": "~5.4.2"
   }
 }

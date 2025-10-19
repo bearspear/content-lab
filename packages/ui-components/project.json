@@ -1,0 +1,19 @@
+{
+  "name": "@content-lab/ui-components",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "packages/ui-components/src",
+  "projectType": "library",
+  "tags": ["type:library", "scope:shared"],
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/packages/ui-components",
+        "main": "packages/ui-components/src/index.ts",
+        "tsConfig": "packages/ui-components/tsconfig.json",
+        "assets": []
+      }
+    }
+  }
+}
