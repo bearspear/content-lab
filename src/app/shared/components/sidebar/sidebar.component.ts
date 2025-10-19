@@ -2,6 +2,7 @@ import { Component, Output, EventEmitter, OnInit, OnDestroy } from '@angular/cor
 import { CommonModule } from '@angular/common';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { MonacoThemeService, MonacoTheme } from '../../../core/services/monaco-theme.service';
+import { PluginRegistryService } from '../../../core/plugin-system';
 import { Subject, takeUntil } from 'rxjs';
 
 export interface ToolItem {
@@ -455,9 +456,16 @@ export class SidebarComponent implements OnInit, OnDestroy {
   currentTheme: MonacoTheme = 'vs-dark';
   private destroy$ = new Subject<void>();
 
-  constructor(private monacoThemeService: MonacoThemeService) {}
+  constructor(
+    private monacoThemeService: MonacoThemeService,
+    private pluginRegistry: PluginRegistryService
+  ) {}
 
-  categories: ToolCategory[] = [
+  // Categories will be built dynamically from plugin registry
+  categories: ToolCategory[] = [];
+
+  // Legacy hardcoded categories (kept as fallback)
+  private legacyCategories: ToolCategory[] = [
     {
       id: 'content-design',
       name: 'Content & Design',
@@ -693,6 +701,99 @@ export class SidebarComponent implements OnInit, OnDestroy {
       .subscribe(theme => {
         this.currentTheme = theme;
       });
+
+    // Subscribe to plugin registry changes
+    this.pluginRegistry.plugins$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(plugins => {
+        this.buildCategoriesFromPlugins(plugins);
+      });
+  }
+
+  /**
+   * Build category structure from registered plugins
+   */
+  private buildCategoriesFromPlugins(plugins: any[]): void {
+    if (plugins.length === 0) {
+      // Use legacy categories if no plugins loaded yet
+      this.categories = this.legacyCategories;
+      return;
+    }
+
+    console.log(`[Sidebar] Building categories from ${plugins.length} plugins`);
+
+    // Group plugins by category
+    const categoryMap = new Map<string, ToolItem[]>();
+
+    plugins.forEach(plugin => {
+      const category = plugin.metadata.category;
+      if (!categoryMap.has(category)) {
+        categoryMap.set(category, []);
+      }
+
+      categoryMap.get(category)!.push({
+        id: plugin.metadata.id,
+        name: plugin.metadata.name,
+        route: plugin.metadata.route,
+        icon: plugin.metadata.icon,
+        description: plugin.metadata.description,
+        badge: plugin.metadata.badge,
+        badgeClass: plugin.metadata.badgeClass
+      });
+    });
+
+    // Build category structure
+    this.categories = Array.from(categoryMap.entries()).map(([categoryId, tools]) => ({
+      id: categoryId,
+      name: this.getCategoryName(categoryId),
+      icon: this.getCategoryIcon(categoryId),
+      tools: tools
+    }));
+
+    console.log(`[Sidebar] Built ${this.categories.length} categories`);
+  }
+
+  /**
+   * Get display name for category ID
+   */
+  private getCategoryName(id: string): string {
+    const names: Record<string, string> = {
+      'content-design': 'Content & Design',
+      'code-dev': 'Code & Development',
+      'data-text': 'Data & Text',
+      'utilities': 'Utilities',
+      'visualizations': 'Visualizations',
+      'games': 'Games'
+    };
+    return names[id] || id;
+  }
+
+  /**
+   * Get icon SVG for category ID
+   */
+  private getCategoryIcon(id: string): string {
+    const icons: Record<string, string> = {
+      'content-design': `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
+      </svg>`,
+      'code-dev': `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/>
+      </svg>`,
+      'data-text': `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+      </svg>`,
+      'utilities': `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+      </svg>`,
+      'visualizations': `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <circle cx="12" cy="12" r="10" stroke-width="2" stroke-linecap="round"/>
+        <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" stroke-width="2" stroke-linecap="round"/>
+      </svg>`,
+      'games': `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 4H4v7h7V4zM20 4h-7v7h7V4zM11 13H4v7h7v-7zM20 13h-7v7h7v-7z" />
+      </svg>`
+    };
+    return icons[id] || icons['utilities'];
   }
 
   ngOnDestroy(): void {
