@@ -5,12 +5,19 @@
   "main": "src/index.ts",
   "types": "src/index.ts",
   "peerDependencies": {
-    "@angular/common": "^17.3.0",
-    "@angular/core": "^17.3.0",
+    "@angular/core": "^17.0.0",
+    "@angular/common": "^17.0.0",
+    "@angular/router": "^17.0.0",
     "@content-lab/core": "^1.0.0",
-    "rxjs": "~7.8.0"
+    "@content-lab/plugin-system": "^1.0.0",
+    "rxjs": "^7.0.0"
   },
-  "publishConfig": {
-    "access": "public"
-  }
+  "keywords": [
+    "content-lab",
+    "ui",
+    "components",
+    "angular"
+  ],
+  "author": "Michael Behringer",
+  "license": "MIT"
 }

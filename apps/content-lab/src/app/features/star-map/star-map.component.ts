@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ElementRef, ViewChild, AfterViewInit } from '@angular/core';
+import { Component, OnInit, OnDestroy, ElementRef, ViewChild, AfterViewInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import * as THREE from 'three';
@@ -11,8 +11,8 @@ import { LineMaterial } from 'three/examples/jsm/lines/LineMaterial.js';
 import { LineGeometry } from 'three/examples/jsm/lines/LineGeometry.js';
 import gsap from 'gsap';
 
-import { StatefulComponent } from '../../core/base/stateful-component.base';
-import { StateManagerService } from '../../core/services/state-manager.service';
+import { StatefulComponent } from '@content-lab/core';
+import { StateManagerService } from '@content-lab/core';
 import { StarCatalogService } from './services/star-catalog.service';
 import { AstronomyService } from './services/astronomy.service';
 import { RealTimeTrackerService } from './services/real-time-tracker.service';
@@ -123,7 +123,8 @@ export class StarMapComponent extends StatefulComponent<StarMapState> implements
     private locationService: LocationService,
     private planetaryService: PlanetaryEphemerisService,
     private skyHighlightsService: SkyHighlightsService,
-    private planetTrailService: PlanetTrailService
+    private planetTrailService: PlanetTrailService,
+    private cdr: ChangeDetectorRef
   ) {
     super(stateManager);
   }
@@ -207,9 +208,13 @@ export class StarMapComponent extends StatefulComponent<StarMapState> implements
 
   ngAfterViewInit(): void {
     console.log('Star Map: Initializing Three.js...');
-    this.initThreeJS();
-    this.animate();
-    console.log('Star Map: Animation started');
+    // Defer to avoid ExpressionChangedAfterItHasBeenCheckedError
+    setTimeout(() => {
+      this.initThreeJS();
+      this.animate();
+      this.cdr.detectChanges();
+      console.log('Star Map: Animation started');
+    }, 0);
   }
 
   override ngOnDestroy(): void {

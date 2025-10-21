@@ -1,6 +1,6 @@
 import { Component, Input, ViewChild, ElementRef, OnChanges, SimpleChanges, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ThemeService } from '../../../core/services';
+import { ThemeService } from '@content-lab/core';
 
 @Component({
   selector: 'app-markdown-preview',

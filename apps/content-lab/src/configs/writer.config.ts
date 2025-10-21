@@ -7,7 +7,7 @@
  * Estimated bundle size: ~800 KB
  */
 
-import { FeatureBuildConfig } from './app/core/plugin-system/feature-config.interface';
+import { FeatureBuildConfig } from '../app/core/plugin-system/feature-config.interface';
 
 const config: FeatureBuildConfig = {
   buildName: 'content-lab-writer',
@@ -15,7 +15,7 @@ const config: FeatureBuildConfig = {
 
   metadata: {
     description: 'Writer-focused build for content creation',
-    author: 'Marcus Behringer',
+    author: 'Michael Behringer',
     tags: ['writer', 'content', 'publishing']
   },
 

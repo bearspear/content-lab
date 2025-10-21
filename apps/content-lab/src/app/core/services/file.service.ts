@@ -4,7 +4,7 @@ import {
   readFileAsDataURL,
   isMarkdownFile,
   isImageFile
-} from '../../shared/utils';
+} from '../utils';
 
 export interface FileReadResult {
   content: string;

@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { PrepareOptions, TransformedMarkdown, ChangeDescription, EpubAnalysis } from '../../../core/services/epub-preparation.service';
+import { PrepareOptions, TransformedMarkdown, ChangeDescription, EpubAnalysis } from '@content-lab/core';
 
 /**
  * Modal component for previewing and applying EPUB preparation transformations

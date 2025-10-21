@@ -1,10 +1,10 @@
-import { Component, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
+import { Component, ViewChild, ElementRef, AfterViewInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import * as monaco from 'monaco-editor';
-import { StateManagerService, MonacoThemeService } from '../../core/services';
-import { ResetButtonComponent } from '../../shared/components/reset-button/reset-button.component';
-import { StatefulComponent } from '../../core/base';
+import { StateManagerService, MonacoThemeService } from '@content-lab/core';
+import { ResetButtonComponent } from '@content-lab/ui-components';
+import { StatefulComponent } from '@content-lab/core';
+import { loadMonaco, getMonaco, Monaco } from '../js-playground/components/monaco-loader';
 
 interface TextEditorState {
   content: string;
@@ -28,7 +28,7 @@ export class TextEditorComponent extends StatefulComponent<TextEditorState> impl
 
   @ViewChild('editorContainer', { static: false }) editorContainer!: ElementRef;
 
-  editor: monaco.editor.IStandaloneCodeEditor | null = null;
+  editor: any | null = null; // Monaco.editor.IStandaloneCodeEditor loaded via AMD
   private themeSubscription: any;
 
   // Statistics
@@ -63,7 +63,8 @@ export class TextEditorComponent extends StatefulComponent<TextEditorState> impl
 
   constructor(
     stateManager: StateManagerService,
-    private monacoThemeService: MonacoThemeService
+    private monacoThemeService: MonacoThemeService,
+    private cdr: ChangeDetectorRef
   ) {
     super(stateManager);
   }
@@ -76,15 +77,15 @@ export class TextEditorComponent extends StatefulComponent<TextEditorState> impl
     // Subscribe to global theme changes
     this.themeSubscription = this.monacoThemeService.theme$.subscribe(theme => {
       this.monacoTheme = theme;
-      if (this.editor) {
-        monaco.editor.setTheme(theme);
+      if (this.editor && getMonaco()) {
+        getMonaco()!.editor.setTheme(theme);
         this.updateThemeClass();
       }
     });
   }
 
-  ngAfterViewInit(): void {
-    this.initializeEditor();
+  async ngAfterViewInit(): Promise<void> {
+    await this.initializeEditor();
   }
 
   override ngOnDestroy(): void {
@@ -133,21 +134,27 @@ export class TextEditorComponent extends StatefulComponent<TextEditorState> impl
 
       // Update language model
       const model = this.editor.getModel();
-      if (model) {
-        monaco.editor.setModelLanguage(model, this.language);
+      if (model && getMonaco()) {
+        getMonaco()!.editor.setModelLanguage(model, this.language);
       }
 
       // Set content
       this.editor.setValue(state.content);
     }
+
+    // Trigger change detection to avoid NG0100 errors
+    this.cdr.detectChanges();
   }
 
   private updateThemeClass(): void {
-    if (this.monacoTheme === 'vs-dark') {
-      document.body.classList.add('editor-dark-theme');
-    } else {
-      document.body.classList.remove('editor-dark-theme');
-    }
+    // Defer DOM update to avoid ExpressionChangedAfterItHasBeenCheckedError
+    setTimeout(() => {
+      if (this.monacoTheme === 'vs-dark') {
+        document.body.classList.add('editor-dark-theme');
+      } else {
+        document.body.classList.remove('editor-dark-theme');
+      }
+    }, 0);
   }
 
   protected getCurrentState(): TextEditorState {
@@ -170,10 +177,14 @@ export class TextEditorComponent extends StatefulComponent<TextEditorState> impl
     // applyState will be called by super.onReset()
   }
 
-  private initializeEditor(): void {
+  private async initializeEditor(): Promise<void> {
     if (!this.editorContainer) {
       return;
     }
+
+    // Load Monaco via AMD
+    await loadMonaco();
+    const monaco = getMonaco()!;
 
     this.editor = monaco.editor.create(this.editorContainer.nativeElement, {
       value: '',
@@ -253,7 +264,7 @@ export class TextEditorComponent extends StatefulComponent<TextEditorState> impl
       this.wordCount = 0;
     } else {
       // Split by whitespace and filter out empty strings
-      const words = content.trim().split(/\s+/).filter(word => word.length > 0);
+      const words = content.trim().split(/\s+/).filter((word: string) => word.length > 0);
       this.wordCount = words.length;
     }
   }
@@ -438,10 +449,10 @@ export class TextEditorComponent extends StatefulComponent<TextEditorState> impl
 
   setLanguage(language: string): void {
     this.language = language;
-    if (this.editor) {
+    if (this.editor && getMonaco()) {
       const model = this.editor.getModel();
       if (model) {
-        monaco.editor.setModelLanguage(model, language);
+        getMonaco()!.editor.setModelLanguage(model, language);
       }
       this.saveState();
     }

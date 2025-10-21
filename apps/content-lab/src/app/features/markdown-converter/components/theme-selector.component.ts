@@ -1,7 +1,7 @@
 import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Theme } from '../../../core/models';
-import { ThemeService } from '../../../core/services';
+import { Theme } from '@content-lab/core';
+import { ThemeService } from '@content-lab/core';
 
 @Component({
   selector: 'app-theme-selector',

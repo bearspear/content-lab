@@ -3,7 +3,7 @@
  * Simple plugin with no external dependencies (uses Monaco which is bundled)
  */
 
-import { FeaturePlugin, FeaturePluginMetadata, ToolCategory } from '../../core/plugin-system';
+import { FeaturePlugin, FeaturePluginMetadata, ToolCategory } from '@content-lab/plugin-system';
 
 export const metadata: FeaturePluginMetadata = {
   id: 'base64-encoder',

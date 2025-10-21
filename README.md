@@ -258,7 +258,7 @@ content-lab/
 
 MIT License - See LICENSE file for details
 
-**Author**: Marcus Behringer
+**Author**: Michael Behringer
 **Repository**: [github.com/mbehringer/content-lab](https://github.com/mbehringer/content-lab)
 
 ---

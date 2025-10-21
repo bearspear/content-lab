@@ -26,7 +26,9 @@
     "paths": {
       "@content-lab/core": ["packages/core/src/index.ts"],
       "@content-lab/ui-components": ["packages/ui-components/src/index.ts"],
-      "@content-lab/plugin-system": ["packages/plugin-system/src/index.ts"]
+      "@content-lab/plugin-system": ["packages/plugin-system/src/index.ts"],
+      "@content-lab/styles": ["packages/styles/src/index.scss"],
+      "@content-lab/components": ["packages/components/src/index.ts"]
     }
   },
   "angularCompilerOptions": {

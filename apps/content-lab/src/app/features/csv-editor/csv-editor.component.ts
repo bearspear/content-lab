@@ -1,9 +1,9 @@
 import { Component, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { StateManagerService } from '../../core/services';
-import { ResetButtonComponent } from '../../shared/components/reset-button/reset-button.component';
-import { StatefulComponent } from '../../core/base';
+import { StateManagerService } from '@content-lab/core';
+import { ResetButtonComponent } from '@content-lab/ui-components'  // NOTE: update to specific componentreset-button/reset-button.component';
+import { StatefulComponent } from '@content-lab/core';
 
 declare const Papa: any;
 

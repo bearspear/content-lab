@@ -1,0 +1,64 @@
+{
+  "name": "regex-tester-lab",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "prefix": "app",
+  "sourceRoot": "apps/regex-tester-lab/src",
+  "tags": ["lab-app"],
+  "targets": {
+    "build": {
+      "executor": "@angular-devkit/build-angular:application",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/apps/regex-tester-lab",
+        "index": "apps/regex-tester-lab/src/index.html",
+        "browser": "apps/regex-tester-lab/src/main.ts",
+        "polyfills": ["zone.js"],
+        "tsConfig": "apps/regex-tester-lab/tsconfig.app.json",
+        "inlineStyleLanguage": "scss",
+        "assets": [
+          {
+            "glob": "**/*",
+            "input": "apps/content-lab/src/assets",
+            "output": "assets"
+          }
+        ],
+        "styles": ["apps/regex-tester-lab/src/styles.scss"],
+        "scripts": []
+      },
+      "configurations": {
+        "production": {
+          "budgets": [
+            {
+              "type": "initial",
+              "maximumWarning": "500kb",
+              "maximumError": "1mb"
+            }
+          ],
+          "outputHashing": "all"
+        },
+        "development": {
+          "optimization": false,
+          "extractLicenses": false,
+          "sourceMap": true
+        }
+      },
+      "defaultConfiguration": "production"
+    },
+    "serve": {
+      "executor": "@angular-devkit/build-angular:dev-server",
+      "configurations": {
+        "production": {
+          "buildTarget": "regex-tester-lab:build:production"
+        },
+        "development": {
+          "buildTarget": "regex-tester-lab:build:development"
+        }
+      },
+      "defaultConfiguration": "development",
+      "options": {
+        "port": 4206
+      }
+    }
+  }
+}

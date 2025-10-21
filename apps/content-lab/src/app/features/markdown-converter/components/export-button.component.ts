@@ -1,6 +1,6 @@
 import { Component, Output, EventEmitter, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ExportFormat } from '../../../core/models';
+import { ExportFormat } from '@content-lab/core';
 
 @Component({
   selector: 'app-export-button',

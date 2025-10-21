@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { Theme } from '../models';
-import { THEMES } from '../../shared/constants/themes.constant';
+import { THEMES } from '@content-lab/core'  // NOTE: update importthemes.constant';
 import { KATEX_CSS, HIGHLIGHT_CSS_LIGHT, HIGHLIGHT_CSS_DARK } from '../../embedded-styles';
 
 @Injectable({

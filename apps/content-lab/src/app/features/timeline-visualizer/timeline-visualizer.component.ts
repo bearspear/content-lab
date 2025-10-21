@@ -1,8 +1,8 @@
-import { Component, ViewChild, ElementRef, AfterViewInit, OnDestroy } from '@angular/core';
+import { Component, ViewChild, ElementRef, AfterViewInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { StatefulComponent } from '../../core/base/stateful-component.base';
-import { StateManagerService } from '../../core/services/state-manager.service';
+import { StatefulComponent } from '@content-lab/core';
+import { StateManagerService } from '@content-lab/core';
 import { TimelineEvent } from './models/timeline-event.model';
 import { TimelineState, DEFAULT_TIMELINE_STATE } from './models/timeline-state.model';
 
@@ -85,7 +85,10 @@ export class TimelineVisualizerComponent extends StatefulComponent<TimelineState
   // Modal state
   showAddEventModal = false;
 
-  constructor(stateManager: StateManagerService) {
+  constructor(
+    stateManager: StateManagerService,
+    private cdr: ChangeDetectorRef
+  ) {
     super(stateManager);
   }
 
@@ -104,6 +107,8 @@ export class TimelineVisualizerComponent extends StatefulComponent<TimelineState
     };
     this.calculateTimelineBounds();
     this.positionEvents();
+    // Trigger change detection to avoid NG0100 errors
+    this.cdr.detectChanges();
   }
 
   protected override getCurrentState(): TimelineState {
@@ -113,9 +118,13 @@ export class TimelineVisualizerComponent extends StatefulComponent<TimelineState
   }
 
   ngAfterViewInit(): void {
-    this.updateCanvasSize();
-    this.calculateTimelineBounds();
-    this.positionEvents();
+    // Defer to avoid ExpressionChangedAfterItHasBeenCheckedError
+    setTimeout(() => {
+      this.updateCanvasSize();
+      this.calculateTimelineBounds();
+      this.positionEvents();
+      this.cdr.detectChanges();
+    }, 0);
 
     // Update canvas size on window resize
     window.addEventListener('resize', () => this.updateCanvasSize());
@@ -437,17 +446,25 @@ export class TimelineVisualizerComponent extends StatefulComponent<TimelineState
     // Generate ticks for each day
     const dayInMs = 24 * 60 * 60 * 1000;
     const numDays = Math.ceil(timeRange / dayInMs);
-    const tickInterval = Math.max(1, Math.floor(numDays / 10)); // Show ~10 ticks
+
+    // Adjust tick interval based on zoom level to prevent overcrowding
+    // At zoom 1.0: ~10 ticks, at higher zoom: more ticks
+    const baseTickCount = 10;
+    const zoomedTickCount = baseTickCount * this.state.zoom;
+    const tickInterval = Math.max(1, Math.floor(numDays / zoomedTickCount));
 
     for (let i = 0; i <= numDays; i += tickInterval) {
       const tickDate = new Date(this.minDate.getTime() + i * dayInMs);
       const normalizedTime = (tickDate.getTime() - this.minDate.getTime()) / timeRange;
       const x = this.timelineStartX + (normalizedTime * spaceRange * this.state.zoom) + this.state.panX;
 
-      ticks.push({
-        x,
-        label: tickDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
-      });
+      // Only include ticks that are visible within the canvas bounds
+      if (x >= 0 && x <= this.canvasWidth) {
+        ticks.push({
+          x,
+          label: tickDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+        });
+      }
     }
 
     return ticks;
@@ -502,13 +519,16 @@ export class TimelineVisualizerComponent extends StatefulComponent<TimelineState
       const normalizedTime = (subtickDate.getTime() - this.minDate.getTime()) / timeRange;
       const x = this.timelineStartX + (normalizedTime * spaceRange * this.state.zoom) + this.state.panX;
 
-      // Format hour label (e.g., "6am", "12pm", "6pm")
-      const hours = subtickDate.getHours();
-      const ampm = hours >= 12 ? 'pm' : 'am';
-      const displayHour = hours % 12 === 0 ? 12 : hours % 12;
-      const label = `${displayHour}${ampm}`;
+      // Only include subticks that are visible within the canvas bounds
+      if (x >= 0 && x <= this.canvasWidth) {
+        // Format hour label (e.g., "6am", "12pm", "6pm")
+        const hours = subtickDate.getHours();
+        const ampm = hours >= 12 ? 'pm' : 'am';
+        const displayHour = hours % 12 === 0 ? 12 : hours % 12;
+        const label = `${displayHour}${ampm}`;
 
-      subticks.push({ x, label });
+        subticks.push({ x, label });
+      }
     }
 
     return subticks;

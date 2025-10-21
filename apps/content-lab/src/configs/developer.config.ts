@@ -7,7 +7,7 @@
  * Estimated bundle size: ~900 KB
  */
 
-import { FeatureBuildConfig } from './app/core/plugin-system/feature-config.interface';
+import { FeatureBuildConfig } from '../app/core/plugin-system/feature-config.interface';
 
 const config: FeatureBuildConfig = {
   buildName: 'content-lab-developer',
@@ -15,7 +15,7 @@ const config: FeatureBuildConfig = {
 
   metadata: {
     description: 'Developer-focused build with code and testing tools',
-    author: 'Marcus Behringer',
+    author: 'Michael Behringer',
     tags: ['developer', 'code', 'testing']
   },
 

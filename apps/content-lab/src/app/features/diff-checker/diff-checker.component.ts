@@ -1,10 +1,10 @@
-import { Component, ViewChild, ElementRef, AfterViewInit, OnDestroy } from '@angular/core';
+import { Component, ViewChild, ElementRef, AfterViewInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import * as monaco from 'monaco-editor';
-import { StateManagerService, MonacoThemeService } from '../../core/services';
-import { ResetButtonComponent } from '../../shared/components/reset-button/reset-button.component';
-import { StatefulComponent } from '../../core/base';
+import { loadMonaco, getMonaco, Monaco } from '../js-playground/components/monaco-loader';
+import { StateManagerService, MonacoThemeService } from '@content-lab/core';
+import { ResetButtonComponent } from '@content-lab/ui-components'  // NOTE: update to specific componentreset-button/reset-button.component';
+import { StatefulComponent } from '@content-lab/core';
 import { DiffCheckerService, DiffStatistics, DiffAlgorithm } from './diff-checker.service';
 
 interface DiffCheckerState {
@@ -33,7 +33,7 @@ export class DiffCheckerComponent extends StatefulComponent<DiffCheckerState> im
   @ViewChild('originalFileInput') originalFileInput!: ElementRef<HTMLInputElement>;
   @ViewChild('modifiedFileInput') modifiedFileInput!: ElementRef<HTMLInputElement>;
 
-  diffEditor: monaco.editor.IStandaloneDiffEditor | null = null;
+  diffEditor: any | null = null; // Monaco.editor.IStandaloneDiffEditor loaded via AMD
   private themeSubscription: any;
 
   // State properties
@@ -96,7 +96,8 @@ export class DiffCheckerComponent extends StatefulComponent<DiffCheckerState> im
   constructor(
     stateManager: StateManagerService,
     private monacoThemeService: MonacoThemeService,
-    private diffService: DiffCheckerService
+    private diffService: DiffCheckerService,
+    private cdr: ChangeDetectorRef
   ) {
     super(stateManager);
   }
@@ -105,8 +106,8 @@ export class DiffCheckerComponent extends StatefulComponent<DiffCheckerState> im
     // Subscribe to global theme changes
     this.themeSubscription = this.monacoThemeService.theme$.subscribe(theme => {
       this.monacoTheme = theme;
-      if (this.diffEditor) {
-        monaco.editor.setTheme(theme);
+      if (this.diffEditor && getMonaco()) {
+        getMonaco()!.editor.setTheme(theme);
         this.updateThemeClass();
       }
     });
@@ -156,6 +157,8 @@ export class DiffCheckerComponent extends StatefulComponent<DiffCheckerState> im
       this.updateEditorOptions();
       this.updateThemeClass();
     }
+    // Trigger change detection to avoid NG0100 errors
+    this.cdr.detectChanges();
   }
 
   protected getCurrentState(): DiffCheckerState {
@@ -175,10 +178,14 @@ export class DiffCheckerComponent extends StatefulComponent<DiffCheckerState> im
     };
   }
 
-  private initializeDiffEditor(): void {
+  private async initializeDiffEditor(): Promise<void> {
     if (!this.diffEditorContainer) {
       return;
     }
+
+    // Load Monaco via AMD
+    await loadMonaco();
+    const monaco = getMonaco()!;
 
     const originalModel = monaco.editor.createModel('', this.language);
     const modifiedModel = monaco.editor.createModel('', this.language);
@@ -241,7 +248,7 @@ export class DiffCheckerComponent extends StatefulComponent<DiffCheckerState> im
   }
 
   private updateEditorOptions(): void {
-    if (!this.diffEditor) return;
+    if (!this.diffEditor || !getMonaco()) return;
 
     this.diffEditor.updateOptions({
       renderSideBySide: this.viewMode === 'side-by-side',
@@ -251,6 +258,7 @@ export class DiffCheckerComponent extends StatefulComponent<DiffCheckerState> im
     // Update language
     const originalModel = this.diffEditor.getOriginalEditor().getModel();
     const modifiedModel = this.diffEditor.getModifiedEditor().getModel();
+    const monaco = getMonaco()!;
 
     if (originalModel) {
       monaco.editor.setModelLanguage(originalModel, this.language);
@@ -541,11 +549,14 @@ export class DiffCheckerComponent extends StatefulComponent<DiffCheckerState> im
   // Theme toggle removed - now controlled globally via sidebar
 
   private updateThemeClass(): void {
-    if (this.monacoTheme === 'vs-dark') {
-      document.body.classList.add('editor-dark-theme');
-    } else {
-      document.body.classList.remove('editor-dark-theme');
-    }
+    // Defer DOM update to avoid ExpressionChangedAfterItHasBeenCheckedError
+    setTimeout(() => {
+      if (this.monacoTheme === 'vs-dark') {
+        document.body.classList.add('editor-dark-theme');
+      } else {
+        document.body.classList.remove('editor-dark-theme');
+      }
+    }, 0);
   }
 
   // UI toggles

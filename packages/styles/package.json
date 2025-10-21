@@ -1,0 +1,14 @@
+{
+  "name": "@content-lab/styles",
+  "version": "1.0.0",
+  "description": "Shared SCSS styles, variables, and mixins for Content Lab",
+  "main": "src/index.scss",
+  "keywords": [
+    "content-lab",
+    "styles",
+    "scss",
+    "sass"
+  ],
+  "author": "Michael Behringer",
+  "license": "MIT"
+}

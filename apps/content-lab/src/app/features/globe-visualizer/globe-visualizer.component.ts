@@ -2,8 +2,8 @@ import { Component, ElementRef, ViewChild, AfterViewInit, OnDestroy, NgZone } fr
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import * as THREE from 'three';
-import { StatefulComponent } from '../../core/base/stateful-component.base';
-import { StateManagerService } from '../../core/services/state-manager.service';
+import { StatefulComponent } from '@content-lab/core';
+import { StateManagerService } from '@content-lab/core';
 import { GlobeState, DEFAULT_GLOBE_STATE, WorldType, TextureResolution } from './models/globe-state.model';
 import { LocationPin, createDefaultPin } from './models/location-pin.model';
 import {

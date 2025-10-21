@@ -1,5 +1,5 @@
 import { Routes } from '@angular/router';
-import { FeaturePlugin } from './core/plugin-system';
+import { FeaturePlugin } from '@content-lab/plugin-system';
 import featureConfig from '../feature.config.js';
 
 // Import all plugin metadata for route generation

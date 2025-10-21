@@ -1,7 +1,7 @@
 import { Component, Input, Output, EventEmitter, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { EditorAction } from '../../../core/models';
+import { EditorAction } from '@content-lab/core';
 
 export interface EditorContentChange {
   content: string;

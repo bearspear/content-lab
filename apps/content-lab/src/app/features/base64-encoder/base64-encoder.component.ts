@@ -1,10 +1,10 @@
 import { Component, ViewChild, ElementRef, AfterViewInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import * as monaco from 'monaco-editor';
-import { StateManagerService, MonacoThemeService } from '../../core/services';
-import { ResetButtonComponent } from '../../shared/components/reset-button/reset-button.component';
-import { StatefulComponent } from '../../core/base';
+import { loadMonaco, getMonaco, Monaco } from '../js-playground/components/monaco-loader';
+import { StateManagerService, MonacoThemeService } from '@content-lab/core';
+import { ResetButtonComponent } from '@content-lab/ui-components'  // NOTE: update to specific componentreset-button/reset-button.component';
+import { StatefulComponent } from '@content-lab/core';
 
 interface Base64State {
   inputText: string;
@@ -53,8 +53,8 @@ export class Base64EncoderComponent extends StatefulComponent<Base64State> imple
   @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
   @ViewChild('imagePreview') imagePreview!: ElementRef<HTMLImageElement>;
 
-  inputEditor: monaco.editor.IStandaloneCodeEditor | null = null;
-  outputEditor: monaco.editor.IStandaloneCodeEditor | null = null;
+  inputEditor: any | null = null; // Monaco.editor.IStandaloneCodeEditor loaded via AMD
+  outputEditor: any | null = null; // Monaco.editor.IStandaloneCodeEditor loaded via AMD
   private themeSubscription: any;
 
   // State properties
@@ -117,8 +117,8 @@ export class Base64EncoderComponent extends StatefulComponent<Base64State> imple
     // Subscribe to global theme changes
     this.themeSubscription = this.monacoThemeService.theme$.subscribe(theme => {
       this.monacoTheme = theme;
-      if (this.inputEditor && this.outputEditor) {
-        monaco.editor.setTheme(theme);
+      if (this.inputEditor && this.outputEditor && getMonaco()) {
+        getMonaco()!.editor.setTheme(theme);
         this.updateThemeClass();
       }
     });
@@ -205,10 +205,14 @@ export class Base64EncoderComponent extends StatefulComponent<Base64State> imple
     this.currentFile = null;
   }
 
-  private initializeEditors(): void {
+  private async initializeEditors(): Promise<void> {
     if (!this.inputEditorContainer || !this.outputEditorContainer) {
       return;
     }
+
+    // Load Monaco via AMD
+    await loadMonaco();
+    const monaco = getMonaco()!;
 
     // Input editor
     this.inputEditor = monaco.editor.create(this.inputEditorContainer.nativeElement, {
@@ -565,11 +569,14 @@ export class Base64EncoderComponent extends StatefulComponent<Base64State> imple
   // Theme toggle removed - now controlled globally via sidebar
 
   private updateThemeClass(): void {
-    if (this.monacoTheme === 'vs-dark') {
-      document.body.classList.add('editor-dark-theme');
-    } else {
-      document.body.classList.remove('editor-dark-theme');
-    }
+    // Defer DOM update to avoid ExpressionChangedAfterItHasBeenCheckedError
+    setTimeout(() => {
+      if (this.monacoTheme === 'vs-dark') {
+        document.body.classList.add('editor-dark-theme');
+      } else {
+        document.body.classList.remove('editor-dark-theme');
+      }
+    }, 0);
   }
 
   // Utility

@@ -1,0 +1,64 @@
+{
+  "name": "tetris-lab",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "prefix": "app",
+  "sourceRoot": "apps/tetris-lab/src",
+  "tags": ["lab-app"],
+  "targets": {
+    "build": {
+      "executor": "@angular-devkit/build-angular:application",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/apps/tetris-lab",
+        "index": "apps/tetris-lab/src/index.html",
+        "browser": "apps/tetris-lab/src/main.ts",
+        "polyfills": ["zone.js"],
+        "tsConfig": "apps/tetris-lab/tsconfig.app.json",
+        "inlineStyleLanguage": "scss",
+        "assets": [
+          {
+            "glob": "**/*",
+            "input": "apps/content-lab/src/assets",
+            "output": "assets"
+          }
+        ],
+        "styles": ["apps/tetris-lab/src/styles.scss"],
+        "scripts": []
+      },
+      "configurations": {
+        "production": {
+          "budgets": [
+            {
+              "type": "initial",
+              "maximumWarning": "500kb",
+              "maximumError": "1mb"
+            }
+          ],
+          "outputHashing": "all"
+        },
+        "development": {
+          "optimization": false,
+          "extractLicenses": false,
+          "sourceMap": true
+        }
+      },
+      "defaultConfiguration": "production"
+    },
+    "serve": {
+      "executor": "@angular-devkit/build-angular:dev-server",
+      "configurations": {
+        "production": {
+          "buildTarget": "tetris-lab:build:production"
+        },
+        "development": {
+          "buildTarget": "tetris-lab:build:development"
+        }
+      },
+      "defaultConfiguration": "development",
+      "options": {
+        "port": 4216
+      }
+    }
+  }
+}
