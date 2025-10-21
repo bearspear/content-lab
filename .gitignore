@@ -241,6 +241,8 @@ yarn.lock
 !README.html
 !index.html
 !src/**/*.html
+!apps/**/*.html
+!packages/**/*.html
 !examples/*.html
 custom-*.css
 !custom-style.css

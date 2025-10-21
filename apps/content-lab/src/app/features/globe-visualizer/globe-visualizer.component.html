@@ -1,0 +1,323 @@
+<div class="globe-container">
+  <!-- Header -->
+  <div class="header">
+    <div class="header-left">
+      <h1 class="title">3D Worlds Visualizer</h1>
+      <p class="subtitle">{{ currentWorld.description }}</p>
+    </div>
+    <div class="header-center">
+      <!-- Coordinates Display -->
+      <div class="coordinates-display" *ngIf="currentLat !== null && currentLong !== null">
+        <span class="coord-item">
+          <span class="coord-label">Latitude:</span>
+          <span class="coord-value">{{ currentLat }}°</span>
+        </span>
+         <span class="coord-separator">|</span>
+        <span class="coord-item">
+         
+          <span class="coord-label">Longitude:</span>
+          <span class="coord-value">{{ currentLong }}°</span>
+        </span>
+      </div>
+    </div>
+    <div class="header-right">
+      <!-- Resolution Selector Dropdown -->
+      <div class="resolution-selector" *ngIf="availableTextureOptions.length > 0">
+        <select
+          [ngModel]="currentTextureValue"
+          (ngModelChange)="changeTextureResolution($event)"
+          class="resolution-dropdown"
+          [title]="'Texture Options (' + availableTextureOptions.length + ' available)'">
+          <option *ngFor="let option of availableTextureOptions" [value]="option.value">
+            {{ option.label }}
+          </option>
+        </select>
+      </div>
+      <button class="btn btn-icon" (click)="toggleEditMode()" [class.active]="state.isEditMode" title="Toggle Edit Mode (double-click globe to add pins)">
+        {{ state.isEditMode ? '✏️' : '👁️' }}
+      </button>
+      <button class="btn btn-icon" (click)="toggleAutoRotate()" [class.active]="state.autoRotate" title="Toggle Auto-Rotate">
+        ↺
+      </button>
+      <button class="btn btn-icon" (click)="resetCamera()" title="Reset Camera">
+        🎯
+      </button>
+    </div>
+  </div>
+
+  <!-- Toolbar -->
+  <div class="toolbar">
+    <div class="toolbar-left">
+      <!-- World Selector -->
+      <div class="world-selector-toolbar">
+        <label for="world-select" class="world-label-toolbar">World:</label>
+        <select
+          id="world-select"
+          [ngModel]="state.selectedWorld"
+          (ngModelChange)="switchWorld($event)"
+          class="world-dropdown-toolbar"
+        >
+          <option *ngFor="let world of worlds" [value]="world.type">
+            {{ world.name }}
+          </option>
+        </select>
+      </div>
+      <button class="btn" (click)="openAddPinModal()">
+        <span class="btn-icon">📍</span>
+        Add Pin
+      </button>
+      <button class="btn" (click)="openImportModal()">
+        <span class="btn-icon">📥</span>
+        Import
+      </button>
+      <button class="btn" (click)="exportData()" *ngIf="currentWorldPins.length > 0">
+        <span class="btn-icon">📤</span>
+        Export
+      </button>
+      <button class="btn btn-danger" (click)="clearAllPins()" *ngIf="currentWorldPins.length > 0">
+        <span class="btn-icon">🗑️</span>
+        Clear All
+      </button>
+    </div>
+    <div class="toolbar-right">
+      <div class="stats">
+        <span class="stat-badge">📍 {{ currentWorldPins.length }} pins on {{ currentWorld.name }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="content-wrapper">
+    <!-- Globe Canvas -->
+    <div class="globe-canvas-container">
+      <canvas #canvas class="globe-canvas"></canvas>
+      <div class="canvas-overlay" *ngIf="state.isEditMode">
+        <div class="edit-hint">
+          ✏️ Edit Mode: Double-click on the globe to add a pin
+        </div>
+      </div>
+    </div>
+
+    <!-- Pin List Sidebar -->
+    <div class="pins-sidebar" *ngIf="currentWorldPins.length > 0">
+      <h3 class="sidebar-title">{{ currentWorld.name }} Pins</h3>
+      <div class="pins-list">
+        <div class="pin-card" *ngFor="let pin of currentWorldPins">
+          <div class="pin-header">
+            <span class="pin-icon">{{ pin.icon }}</span>
+            <div class="pin-info">
+              <h4 class="pin-title">{{ pin.title }}</h4>
+              <p class="pin-coords">{{ pin.latitude }}, {{ pin.longitude }}</p>
+            </div>
+            <button class="btn-delete" (click)="deletePin(pin.id)" title="Delete Pin">×</button>
+          </div>
+          <p class="pin-description" *ngIf="pin.description">{{ pin.description }}</p>
+          <div class="pin-meta">
+            <span class="pin-category" *ngIf="pin.category">{{ pin.category }}</span>
+            <span class="pin-date" *ngIf="pin.date">{{ pin.date }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Empty State -->
+    <div class="empty-state" *ngIf="currentWorldPins.length === 0">
+      <div class="empty-icon">🌍</div>
+      <h3>No Pins on {{ currentWorld.name }}</h3>
+      <p>Add location pins to visualize data on {{ currentWorld.name }}</p>
+      <div class="empty-actions">
+        <button class="btn btn-primary" (click)="openAddPinModal()">
+          <span class="btn-icon">📍</span>
+          Add First Pin
+        </button>
+        <button class="btn" (click)="openImportModal()">
+          <span class="btn-icon">📥</span>
+          Import Data
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add Pin Modal -->
+  <div class="modal-overlay" *ngIf="showAddPinModal" (click)="closeAddPinModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>Add Location Pin</h2>
+        <button class="modal-close" (click)="closeAddPinModal()">×</button>
+      </div>
+
+      <div class="modal-body">
+        <div class="form-group">
+          <label for="pin-title">Title *</label>
+          <input
+            id="pin-title"
+            type="text"
+            [(ngModel)]="newPin.title"
+            class="input-field"
+            placeholder="e.g., Paris, France"
+          />
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="pin-latitude">Latitude *</label>
+            <input
+              id="pin-latitude"
+              type="number"
+              [(ngModel)]="newPin.latitude"
+              class="input-field"
+              placeholder="e.g., 48.8566"
+              step="0.0001"
+              min="-90"
+              max="90"
+            />
+          </div>
+          <div class="form-group">
+            <label for="pin-longitude">Longitude *</label>
+            <input
+              id="pin-longitude"
+              type="number"
+              [(ngModel)]="newPin.longitude"
+              class="input-field"
+              placeholder="e.g., 2.3522"
+              step="0.0001"
+              min="-180"
+              max="180"
+            />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="pin-description">Description</label>
+          <textarea
+            id="pin-description"
+            [(ngModel)]="newPin.description"
+            class="input-field"
+            rows="3"
+            placeholder="Optional description..."
+          ></textarea>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="pin-category">Category</label>
+            <select id="pin-category" [(ngModel)]="newPin.category" class="input-field">
+              <option value="">Select category</option>
+              <option *ngFor="let cat of categories" [value]="cat">{{ cat }}</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="pin-size">Size</label>
+            <select id="pin-size" [(ngModel)]="newPin.size" class="input-field">
+              <option *ngFor="let size of sizes" [value]="size">{{ size }}</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="pin-date">Date (optional)</label>
+          <input
+            id="pin-date"
+            type="date"
+            [(ngModel)]="newPin.date"
+            class="input-field"
+          />
+        </div>
+
+        <div class="form-group">
+          <label>Icon</label>
+          <div class="icon-picker">
+            <button
+              *ngFor="let icon of icons"
+              class="icon-btn"
+              [class.selected]="newPin.icon === icon"
+              (click)="newPin.icon = newPin.icon === icon ? '📍' : icon"
+            >
+              {{ icon }}
+            </button>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Color</label>
+          <div class="color-picker">
+            <button
+              *ngFor="let color of colors"
+              class="color-btn"
+              [class.selected]="newPin.color === color.value"
+              [style.background-color]="color.value"
+              [title]="color.name"
+              (click)="newPin.color = newPin.color === color.value ? '#667eea' : color.value"
+            >
+              <span class="check-icon" *ngIf="newPin.color === color.value">✓</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn" (click)="closeAddPinModal()">Cancel</button>
+        <button class="btn btn-primary" (click)="addPin()">Add Pin</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Import Modal -->
+  <div class="modal-overlay" *ngIf="showImportModal" (click)="closeImportModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>Import Location Data</h2>
+        <button class="modal-close" (click)="closeImportModal()">×</button>
+      </div>
+
+      <div class="modal-body">
+        <div class="form-group">
+          <label>Format</label>
+          <div class="format-selector">
+            <button
+              class="format-btn"
+              [class.active]="importFormat === 'json'"
+              (click)="importFormat = 'json'"
+            >
+              JSON
+            </button>
+            <button
+              class="format-btn"
+              [class.active]="importFormat === 'csv'"
+              (click)="importFormat = 'csv'"
+            >
+              CSV
+            </button>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="import-data">Data</label>
+          <textarea
+            id="import-data"
+            [(ngModel)]="importText"
+            class="input-field"
+            rows="12"
+            placeholder="Paste your JSON or CSV data here..."
+          ></textarea>
+        </div>
+
+        <div class="info-box">
+          <strong>{{ importFormat === 'json' ? 'JSON Format:' : 'CSV Format:' }}</strong>
+          <p *ngIf="importFormat === 'json'">
+            Import an array of pin objects with properties: title, latitude, longitude, description (optional), category (optional), color (optional), icon (optional)
+          </p>
+          <p *ngIf="importFormat === 'csv'">
+            CSV columns: title,latitude,longitude,description,category,color,icon
+            <br>First row can be a header (will be auto-detected).
+          </p>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn" (click)="closeImportModal()">Cancel</button>
+        <button class="btn btn-primary" (click)="importData()">Import</button>
+      </div>
+    </div>
+  </div>
+</div>
