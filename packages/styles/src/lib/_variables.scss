@@ -1,0 +1,46 @@
+// ===== SCSS Variables =====
+
+// Colors
+$gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+$gradient-success: linear-gradient(135deg, #10b981 0%, #059669 100%);
+$color-white: white;
+$color-primary: #667eea;
+$color-primary-dark: #5568d3;
+
+// Additional color variables
+$primary-color: #667eea;
+$success-color: #10b981;
+$error-color: #ef4444;
+$background-light: #f5f7fa;
+$border-color: #e2e8f0;
+$text-primary: #2d3748;
+$text-secondary: #718096;
+
+// Typography
+$font-mono: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+
+// Border Radius
+$border-radius-sm: 4px;
+$border-radius-md: 6px;
+$border-radius-lg: 8px;
+$border-radius-xl: 12px;
+
+// Shadows
+$shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05);
+$shadow-md: 0 4px 6px rgba(0, 0, 0, 0.07), 0 1px 3px rgba(0, 0, 0, 0.06);
+$shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.1);
+$shadow-primary: 0 4px 12px rgba(102, 126, 234, 0.4);
+
+// Spacing
+$spacing-xs: 4px;
+$spacing-sm: 8px;
+$spacing-md: 12px;
+$spacing-lg: 16px;
+$spacing-xl: 24px;
+$spacing-2xl: 32px;
+$spacing-3xl: 48px;
+
+// Transitions
+$transition-fast: all 0.15s ease;
+$transition-base: all 0.2s ease;
+$transition-slow: all 0.3s ease;
