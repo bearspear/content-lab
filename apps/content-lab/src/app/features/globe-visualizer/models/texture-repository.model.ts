@@ -49,13 +49,13 @@ export const TEXTURE_REPOSITORY: PlanetTextureCollection[] = [
           '2k': [{
             hash: '7ce3a845bb3ca672ddd6660fd477de1f',
             humanName: 'Realistic Surface',
-            path: '/assets/textures/hash/7ce3a845.jpg',
+            path: './assets/textures/hash/7ce3a845.jpg',
             size: '803KB'
           }],
           '8k': [{
             hash: '09a52beab6f825b7dcd20835e7f95b19',
             humanName: 'Realistic Surface',
-            path: '/assets/textures/hash/09a52bea.jpg',
+            path: './assets/textures/hash/09a52bea.jpg',
             size: '3.5MB'
           }]
         }
@@ -73,13 +73,13 @@ export const TEXTURE_REPOSITORY: PlanetTextureCollection[] = [
           '2k': [{
             hash: '6e2825332ce2838939ae17f230412466',
             humanName: 'Realistic Surface',
-            path: '/assets/textures/hash/6e282533.jpg',
+            path: './assets/textures/hash/6e282533.jpg',
             size: '852KB'
           }],
           '8k': [{
             hash: '05a75c74da22211353a8dd64c4ad6172',
             humanName: 'Realistic Surface',
-            path: '/assets/textures/hash/05a75c74.jpg',
+            path: './assets/textures/hash/05a75c74.jpg',
             size: '14MB'
           }]
         }
@@ -98,26 +98,26 @@ export const TEXTURE_REPOSITORY: PlanetTextureCollection[] = [
             {
               hash: 'f3fc899218b29c879af0976bbd78bd25',
               humanName: 'Cloud Surface',
-              path: '/assets/textures/hash/f3fc8992.jpg',
+              path: './assets/textures/hash/f3fc8992.jpg',
               size: '864KB'
             },
             {
               hash: 'cb5877bec89f723cec7d30742fcf105d',
               humanName: 'Atmosphere View',
-              path: '/assets/textures/hash/cb5877be.jpg',
+              path: './assets/textures/hash/cb5877be.jpg',
               size: '224K'
             }
           ],
           '4k': [{
             hash: '7d3bef348a66ccfa3c7ebea7394c3f53',
             humanName: 'Atmosphere View',
-            path: '/assets/textures/hash/7d3bef34.jpg',
+            path: './assets/textures/hash/7d3bef34.jpg',
             size: '1.5M'
           }],
           '8k': [{
             hash: '814a29210ee5cf9a88ed2ec6417baaa0',
             humanName: 'Cloud Surface',
-            path: '/assets/textures/hash/814a2921.jpg',
+            path: './assets/textures/hash/814a2921.jpg',
             size: '12MB'
           }]
         }
@@ -136,20 +136,20 @@ export const TEXTURE_REPOSITORY: PlanetTextureCollection[] = [
             {
               hash: 'dec752db496ed21b417dc7018bdbad50',
               humanName: 'Day View',
-              path: '/assets/textures/hash/dec752db.jpg',
+              path: './assets/textures/hash/dec752db.jpg',
               size: '2.4MB'
             },
             {
               hash: '73d343be0ade106aedd0fb5942db72ba',
               humanName: 'Night Lights',
-              path: '/assets/textures/hash/73d343be.jpg',
+              path: './assets/textures/hash/73d343be.jpg',
               size: '249K'
             }
           ],
           '8k': [{
             hash: '45ae6884f17efcd6ad13d7071f3bb2b8',
             humanName: 'Day View',
-            path: '/assets/textures/hash/45ae6884.jpg',
+            path: './assets/textures/hash/45ae6884.jpg',
             size: '4.4MB'
           }]
         }
@@ -167,13 +167,13 @@ export const TEXTURE_REPOSITORY: PlanetTextureCollection[] = [
           '2k': [{
             hash: 'b30dc37a707e6b4fc18da6de15997b95',
             humanName: 'Realistic Surface',
-            path: '/assets/textures/hash/b30dc37a.jpg',
+            path: './assets/textures/hash/b30dc37a.jpg',
             size: '733KB'
           }],
           '8k': [{
             hash: 'b1404cfbacc5e3e4c08fd7ae1472d807',
             humanName: 'Realistic Surface',
-            path: '/assets/textures/hash/b1404cfb.jpg',
+            path: './assets/textures/hash/b1404cfb.jpg',
             size: '8.0MB'
           }]
         }
@@ -191,19 +191,19 @@ export const TEXTURE_REPOSITORY: PlanetTextureCollection[] = [
           '2k': [{
             hash: 'bac68e493761c440a887576dd39409c3',
             humanName: 'Realistic Bands',
-            path: '/assets/textures/hash/bac68e49.jpg',
+            path: './assets/textures/hash/bac68e49.jpg',
             size: '487KB'
           }],
           '4k': [{
             hash: 'fd77fe53bff190283238a400c3c3689f',
             humanName: 'Hubble OPAL Map',
-            path: '/assets/textures/hash/fd77fe53.jpg',
+            path: './assets/textures/hash/fd77fe53.jpg',
             size: '1.0MB'
           }],
           '8k': [{
             hash: 'c147e262013b259c840c2a72c8cf18d4',
             humanName: 'Realistic Bands',
-            path: '/assets/textures/hash/c147e262.jpg',
+            path: './assets/textures/hash/c147e262.jpg',
             size: '2.9MB'
           }]
         }
@@ -221,13 +221,13 @@ export const TEXTURE_REPOSITORY: PlanetTextureCollection[] = [
           '2k': [{
             hash: 'e758b798d7d9622429374b804940e77f',
             humanName: 'Realistic Surface',
-            path: '/assets/textures/hash/e758b798.jpg',
+            path: './assets/textures/hash/e758b798.jpg',
             size: '195KB'
           }],
           '8k': [{
             hash: '278f00b03257d7d35c7701f85d2d38e4',
             humanName: 'Realistic Surface',
-            path: '/assets/textures/hash/278f00b0.jpg',
+            path: './assets/textures/hash/278f00b0.jpg',
             size: '1.0MB'
           }]
         }
@@ -245,7 +245,7 @@ export const TEXTURE_REPOSITORY: PlanetTextureCollection[] = [
           '2k': [{
             hash: '0465fbad731bbca3d6c88d36ee524a1c',
             humanName: 'Ice Giant',
-            path: '/assets/textures/hash/0465fbad.jpg',
+            path: './assets/textures/hash/0465fbad.jpg',
             size: '76KB'
           }]
           // 8K not available
@@ -264,7 +264,7 @@ export const TEXTURE_REPOSITORY: PlanetTextureCollection[] = [
           '2k': [{
             hash: '17c1bff0c64a6a511e7ae707b660bf0f',
             humanName: 'Deep Blue',
-            path: '/assets/textures/hash/17c1bff0.jpg',
+            path: './assets/textures/hash/17c1bff0.jpg',
             size: '236KB'
           }]
           // 8K not available
@@ -284,13 +284,13 @@ export const TEXTURE_REPOSITORY: PlanetTextureCollection[] = [
             {
               hash: '3c49a8535e231d0c15f70a780b3eed04',
               humanName: 'Dwarf Planet Surface',
-              path: '/assets/textures/hash/3c49a853.jpg',
+              path: './assets/textures/hash/3c49a853.jpg',
               size: '16KB'
             },
             {
               hash: 'dddd9c5c1152ecb672842bf67037eab7',
               humanName: 'High Quality Surface',
-              path: '/assets/textures/hash/dddd9c5c.jpg',
+              path: './assets/textures/hash/dddd9c5c.jpg',
               size: '173K'
             }
           ]
@@ -310,13 +310,13 @@ export const TEXTURE_REPOSITORY: PlanetTextureCollection[] = [
           '2k': [{
             hash: '833cdd47d60b5ada5141b5558f1b0f0f',
             humanName: 'Lunar Surface',
-            path: '/assets/textures/hash/833cdd47.jpg',
+            path: './assets/textures/hash/833cdd47.jpg',
             size: '1.0MB'
           }],
           '8k': [{
             hash: 'c5d7b31c3a2485e00cb8a3c16c91bb07',
             humanName: 'Lunar Surface',
-            path: '/assets/textures/hash/c5d7b31c.jpg',
+            path: './assets/textures/hash/c5d7b31c.jpg',
             size: '14MB'
           }]
         }

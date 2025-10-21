@@ -1,0 +1,64 @@
+{
+  "name": "star-map-lab",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "prefix": "app",
+  "sourceRoot": "apps/star-map-lab/src",
+  "tags": ["lab-app"],
+  "targets": {
+    "build": {
+      "executor": "@angular-devkit/build-angular:application",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/apps/star-map-lab",
+        "index": "apps/star-map-lab/src/index.html",
+        "browser": "apps/star-map-lab/src/main.ts",
+        "polyfills": ["zone.js"],
+        "tsConfig": "apps/star-map-lab/tsconfig.app.json",
+        "inlineStyleLanguage": "scss",
+        "assets": [
+          {
+            "glob": "**/*",
+            "input": "apps/content-lab/src/assets",
+            "output": "assets"
+          }
+        ],
+        "styles": ["apps/star-map-lab/src/styles.scss"],
+        "scripts": []
+      },
+      "configurations": {
+        "production": {
+          "budgets": [
+            {
+              "type": "initial",
+              "maximumWarning": "500kb",
+              "maximumError": "1mb"
+            }
+          ],
+          "outputHashing": "all"
+        },
+        "development": {
+          "optimization": false,
+          "extractLicenses": false,
+          "sourceMap": true
+        }
+      },
+      "defaultConfiguration": "production"
+    },
+    "serve": {
+      "executor": "@angular-devkit/build-angular:dev-server",
+      "configurations": {
+        "production": {
+          "buildTarget": "star-map-lab:build:production"
+        },
+        "development": {
+          "buildTarget": "star-map-lab:build:development"
+        }
+      },
+      "defaultConfiguration": "development",
+      "options": {
+        "port": 4215
+      }
+    }
+  }
+}

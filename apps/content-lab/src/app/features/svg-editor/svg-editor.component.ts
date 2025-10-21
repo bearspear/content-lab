@@ -1,10 +1,10 @@
 import { Component, ViewChild, ElementRef, AfterViewInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import * as monaco from 'monaco-editor';
-import { StateManagerService, MonacoThemeService } from '../../core/services';
-import { ResetButtonComponent } from '../../shared/components/reset-button/reset-button.component';
-import { StatefulComponent } from '../../core/base';
+import { loadMonaco, getMonaco, Monaco } from '../js-playground/components/monaco-loader';
+import { StateManagerService, MonacoThemeService } from '@content-lab/core';
+import { ResetButtonComponent } from '@content-lab/ui-components'  // NOTE: update to specific componentreset-button/reset-button.component';
+import { StatefulComponent } from '@content-lab/core';
 import { SvgEditorService, SvgInfo, OptimizationResult } from './svg-editor.service';
 
 interface SvgEditorState {
@@ -30,7 +30,7 @@ export class SvgEditorComponent extends StatefulComponent<SvgEditorState> implem
   @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
   @ViewChild('svgPreview') svgPreview!: ElementRef<HTMLDivElement>;
 
-  codeEditor: monaco.editor.IStandaloneCodeEditor | null = null;
+  codeEditor: any | null = null; // Monaco.editor.IStandaloneCodeEditor loaded via AMD
   private themeSubscription: any;
 
   // State properties
@@ -86,8 +86,8 @@ export class SvgEditorComponent extends StatefulComponent<SvgEditorState> implem
     // Subscribe to global theme changes
     this.themeSubscription = this.monacoThemeService.theme$.subscribe(theme => {
       this.monacoTheme = theme;
-      if (this.codeEditor) {
-        monaco.editor.setTheme(theme);
+      if (this.codeEditor && getMonaco()) {
+        getMonaco()!.editor.setTheme(theme);
         this.updateThemeClass();
       }
     });
@@ -95,7 +95,8 @@ export class SvgEditorComponent extends StatefulComponent<SvgEditorState> implem
 
   ngAfterViewInit(): void {
     this.initializeEditor();
-    this.updateSvgInfo();
+    // Defer to avoid ExpressionChangedAfterItHasBeenCheckedError
+    setTimeout(() => this.updateSvgInfo(), 0);
   }
 
   override ngOnDestroy(): void {
@@ -135,7 +136,8 @@ export class SvgEditorComponent extends StatefulComponent<SvgEditorState> implem
       this.updatePreview();
     }
 
-    this.updateSvgInfo();
+    // Defer to avoid ExpressionChangedAfterItHasBeenCheckedError
+    setTimeout(() => this.updateSvgInfo(), 0);
   }
 
   protected getCurrentState(): SvgEditorState {
@@ -212,10 +214,14 @@ export class SvgEditorComponent extends StatefulComponent<SvgEditorState> implem
     }, 0);
   }
 
-  private createEditor(): void {
+  private async createEditor(): Promise<void> {
     if (!this.codeEditorContainer) {
       return;
     }
+
+    // Load Monaco via AMD
+    await loadMonaco();
+    const monaco = getMonaco()!;
 
     this.codeEditor = monaco.editor.create(this.codeEditorContainer.nativeElement, {
       value: this.svgCode,
@@ -290,9 +296,9 @@ export class SvgEditorComponent extends StatefulComponent<SvgEditorState> implem
 
     // If switching to a mode that shows the editor, recreate it
     if (!wasShowingEditor && willShowEditor) {
-      setTimeout(() => {
+      setTimeout(async () => {
         if (this.codeEditorContainer && !this.codeEditor) {
-          this.createEditor();
+          await this.createEditor();
         }
       }, 50);
     }
@@ -574,11 +580,14 @@ export default {
   // Theme toggle removed - now controlled globally via sidebar
 
   private updateThemeClass(): void {
-    if (this.monacoTheme === 'vs-dark') {
-      document.body.classList.add('editor-dark-theme');
-    } else {
-      document.body.classList.remove('editor-dark-theme');
-    }
+    // Defer DOM update to avoid ExpressionChangedAfterItHasBeenCheckedError
+    setTimeout(() => {
+      if (this.monacoTheme === 'vs-dark') {
+        document.body.classList.add('editor-dark-theme');
+      } else {
+        document.body.classList.remove('editor-dark-theme');
+      }
+    }, 0);
   }
 
   // UI toggles

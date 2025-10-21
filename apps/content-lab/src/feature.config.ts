@@ -20,7 +20,7 @@ const config: FeatureBuildConfig = {
 
   metadata: {
     description: 'Full build with all features enabled',
-    author: 'Marcus Behringer',
+    author: 'Michael Behringer',
     tags: ['full', 'complete', 'all-features']
   },
 

@@ -2,7 +2,7 @@
  * Text Editor Plugin Definition
  */
 
-import { FeaturePlugin, FeaturePluginMetadata, ToolCategory } from '../../core/plugin-system';
+import { FeaturePlugin, FeaturePluginMetadata, ToolCategory } from '@content-lab/plugin-system';
 
 export const metadata: FeaturePluginMetadata = {
   id: 'text-editor',

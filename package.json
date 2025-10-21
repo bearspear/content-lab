@@ -15,7 +15,7 @@
     "text-editor",
     "angular"
   ],
-  "author": "Marcus Behringer",
+  "author": "Michael Behringer",
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -24,8 +24,8 @@
   "homepage": "https://github.com/mbehringer/content-lab#readme",
   "scripts": {
     "ng": "ng",
-    "start": "ng serve",
-    "build": "ng build",
+    "start": "ng serve content-lab",
+    "build": "ng build content-lab",
     "build:full": "bash scripts/build-with-config.sh full",
     "build:lightweight": "bash scripts/build-with-config.sh lightweight",
     "build:developer": "bash scripts/build-with-config.sh developer",

@@ -1,9 +1,9 @@
 import { Component, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { StateManagerService } from '../../core/services';
-import { StatefulComponent } from '../../core/base';
-import { ResetButtonComponent } from '../../shared/components/reset-button/reset-button.component';
+import { StateManagerService } from '@content-lab/core';
+import { StatefulComponent } from '@content-lab/core';
+import { ResetButtonComponent } from '@content-lab/ui-components'  // NOTE: update to specific componentreset-button/reset-button.component';
 
 interface RegexMatch {
   fullMatch: string;

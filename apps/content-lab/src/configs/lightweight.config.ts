@@ -7,7 +7,7 @@
  * Estimated bundle size: ~600-800 KB
  */
 
-import { FeatureBuildConfig } from './app/core/plugin-system/feature-config.interface';
+import { FeatureBuildConfig } from '../app/core/plugin-system/feature-config.interface';
 
 const config: FeatureBuildConfig = {
   buildName: 'content-lab-lightweight',
@@ -15,7 +15,7 @@ const config: FeatureBuildConfig = {
 
   metadata: {
     description: 'Lightweight build with essential tools only',
-    author: 'Marcus Behringer',
+    author: 'Michael Behringer',
     tags: ['minimal', 'essential', 'fast']
   },
 

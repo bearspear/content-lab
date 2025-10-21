@@ -1,4 +1,4 @@
-import { JsonExportContent } from '../../core/models';
+import { JsonExportContent } from '@content-lab/core';
 
 /**
  * Convert HTML to JSON structured format

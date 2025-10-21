@@ -7,8 +7,8 @@ import { TimezoneService, TimezoneInfo } from './services/timezone.service';
 import { MoonPhaseService } from './services/moon-phase.service';
 import { SolarService } from './services/solar.service';
 import { MoonPhase, SolarInfo, LocationCoordinates } from './models/moon-phase.model';
-import { StatefulComponent } from '../../core/base';
-import { StateManagerService } from '../../core/services';
+import { StatefulComponent } from '@content-lab/core';
+import { StateManagerService } from '@content-lab/core';
 
 @Component({
   selector: 'app-world-clock',

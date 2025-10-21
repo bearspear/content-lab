@@ -1,13 +1,13 @@
-import { Component, ViewChild, ElementRef, AfterViewInit, NgZone } from '@angular/core';
+import { Component, ViewChild, ElementRef, AfterViewInit, NgZone, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Subscription } from 'rxjs';
 import { CodeEditorComponent } from './components/code-editor.component';
-import { CodeBridgeService } from '../../core/services/code-bridge.service';
-import { StateManagerService, ScriptLoaderService, MonacoThemeService } from '../../core/services';
-import { ResetButtonComponent } from '../../shared/components/reset-button/reset-button.component';
-import { StatefulComponent } from '../../core/base';
-import { LIBRARY_CONFIG, LibraryConfig } from '../../core/config/library.config';
+import { CodeBridgeService } from '@content-lab/core';
+import { StateManagerService, ScriptLoaderService, MonacoThemeService } from '@content-lab/core';
+import { ResetButtonComponent } from '@content-lab/ui-components'  // NOTE: update to specific componentreset-button/reset-button.component';
+import { StatefulComponent } from '@content-lab/core';
+import { LIBRARY_CONFIG, LibraryConfig } from '@content-lab/core';
 
 interface ConsoleLog {
   type: 'log' | 'error' | 'warn' | 'info';
@@ -98,7 +98,8 @@ export class JsPlaygroundComponent extends StatefulComponent<JsPlaygroundState> 
     private scriptLoaderService: ScriptLoaderService,
     private ngZone: NgZone,
     private monacoThemeService: MonacoThemeService,
-    stateManager: StateManagerService
+    stateManager: StateManagerService,
+    private cdr: ChangeDetectorRef
   ) {
     super(stateManager);
   }
@@ -155,6 +156,8 @@ export class JsPlaygroundComponent extends StatefulComponent<JsPlaygroundState> 
         };
       });
     }
+    // Trigger change detection to avoid NG0100 errors
+    this.cdr.detectChanges();
   }
 
   protected getCurrentState(): JsPlaygroundState {

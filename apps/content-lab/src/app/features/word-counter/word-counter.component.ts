@@ -1,8 +1,8 @@
 import { Component, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { StatefulComponent } from '../../core/base/stateful-component.base';
-import { StateManagerService } from '../../core/services/state-manager.service';
+import { StatefulComponent } from '@content-lab/core';
+import { StateManagerService } from '@content-lab/core';
 import {
   WordCounterState,
   DEFAULT_WORD_COUNTER_STATE,

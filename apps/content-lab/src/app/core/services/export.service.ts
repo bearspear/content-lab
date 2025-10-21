@@ -7,7 +7,7 @@ import {
   parseHtmlToJson,
   downloadBlob,
   createTextBlob
-} from '../../shared/utils';
+} from '../utils';
 import { KATEX_CSS, HIGHLIGHT_CSS_LIGHT, HIGHLIGHT_CSS_DARK } from '../../embedded-styles';
 import { ThemeService } from './theme.service';
 import { EpubExportService, EpubOptions } from './epub-export.service';

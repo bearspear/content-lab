@@ -1,10 +1,10 @@
 import { Component, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { CodeEditorComponent } from '../js-playground/components/code-editor.component';
-import { CodeBridgeService } from '../../core/services/code-bridge.service';
-import { StateManagerService } from '../../core/services';
-import { ResetButtonComponent } from '../../shared/components/reset-button/reset-button.component';
-import { StatefulComponent } from '../../core/base';
+import { CodeBridgeService } from '@content-lab/core';
+import { StateManagerService } from '@content-lab/core';
+import { ResetButtonComponent } from '@content-lab/ui-components'  // NOTE: update to specific componentreset-button/reset-button.component';
+import { StatefulComponent } from '@content-lab/core';
 
 interface ValidationError {
   line: number;

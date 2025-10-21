@@ -441,7 +441,10 @@ export class FlacPlayerComponent implements OnInit, OnDestroy {
   }
 
   private onAudioError(event: Event): void {
-    console.error('Audio error:', event);
+    // Only log error if there's actually a source loaded (ignore initial empty source error)
+    if (this.audioElement && this.audioElement.src) {
+      console.error('Audio error:', event);
+    }
     this.isPlaying = false;
   }
 

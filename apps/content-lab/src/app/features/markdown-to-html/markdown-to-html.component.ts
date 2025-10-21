@@ -3,12 +3,12 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
 // Services
-import { MarkdownService, ExportService, ThemeService, FileService, StateManagerService, EpubExportService, EpubOptions } from '../../core/services';
-import { EpubPreparationService, PrepareOptions, EpubAnalysis, TransformedMarkdown } from '../../core/services/epub-preparation.service';
-import { StatefulComponent } from '../../core/base';
+import { MarkdownService, ExportService, ThemeService, FileService, StateManagerService, EpubExportService, EpubOptions } from '@content-lab/core';
+import { EpubPreparationService, PrepareOptions, EpubAnalysis, TransformedMarkdown } from '@content-lab/core';
+import { StatefulComponent } from '@content-lab/core';
 
 // Models
-import { EditorAction, ExportFormat } from '../../core/models';
+import { EditorAction, ExportFormat } from '@content-lab/core';
 
 // Components
 import {
@@ -25,7 +25,7 @@ import {
 } from '../markdown-converter/components';
 import { EpubPublishButtonComponent } from '../markdown-converter/components/epub-publish-button.component';
 import { EpubPrepareModalComponent } from '../markdown-converter/components/epub-prepare-modal.component';
-import { ResetButtonComponent } from '../../shared/components/reset-button/reset-button.component';
+import { ResetButtonComponent } from '@content-lab/ui-components'  // NOTE: update to specific componentreset-button/reset-button.component';
 
 // State interface
 interface MdConverterState {

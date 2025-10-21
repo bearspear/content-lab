@@ -1,4 +1,4 @@
-import { Theme } from '../../core/models';
+import { Theme } from '@content-lab/core';
 
 export const THEMES: Theme[] = [
   { name: 'Claude Chatbox', value: 'claude-chatbox', description: 'Compact chat-optimized variant with tighter spacing and enhanced readability' },

@@ -4,8 +4,8 @@ import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { firstValueFrom } from 'rxjs';
-import { EpubOptions } from '../../../core/services/epub-export.service';
-import { MarkdownService } from '../../../core/services/markdown.service';
+import { EpubOptions } from '@content-lab/core';
+import { MarkdownService } from '@content-lab/core';
 
 @Component({
   selector: 'app-epub-publish-button',

@@ -1,8 +1,8 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterOutlet, NavigationStart, NavigationEnd, NavigationCancel, NavigationError } from '@angular/router';
-import { SidebarComponent } from './shared/components/sidebar/sidebar.component';
-import { LoadingSpinnerComponent } from './shared/components/loading-spinner/loading-spinner.component';
+import { SidebarComponent } from '@content-lab/ui-components'  // NOTE: specify componentsidebar/sidebar.component';
+import { LoadingSpinnerComponent } from '@content-lab/ui-components'  // NOTE: specify componentloading-spinner/loading-spinner.component';
 
 @Component({
   selector: 'app-root',

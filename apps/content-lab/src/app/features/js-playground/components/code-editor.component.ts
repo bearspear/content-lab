@@ -1,7 +1,7 @@
 import { Component, Input, Output, EventEmitter, AfterViewInit, ViewChild, ElementRef, OnChanges, SimpleChanges, OnDestroy, Optional } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { loadMonaco, getMonaco } from './monaco-loader';
-import { MonacoThemeService } from '../../../core/services/monaco-theme.service';
+import { MonacoThemeService } from '@content-lab/core';
 
 @Component({
   selector: 'app-code-editor',

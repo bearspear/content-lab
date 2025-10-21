@@ -1,0 +1,36 @@
+{
+  "name": "@content-lab/components",
+  "version": "1.0.0",
+  "description": "Reusable Angular components for Content Lab - Text editors, visualizers, utilities and more",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "peerDependencies": {
+    "@angular/core": "^17.0.0",
+    "@angular/common": "^17.0.0",
+    "@angular/forms": "^17.0.0",
+    "@angular/router": "^17.0.0",
+    "rxjs": "^7.0.0"
+  },
+  "dependencies": {
+    "@content-lab/core": "^1.0.0",
+    "@content-lab/styles": "^1.0.0",
+    "monaco-editor": "^0.44.0",
+    "three": "^0.158.0",
+    "astronomy-engine": "^2.1.19",
+    "music-metadata-browser": "^2.5.10",
+    "marked": "^9.1.6",
+    "marked-highlight": "^2.1.0",
+    "highlight.js": "^11.9.0"
+  },
+  "keywords": [
+    "content-lab",
+    "components",
+    "angular",
+    "text-editor",
+    "markdown",
+    "visualizer",
+    "utilities"
+  ],
+  "author": "Michael Behringer",
+  "license": "MIT"
+}

@@ -1,0 +1,64 @@
+{
+  "name": "diff-checker-lab",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "prefix": "app",
+  "sourceRoot": "apps/diff-checker-lab/src",
+  "tags": ["lab-app"],
+  "targets": {
+    "build": {
+      "executor": "@angular-devkit/build-angular:application",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/apps/diff-checker-lab",
+        "index": "apps/diff-checker-lab/src/index.html",
+        "browser": "apps/diff-checker-lab/src/main.ts",
+        "polyfills": ["zone.js"],
+        "tsConfig": "apps/diff-checker-lab/tsconfig.app.json",
+        "inlineStyleLanguage": "scss",
+        "assets": [
+          {
+            "glob": "**/*",
+            "input": "apps/content-lab/src/assets",
+            "output": "assets"
+          }
+        ],
+        "styles": ["apps/diff-checker-lab/src/styles.scss"],
+        "scripts": []
+      },
+      "configurations": {
+        "production": {
+          "budgets": [
+            {
+              "type": "initial",
+              "maximumWarning": "500kb",
+              "maximumError": "1mb"
+            }
+          ],
+          "outputHashing": "all"
+        },
+        "development": {
+          "optimization": false,
+          "extractLicenses": false,
+          "sourceMap": true
+        }
+      },
+      "defaultConfiguration": "production"
+    },
+    "serve": {
+      "executor": "@angular-devkit/build-angular:dev-server",
+      "configurations": {
+        "production": {
+          "buildTarget": "diff-checker-lab:build:production"
+        },
+        "development": {
+          "buildTarget": "diff-checker-lab:build:development"
+        }
+      },
+      "defaultConfiguration": "development",
+      "options": {
+        "port": 4207
+      }
+    }
+  }
+}

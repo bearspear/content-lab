@@ -1,8 +1,8 @@
 import { Component, Output, EventEmitter, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, RouterLinkActive } from '@angular/router';
-import { MonacoThemeService, MonacoTheme } from '../../../core/services/monaco-theme.service';
-import { PluginRegistryService } from '../../../core/plugin-system';
+import { MonacoThemeService, MonacoTheme } from '@content-lab/core';
+import { PluginRegistryService } from '@content-lab/plugin-system';
 import { Subject, takeUntil } from 'rxjs';
 
 export interface ToolItem {
