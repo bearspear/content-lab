@@ -1,0 +1,137 @@
+// ===== SCSS Mixins =====
+
+// Import variables for use in mixins
+@import './variables';
+
+// Header Gradient Mixin
+@mixin header-gradient {
+  background: $gradient-primary;
+  color: $color-white;
+  padding: 16px 20px;
+  border-radius: $border-radius-lg $border-radius-lg 0 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-shadow: $shadow-md;
+}
+
+// Card Style Mixin
+@mixin card-style {
+  background: white;
+  border-radius: $border-radius-lg;
+  box-shadow: $shadow-lg;
+  overflow: hidden;
+}
+
+// Button Primary Mixin
+@mixin button-primary {
+  background: $gradient-primary;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: $border-radius-md;
+  font-weight: 600;
+  cursor: pointer;
+  transition: $transition-base;
+  box-shadow: $shadow-primary;
+
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(102, 126, 234, 0.5);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+  }
+}
+
+// Button Success Mixin
+@mixin button-success {
+  background: $gradient-success;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: $border-radius-md;
+  font-weight: 600;
+  cursor: pointer;
+  transition: $transition-base;
+
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+// Input Style Mixin
+@mixin input-style {
+  width: 100%;
+  padding: 10px 16px;
+  border: 2px solid $border-color;
+  border-radius: $border-radius-md;
+  font-size: 14px;
+  transition: $transition-base;
+
+  &:focus {
+    outline: none;
+    border-color: $color-primary;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  }
+}
+
+// Scrollbar Style Mixin
+@mixin custom-scrollbar {
+  &::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 4px;
+
+    &:hover {
+      background: #555;
+    }
+  }
+}
+
+// Code Block Mixin
+@mixin code-block {
+  font-family: $font-mono;
+  background: #f5f7fa;
+  padding: 16px;
+  border-radius: $border-radius-md;
+  overflow-x: auto;
+  @include custom-scrollbar;
+}
+
+// Flex Center Mixin
+@mixin flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+// Absolute Fill Mixin
+@mixin absolute-fill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
