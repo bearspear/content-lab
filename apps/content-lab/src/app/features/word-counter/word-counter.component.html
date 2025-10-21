@@ -1,0 +1,301 @@
+<div class="word-counter-container">
+  <!-- Header -->
+  <div class="header">
+    <div class="header-left">
+      <h1 class="title">Word Counter & Text Analyzer</h1>
+      <p class="subtitle">Comprehensive text statistics and readability analysis</p>
+    </div>
+    <div class="header-right">
+      <button class="btn btn-icon" (click)="clearText()" title="Clear Text">
+        🗑️
+      </button>
+      <button class="btn btn-icon" (click)="copyStatistics()" *ngIf="statistics" title="Copy Statistics">
+        📋
+      </button>
+    </div>
+  </div>
+
+  <!-- Quick Stats Bar -->
+  <div class="quick-stats" *ngIf="statistics">
+    <div class="stat-item">
+      <span class="stat-value">{{ statistics.wordCount | number }}</span>
+      <span class="stat-label">words</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-value">{{ statistics.characterCount | number }}</span>
+      <span class="stat-label">characters</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-value">{{ statistics.sentenceCount | number }}</span>
+      <span class="stat-label">sentences</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-value">{{ formatReadingTime(statistics.readingTimeMinutes, statistics.readingTimeSeconds) }}</span>
+      <span class="stat-label">reading time</span>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="content-wrapper">
+    <!-- Text Input Section -->
+    <div class="text-input-section">
+      <div class="section-header">
+        <h2>Text Input</h2>
+        <span class="char-count" *ngIf="state.text">{{ state.text.length | number }} characters</span>
+      </div>
+      <textarea
+        class="text-area"
+        [(ngModel)]="state.text"
+        (ngModelChange)="onTextChange()"
+        placeholder="Paste or type your text here to analyze...
+
+Try pasting an article, blog post, essay, or any text you want to analyze. The tool will automatically calculate word count, readability scores, and provide detailed statistics."
+        spellcheck="true"
+      ></textarea>
+    </div>
+
+    <!-- Statistics Section -->
+    <div class="statistics-section" *ngIf="statistics">
+      <!-- Basic Statistics Card -->
+      <div class="stat-card">
+        <h3 class="card-title">Basic Statistics</h3>
+        <div class="stat-grid">
+          <div class="stat-row">
+            <span class="stat-name">Words:</span>
+            <span class="stat-value-text">{{ statistics.wordCount | number }}</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-name">Unique Words:</span>
+            <span class="stat-value-text">{{ statistics.uniqueWords | number }}</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-name">Characters (with spaces):</span>
+            <span class="stat-value-text">{{ statistics.characterCount | number }}</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-name">Characters (no spaces):</span>
+            <span class="stat-value-text">{{ statistics.characterCountNoSpaces | number }}</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-name">Sentences:</span>
+            <span class="stat-value-text">{{ statistics.sentenceCount | number }}</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-name">Paragraphs:</span>
+            <span class="stat-value-text">{{ statistics.paragraphCount | number }}</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-name">Lines:</span>
+            <span class="stat-value-text">{{ statistics.lineCount | number }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Reading Time Card -->
+      <div class="stat-card">
+        <h3 class="card-title">Reading Time</h3>
+        <div class="reading-time-display">
+          <div class="reading-time-main">
+            <span class="time-icon">⏱️</span>
+            <span class="time-text">{{ formatReadingTime(statistics.readingTimeMinutes, statistics.readingTimeSeconds) }}</span>
+          </div>
+          <div class="reading-speed-info">at {{ state.readingSpeed }} words per minute (average reader)</div>
+        </div>
+        <div class="stat-grid">
+          <div class="stat-row">
+            <span class="stat-name">Speaking Time:</span>
+            <span class="stat-value-text">{{ statistics.speakingTimeMinutes }} min (at 130 WPM)</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Page Count Estimates Card -->
+      <div class="stat-card">
+        <h3 class="card-title">📄 Page Count Estimates</h3>
+        <div class="page-estimates-intro">
+          Estimated pages when printed or exported to PDF
+        </div>
+        <div class="stat-grid">
+          <div class="stat-row highlight-row">
+            <div style="display: flex; flex-direction: column; gap: 0.25rem;">
+              <div style="display: flex; justify-content: space-between; width: 100%;">
+                <span class="stat-name">📃 Double-spaced:</span>
+                <span class="stat-value-text">{{ statistics.pagesDoublespaced }} {{ statistics.pagesDoublespaced === 1 ? 'page' : 'pages' }}</span>
+              </div>
+              <span class="stat-detail">~250 words/page</span>
+            </div>
+          </div>
+          <div class="stat-row">
+            <div style="display: flex; flex-direction: column; gap: 0.25rem; width: 100%;">
+              <div style="display: flex; justify-content: space-between; width: 100%;">
+                <span class="stat-name">📄 Single-spaced:</span>
+                <span class="stat-value-text">{{ statistics.pagesSingleSpaced }} {{ statistics.pagesSingleSpaced === 1 ? 'page' : 'pages' }}</span>
+              </div>
+              <span class="stat-detail">~500 words/page</span>
+            </div>
+          </div>
+          <div class="stat-row">
+            <div style="display: flex; flex-direction: column; gap: 0.25rem; width: 100%;">
+              <div style="display: flex; justify-content: space-between; width: 100%;">
+                <span class="stat-name">🎓 Academic format:</span>
+                <span class="stat-value-text">{{ statistics.pagesAcademic }} {{ statistics.pagesAcademic === 1 ? 'page' : 'pages' }}</span>
+              </div>
+              <span class="stat-detail">~275 words/page (12pt, double-spaced)</span>
+            </div>
+          </div>
+          <div class="stat-row">
+            <div style="display: flex; flex-direction: column; gap: 0.25rem; width: 100%;">
+              <div style="display: flex; justify-content: space-between; width: 100%;">
+                <span class="stat-name">📚 Novel format:</span>
+                <span class="stat-value-text">{{ statistics.pagesNovel }} {{ statistics.pagesNovel === 1 ? 'page' : 'pages' }}</span>
+              </div>
+              <span class="stat-detail">~300 words/page (paperback)</span>
+            </div>
+          </div>
+        </div>
+        <div class="tip-box">
+          💡 <strong>Note:</strong> Page counts are estimates based on standard formatting. Actual page count may vary depending on font, margins, and line spacing.
+        </div>
+      </div>
+
+      <!-- Readability Scores Card -->
+      <div class="stat-card readability-card">
+        <h3 class="card-title">Readability Scores</h3>
+
+        <div class="readability-main">
+          <div class="readability-score-large">
+            <div class="score-number">{{ statistics.fleschReadingEase }}</div>
+            <div class="score-label">Flesch Reading Ease</div>
+            <div class="score-description">{{ getReadabilityDescription(statistics.fleschReadingEase) }}</div>
+          </div>
+
+          <div class="readability-meter">
+            <div class="meter-bar">
+              <div
+                class="meter-fill"
+                [style.width.%]="statistics.fleschReadingEase"
+                [class.easy]="statistics.fleschReadingEase >= 70"
+                [class.standard]="statistics.fleschReadingEase >= 50 && statistics.fleschReadingEase < 70"
+                [class.difficult]="statistics.fleschReadingEase < 50"
+              ></div>
+            </div>
+            <div class="meter-labels">
+              <span>0</span>
+              <span>50</span>
+              <span>100</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="stat-grid">
+          <div class="stat-row">
+            <span class="stat-name">Flesch-Kincaid Grade:</span>
+            <span class="stat-value-text">{{ statistics.fleschKincaidGrade }}</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-name">Gunning Fog Index:</span>
+            <span class="stat-value-text">{{ statistics.gunningFogIndex }}</span>
+          </div>
+        </div>
+
+        <div class="readability-info">
+          <div class="info-box">
+            <strong>Flesch Reading Ease:</strong> Higher scores indicate easier reading. 60-70 is considered standard.
+          </div>
+          <div class="info-box">
+            <strong>Flesch-Kincaid Grade:</strong> Indicates the U.S. grade level required to understand the text.
+          </div>
+          <div class="info-box">
+            <strong>Gunning Fog:</strong> Estimates years of formal education needed to understand the text.
+          </div>
+        </div>
+      </div>
+
+      <!-- Sentence Analysis Card -->
+      <div class="stat-card">
+        <h3 class="card-title">Sentence Analysis</h3>
+        <div class="stat-grid">
+          <div class="stat-row">
+            <span class="stat-name">Average Length:</span>
+            <span class="stat-value-text">{{ statistics.averageSentenceLength }} words</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-name">Longest Sentence:</span>
+            <span class="stat-value-text">{{ statistics.longestSentence }} words</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-name">Shortest Sentence:</span>
+            <span class="stat-value-text">{{ statistics.shortestSentence }} words</span>
+          </div>
+        </div>
+        <div class="tip-box" *ngIf="statistics.averageSentenceLength > 25">
+          💡 <strong>Tip:</strong> Your average sentence length is quite long. Consider breaking up some sentences for better readability.
+        </div>
+      </div>
+
+      <!-- Word Analysis Card -->
+      <div class="stat-card">
+        <h3 class="card-title">Word Analysis</h3>
+        <div class="stat-grid">
+          <div class="stat-row">
+            <span class="stat-name">Average Word Length:</span>
+            <span class="stat-value-text">{{ statistics.averageWordLength }} characters</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-name">Complex Words (3+ syllables):</span>
+            <span class="stat-value-text">{{ statistics.complexWords }} ({{ (statistics.complexWords / statistics.wordCount * 100) | number:'1.1-1' }}%)</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-name">Total Syllables:</span>
+            <span class="stat-value-text">{{ statistics.syllableCount | number }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Word Frequency Card -->
+      <div class="stat-card" *ngIf="wordFrequencies.length > 0">
+        <div class="card-header-with-toggle">
+          <h3 class="card-title">Most Frequent Words</h3>
+          <label class="toggle-label">
+            <input
+              type="checkbox"
+              [(ngModel)]="state.showStopWords"
+              (change)="toggleStopWords()"
+            />
+            <span>Exclude common words</span>
+          </label>
+        </div>
+
+        <div class="frequency-list">
+          <div class="frequency-item" *ngFor="let freq of wordFrequencies; let i = index">
+            <div class="frequency-rank">{{ i + 1 }}</div>
+            <div class="frequency-word">{{ freq.word }}</div>
+            <div class="frequency-bar-container">
+              <div
+                class="frequency-bar"
+                [style.width.%]="(freq.count / wordFrequencies[0].count) * 100"
+              ></div>
+            </div>
+            <div class="frequency-count">{{ freq.count }}</div>
+            <div class="frequency-percent">{{ freq.percentage }}%</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Empty State -->
+    <div class="empty-state" *ngIf="!statistics">
+      <div class="empty-icon">📝</div>
+      <h3>Start Analyzing Your Text</h3>
+      <p>Paste or type your text in the editor above to see comprehensive statistics including:</p>
+      <ul class="feature-list">
+        <li>✓ Word, character, and sentence counts</li>
+        <li>✓ Reading time estimates</li>
+        <li>✓ Page count estimates for printing/PDF export</li>
+        <li>✓ Readability scores (Flesch, Gunning Fog, etc.)</li>
+        <li>✓ Word frequency analysis</li>
+        <li>✓ Sentence and paragraph analysis</li>
+      </ul>
+    </div>
+  </div>
+</div>

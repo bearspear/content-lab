@@ -1,0 +1,139 @@
+<div class="json-editor-container"
+     [class.dragging]="isDragging"
+     (dragover)="onDragOver($event)"
+     (dragleave)="onDragLeave($event)"
+     (drop)="onDrop($event)">
+  <header class="editor-header">
+    <div class="header-left">
+      <div class="header-content">
+        <h1>JSON Editor</h1>
+        <p class="subtitle">Format, validate, and edit JSON with syntax highlighting • Drag & drop .json files</p>
+      </div>
+
+      <div class="validation-status" [class.valid]="isValid" [class.invalid]="!isValid">
+        <svg *ngIf="isValid" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+        <svg *ngIf="!isValid" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+        <span>{{ isValid ? 'Valid JSON' : 'Invalid JSON' }}</span>
+      </div>
+    </div>
+
+    <app-reset-button (reset)="onReset()"></app-reset-button>
+  </header>
+
+  <div class="editor-content">
+    <!-- Toolbar -->
+    <div class="toolbar">
+      <div class="toolbar-section">
+        <button class="toolbar-btn primary" (click)="beautifyJSON()" title="Format JSON">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"/>
+          </svg>
+          Beautify
+        </button>
+
+        <button class="toolbar-btn primary" (click)="minifyJSON()" title="Minify JSON">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8h16M4 16h16"/>
+          </svg>
+          Minify
+        </button>
+
+        <div class="toolbar-divider"></div>
+
+        <button class="toolbar-btn" (click)="copyToClipboard()" title="Copy to clipboard">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+          </svg>
+          <span class="copy-btn">Copy</span>
+        </button>
+
+        <button class="toolbar-btn" (click)="clearEditor()" title="Clear editor">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+          </svg>
+          Clear
+        </button>
+
+        <div class="toolbar-divider"></div>
+
+        <button class="toolbar-btn" (click)="toggleStats()" title="Show statistics">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+          </svg>
+          Stats
+        </button>
+
+        <button class="toolbar-btn js-insert-btn" (click)="insertToJsPlayground()" [disabled]="!isValid" title="Insert into JavaScript Playground">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+          </svg>
+          Insert to JS
+        </button>
+      </div>
+
+      <!-- Templates Dropdown -->
+      <div class="templates-section">
+        <label class="templates-label">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+          </svg>
+          Templates:
+        </label>
+        <select class="templates-select" (change)="loadTemplate(sampleTemplates[$any($event.target).value])" [value]="-1">
+          <option value="-1" disabled>Choose a template...</option>
+          <option *ngFor="let template of sampleTemplates; let i = index" [value]="i">
+            {{ template.name }}
+          </option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Statistics Panel -->
+    <div class="stats-panel" *ngIf="showStats">
+      <div class="stat-item">
+        <span class="stat-label">Characters:</span>
+        <span class="stat-value">{{ stats.characters | number }}</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label">Lines:</span>
+        <span class="stat-value">{{ stats.lines | number }}</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label">Size:</span>
+        <span class="stat-value">{{ stats.size }}</span>
+      </div>
+    </div>
+
+    <!-- Error Panel -->
+    <div class="error-panel" *ngIf="!isValid && validationErrors.length > 0">
+      <div class="error-header">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+        <span>Validation Errors</span>
+      </div>
+      <div class="error-list">
+        <div *ngFor="let error of validationErrors" class="error-item">
+          <span class="error-location">Line {{ error.line }}, Column {{ error.column }}:</span>
+          <span class="error-message">{{ error.message }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Monaco Editor -->
+    <div class="editor-wrapper">
+      <app-code-editor
+        [(code)]="jsonContent"
+        (codeChange)="onContentChange($event)"
+        language="json"
+        [theme]="monacoTheme"
+        componentId="json-editor"
+        placeholder="Paste or write your JSON here...">
+      </app-code-editor>
+    </div>
+  </div>
+</div>
