@@ -1,0 +1,31 @@
+{
+  "name": "content-lab-server",
+  "version": "1.0.0",
+  "description": "Portable desktop server for Content Lab",
+  "main": "server.js",
+  "bin": "server.js",
+  "author": "Michael Behringer",
+  "license": "MIT",
+  "scripts": {
+    "start": "node server.js",
+    "build": "pkg . --out-path dist"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "compression": "^1.7.4",
+    "cors": "^2.8.5",
+    "open": "^9.1.0"
+  },
+  "pkg": {
+    "assets": [
+      "public/**/*"
+    ],
+    "targets": [
+      "node18-macos-x64",
+      "node18-macos-arm64",
+      "node18-win-x64",
+      "node18-linux-x64"
+    ],
+    "outputPath": "dist"
+  }
+}
