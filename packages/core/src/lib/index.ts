@@ -19,6 +19,7 @@ export * from './utils/html-parser.util';
 export * from './services/code-bridge.service';
 export * from './services/custom-preload-strategy.service';
 export * from './services/epub-export.service';
+export * from './services/epub-pdf-api.service';
 export * from './services/epub-preparation.service';
 export * from './services/export.service';
 export * from './services/file.service';
