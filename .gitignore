@@ -294,3 +294,5 @@ Thumbs.db
 ssl/
 *.local.json
 !config.local.json.example
+
+/docs

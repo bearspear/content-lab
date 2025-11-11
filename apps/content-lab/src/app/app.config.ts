@@ -1,14 +1,16 @@
-import { ApplicationConfig } from '@angular/core';
+import { ApplicationConfig, APP_INITIALIZER } from '@angular/core';
 import { provideHttpClient } from '@angular/common/http';
 import { provideRouter, withPreloading } from '@angular/router';
 import { routes } from './app.routes';
 import { CustomPreloadStrategy } from '@content-lab/core';
+import { FeatureLoaderService } from '@content-lab/plugin-system';
 
 /**
- * Note: Plugin system infrastructure exists in @content-lab/plugin-system
- * but is not currently used. Features are loaded via Angular routing instead.
- * Plugin system can be activated in a future phase when plugin files are created.
+ * Initialize feature loader to register all enabled plugins
  */
+function initializeFeatures(featureLoader: FeatureLoaderService) {
+  return () => featureLoader.loadFeatures();
+}
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -16,6 +18,12 @@ export const appConfig: ApplicationConfig = {
     provideRouter(
       routes,
       withPreloading(CustomPreloadStrategy)
-    )
+    ),
+    {
+      provide: APP_INITIALIZER,
+      useFactory: initializeFeatures,
+      deps: [FeatureLoaderService],
+      multi: true
+    }
   ]
 };
