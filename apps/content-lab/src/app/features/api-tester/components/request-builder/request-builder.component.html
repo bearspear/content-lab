@@ -1,0 +1,145 @@
+<div class="request-builder">
+  <!-- Request Line -->
+  <div class="request-line">
+    <select
+      class="method-selector"
+      [value]="localRequest.method"
+      (change)="onMethodChange($any($event.target).value)"
+      [disabled]="isLoading">
+      <option *ngFor="let method of methods" [value]="method">{{ method }}</option>
+    </select>
+
+    <input
+      type="text"
+      class="url-input"
+      placeholder="Enter request URL (e.g., https://api.example.com/endpoint)"
+      [value]="localRequest.url"
+      (input)="onUrlChange($any($event.target).value)"
+      [disabled]="isLoading" />
+
+    <button
+      class="import-button"
+      (click)="onImportClick()"
+      [disabled]="isLoading"
+      title="Import from curl/xh/HTTPie command">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+        <polyline points="7 10 12 15 17 10"/>
+        <line x1="12" y1="15" x2="12" y2="3"/>
+      </svg>
+      Import
+    </button>
+
+    <label class="proxy-toggle" title="Use proxy server to bypass CORS restrictions">
+      <input
+        type="checkbox"
+        [(ngModel)]="useProxy"
+        (change)="onProxyToggle()"
+        [disabled]="!!isLoading" />
+      <span class="proxy-label">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"/>
+          <path d="M2 12h20"/>
+        </svg>
+        Use Proxy
+      </span>
+    </label>
+
+    <button
+      class="save-button"
+      [disabled]="!canSave"
+      (click)="onSave()"
+      title="Save request to collection">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+        <polyline points="17 21 17 13 7 13 7 21"/>
+        <polyline points="7 3 7 8 15 8"/>
+      </svg>
+      Save
+    </button>
+
+    <button
+      class="send-button"
+      [class.loading]="isLoading"
+      [disabled]="!canSend"
+      (click)="onSend()">
+      {{ isLoading ? 'Sending...' : 'Send' }}
+    </button>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <button
+      class="tab"
+      [class.active]="activeTab === 'params'"
+      (click)="activeTab = 'params'">
+      Params <span *ngIf="localRequest.queryParams.length > 0" class="count">({{ localRequest.queryParams.length }})</span>
+    </button>
+    <button
+      class="tab"
+      [class.active]="activeTab === 'headers'"
+      (click)="activeTab = 'headers'">
+      Headers <span *ngIf="localRequest.headers.length > 0" class="count">({{ localRequest.headers.length }})</span>
+    </button>
+    <button
+      class="tab"
+      [class.active]="activeTab === 'body'"
+      (click)="activeTab = 'body'">
+      Body
+    </button>
+    <button
+      class="tab"
+      [class.active]="activeTab === 'auth'"
+      (click)="activeTab = 'auth'">
+      Auth
+    </button>
+  </div>
+
+  <!-- Tab Content -->
+  <div class="tab-content">
+    <!-- Query Params Tab -->
+    <div *ngIf="activeTab === 'params'">
+      <app-query-params-editor
+        [params]="localRequest.queryParams"
+        (paramsChange)="onParamsChange($event)">
+      </app-query-params-editor>
+    </div>
+
+    <!-- Headers Tab -->
+    <div *ngIf="activeTab === 'headers'">
+      <app-headers-editor
+        [headers]="localRequest.headers"
+        (headersChange)="onHeadersChange($event)">
+      </app-headers-editor>
+    </div>
+
+    <!-- Body Tab -->
+    <div *ngIf="activeTab === 'body'" class="body-editor">
+      <textarea
+        class="body-textarea"
+        placeholder='Enter request body (e.g., {"name": "John", "email": "john@example.com"})'
+        [value]="bodyContent"
+        (input)="onBodyChange($any($event.target).value)"
+        [disabled]="isLoading"
+        rows="10"></textarea>
+      <div class="body-hint">
+        Supports JSON, XML, and plain text. Content-Type header will be auto-detected.
+      </div>
+    </div>
+
+    <!-- Auth Tab -->
+    <div *ngIf="activeTab === 'auth'">
+      <app-auth-builder
+        [auth]="localRequest.auth"
+        (authChange)="onAuthChange($event)">
+      </app-auth-builder>
+    </div>
+  </div>
+</div>
+
+<!-- Import Modal -->
+<app-import-command
+  *ngIf="showImportModal"
+  (requestImported)="onRequestImported($event)"
+  (close)="onCloseImport()">
+</app-import-command>

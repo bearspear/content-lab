@@ -1,0 +1,88 @@
+<div class="import-modal-overlay" (click)="onClose()">
+  <div class="import-modal" (click)="$event.stopPropagation()">
+    <!-- Header -->
+    <div class="modal-header">
+      <h3>Import from Command</h3>
+      <button class="close-btn" (click)="onClose()" title="Close">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M18 6L6 18M6 6l12 12"/>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Body -->
+    <div class="modal-body">
+      <!-- Info Banner -->
+      <div class="info-banner">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"/>
+          <path d="M12 16v-4M12 8h.01"/>
+        </svg>
+        <span>Paste a curl, xh, HTTPie, or wget command to import</span>
+      </div>
+
+      <!-- Command Input -->
+      <div class="input-section">
+        <label for="command-input">Command:</label>
+        <textarea
+          id="command-input"
+          class="command-textarea"
+          placeholder="Paste your curl, xh, HTTPie, or wget command here..."
+          [(ngModel)]="commandText"
+          rows="8"></textarea>
+      </div>
+
+      <!-- Parse Result -->
+      <div *ngIf="isParsed" class="parse-result">
+        <!-- Success -->
+        <div *ngIf="canImport" class="result-success">
+          <div class="result-header">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+              <polyline points="22 4 12 14.01 9 11.01"/>
+            </svg>
+            <h4>Command parsed successfully</h4>
+          </div>
+          <div class="result-details">
+            <p><strong>Type:</strong> {{ commandType }}</p>
+            <p><strong>URL:</strong> {{ parsedRequest?.url }}</p>
+            <p><strong>Found:</strong> {{ summaryText }}</p>
+          </div>
+        </div>
+
+        <!-- Errors -->
+        <div *ngIf="errors.length > 0" class="result-error">
+          <div class="result-header">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"/>
+              <path d="M12 8v4M12 16h.01"/>
+            </svg>
+            <h4>Parsing errors</h4>
+          </div>
+          <ul class="error-list">
+            <li *ngFor="let error of errors">{{ error }}</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="modal-footer">
+      <button class="secondary-btn" (click)="onClear()">
+        Clear
+      </button>
+      <button
+        class="secondary-btn"
+        (click)="onParse()"
+        [disabled]="!commandText.trim()">
+        Parse
+      </button>
+      <button
+        class="primary-btn"
+        (click)="onImport()"
+        [disabled]="!canImport">
+        Import
+      </button>
+    </div>
+  </div>
+</div>
