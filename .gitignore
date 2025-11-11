@@ -202,6 +202,15 @@ testem.log
 /out-tsc
 /bazel-out
 
+# Server-specific
+apps/server/public/
+apps/server/temp/
+apps/server/uploads/
+apps/server/.env
+.puppeteer_cache/
+.chrome/
+executables/
+
 # Dependencies
 /node_modules
 bower_components/
