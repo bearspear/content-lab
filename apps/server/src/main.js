@@ -6,12 +6,12 @@ const cors = require('cors');
 const path = require('path');
 
 // Import API routes
-const epubPdfRoutes = require('./src/api/routes/epub-pdf.routes');
-const proxyRoutes = require('./src/api/routes/proxy.routes');
-const webCaptureRoutes = require('./src/api/routes/web-capture.routes');
-const { errorHandler, notFoundHandler } = require('./src/api/middleware/error-handler');
-const { apiLimiter } = require('./src/api/middleware/rate-limiter');
-const { getInstance: getCleanupService } = require('./src/api/services/cleanup.service');
+const epubPdfRoutes = require('./api/routes/epub-pdf.routes');
+const proxyRoutes = require('./api/routes/proxy.routes');
+const webCaptureRoutes = require('./api/routes/web-capture.routes');
+const { errorHandler, notFoundHandler } = require('./api/middleware/error-handler');
+const { apiLimiter } = require('./api/middleware/rate-limiter');
+const { getInstance: getCleanupService } = require('./api/services/cleanup.service');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -99,7 +99,7 @@ const shutdown = async () => {
 
   // Close PDF generator browser if running
   try {
-    const pdfGenerator = require('./src/api/services/pdf-generator.service');
+    const pdfGenerator = require('./api/services/pdf-generator.service');
     await pdfGenerator.close();
   } catch (error) {
     // Ignore
@@ -107,7 +107,7 @@ const shutdown = async () => {
 
   // Close web capture browser if running
   try {
-    const browserManager = require('./src/api/services/browser-manager.service');
+    const browserManager = require('./api/services/browser-manager.service');
     await browserManager.close();
   } catch (error) {
     // Ignore
