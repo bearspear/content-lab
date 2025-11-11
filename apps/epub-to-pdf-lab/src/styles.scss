@@ -1,0 +1,17 @@
+/* Import Content Lab base styles */
+@import '../../../apps/content-lab/src/styles.scss';
+
+/* Minimal layout for standalone app */
+body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+}
+
+app-root {
+  display: block;
+  width: 100%;
+  height: 100%;
+}

@@ -21,6 +21,7 @@ import { plugin as timelineVisualizerPlugin } from './features/timeline-visualiz
 import { plugin as globeVisualizerPlugin } from './features/globe-visualizer/globe-visualizer.plugin';
 import { plugin as starMapPlugin } from './features/star-map/star-map.plugin';
 import { plugin as tetrisPlugin } from './features/tetris/tetris.plugin';
+import { plugin as epubToPdfPlugin } from './features/epub-to-pdf/epub-to-pdf.plugin';
 
 /**
  * Map of all available plugins by feature ID
@@ -42,7 +43,8 @@ const allPlugins: Record<string, FeaturePlugin> = {
   'timeline-visualizer': timelineVisualizerPlugin,
   'globe-visualizer': globeVisualizerPlugin,
   'star-map': starMapPlugin,
-  'tetris': tetrisPlugin
+  'tetris': tetrisPlugin,
+  'epub-to-pdf': epubToPdfPlugin
 };
 
 /**

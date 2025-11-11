@@ -144,36 +144,25 @@
                 "glob": "**/*",
                 "input": "apps/content-lab/src/assets",
                 "output": "assets"
-              },
-              {
-                "glob": "**/*",
-                "input": "node_modules/monaco-editor",
-                "output": "assets/monaco-editor"
               }
             ],
             "styles": [
               "apps/markdown-to-html-lab/src/styles.scss"
             ],
-            "scripts": [],
-            "allowedCommonJsDependencies": [
-              "html2pdf.js"
-            ],
-            "loader": {
-              ".ttf": "file"
-            }
+            "scripts": []
           },
           "configurations": {
             "production": {
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "2mb",
-                  "maximumError": "5mb"
+                  "maximumWarning": "500kb",
+                  "maximumError": "1mb"
                 },
                 {
                   "type": "anyComponentStyle",
-                  "maximumWarning": "6kb",
-                  "maximumError": "10kb"
+                  "maximumWarning": "2kb",
+                  "maximumError": "4kb"
                 }
               ],
               "outputHashing": "all"
@@ -230,36 +219,25 @@
                 "glob": "**/*",
                 "input": "apps/content-lab/src/assets",
                 "output": "assets"
-              },
-              {
-                "glob": "**/*",
-                "input": "node_modules/monaco-editor",
-                "output": "assets/monaco-editor"
               }
             ],
             "styles": [
               "apps/text-editor-lab/src/styles.scss"
             ],
-            "scripts": [],
-            "allowedCommonJsDependencies": [
-              "html2pdf.js"
-            ],
-            "loader": {
-              ".ttf": "file"
-            }
+            "scripts": []
           },
           "configurations": {
             "production": {
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "2mb",
-                  "maximumError": "5mb"
+                  "maximumWarning": "500kb",
+                  "maximumError": "1mb"
                 },
                 {
                   "type": "anyComponentStyle",
-                  "maximumWarning": "6kb",
-                  "maximumError": "10kb"
+                  "maximumWarning": "2kb",
+                  "maximumError": "4kb"
                 }
               ],
               "outputHashing": "all"
@@ -316,36 +294,25 @@
                 "glob": "**/*",
                 "input": "apps/content-lab/src/assets",
                 "output": "assets"
-              },
-              {
-                "glob": "**/*",
-                "input": "node_modules/monaco-editor",
-                "output": "assets/monaco-editor"
               }
             ],
             "styles": [
               "apps/svg-editor-lab/src/styles.scss"
             ],
-            "scripts": [],
-            "allowedCommonJsDependencies": [
-              "html2pdf.js"
-            ],
-            "loader": {
-              ".ttf": "file"
-            }
+            "scripts": []
           },
           "configurations": {
             "production": {
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "2mb",
-                  "maximumError": "5mb"
+                  "maximumWarning": "500kb",
+                  "maximumError": "1mb"
                 },
                 {
                   "type": "anyComponentStyle",
-                  "maximumWarning": "6kb",
-                  "maximumError": "10kb"
+                  "maximumWarning": "2kb",
+                  "maximumError": "4kb"
                 }
               ],
               "outputHashing": "all"
@@ -402,36 +369,25 @@
                 "glob": "**/*",
                 "input": "apps/content-lab/src/assets",
                 "output": "assets"
-              },
-              {
-                "glob": "**/*",
-                "input": "node_modules/monaco-editor",
-                "output": "assets/monaco-editor"
               }
             ],
             "styles": [
               "apps/js-playground-lab/src/styles.scss"
             ],
-            "scripts": [],
-            "allowedCommonJsDependencies": [
-              "html2pdf.js"
-            ],
-            "loader": {
-              ".ttf": "file"
-            }
+            "scripts": []
           },
           "configurations": {
             "production": {
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "2mb",
-                  "maximumError": "5mb"
+                  "maximumWarning": "500kb",
+                  "maximumError": "1mb"
                 },
                 {
                   "type": "anyComponentStyle",
-                  "maximumWarning": "6kb",
-                  "maximumError": "10kb"
+                  "maximumWarning": "2kb",
+                  "maximumError": "4kb"
                 }
               ],
               "outputHashing": "all"
@@ -488,36 +444,25 @@
                 "glob": "**/*",
                 "input": "apps/content-lab/src/assets",
                 "output": "assets"
-              },
-              {
-                "glob": "**/*",
-                "input": "node_modules/monaco-editor",
-                "output": "assets/monaco-editor"
               }
             ],
             "styles": [
               "apps/json-editor-lab/src/styles.scss"
             ],
-            "scripts": [],
-            "allowedCommonJsDependencies": [
-              "html2pdf.js"
-            ],
-            "loader": {
-              ".ttf": "file"
-            }
+            "scripts": []
           },
           "configurations": {
             "production": {
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "2mb",
-                  "maximumError": "5mb"
+                  "maximumWarning": "500kb",
+                  "maximumError": "1mb"
                 },
                 {
                   "type": "anyComponentStyle",
-                  "maximumWarning": "6kb",
-                  "maximumError": "10kb"
+                  "maximumWarning": "2kb",
+                  "maximumError": "4kb"
                 }
               ],
               "outputHashing": "all"
@@ -574,36 +519,25 @@
                 "glob": "**/*",
                 "input": "apps/content-lab/src/assets",
                 "output": "assets"
-              },
-              {
-                "glob": "**/*",
-                "input": "node_modules/monaco-editor",
-                "output": "assets/monaco-editor"
               }
             ],
             "styles": [
               "apps/regex-tester-lab/src/styles.scss"
             ],
-            "scripts": [],
-            "allowedCommonJsDependencies": [
-              "html2pdf.js"
-            ],
-            "loader": {
-              ".ttf": "file"
-            }
+            "scripts": []
           },
           "configurations": {
             "production": {
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "2mb",
-                  "maximumError": "5mb"
+                  "maximumWarning": "500kb",
+                  "maximumError": "1mb"
                 },
                 {
                   "type": "anyComponentStyle",
-                  "maximumWarning": "6kb",
-                  "maximumError": "10kb"
+                  "maximumWarning": "2kb",
+                  "maximumError": "4kb"
                 }
               ],
               "outputHashing": "all"
@@ -660,36 +594,25 @@
                 "glob": "**/*",
                 "input": "apps/content-lab/src/assets",
                 "output": "assets"
-              },
-              {
-                "glob": "**/*",
-                "input": "node_modules/monaco-editor",
-                "output": "assets/monaco-editor"
               }
             ],
             "styles": [
               "apps/diff-checker-lab/src/styles.scss"
             ],
-            "scripts": [],
-            "allowedCommonJsDependencies": [
-              "html2pdf.js"
-            ],
-            "loader": {
-              ".ttf": "file"
-            }
+            "scripts": []
           },
           "configurations": {
             "production": {
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "2mb",
-                  "maximumError": "5mb"
+                  "maximumWarning": "500kb",
+                  "maximumError": "1mb"
                 },
                 {
                   "type": "anyComponentStyle",
-                  "maximumWarning": "6kb",
-                  "maximumError": "10kb"
+                  "maximumWarning": "2kb",
+                  "maximumError": "4kb"
                 }
               ],
               "outputHashing": "all"
@@ -713,6 +636,81 @@
             },
             "development": {
               "buildTarget": "diff-checker-lab:build:development"
+            }
+          },
+          "defaultConfiguration": "development"
+        }
+      }
+    },
+    "epub-to-pdf-lab": {
+      "projectType": "application",
+      "schematics": {
+        "@schematics/angular:component": {
+          "style": "scss"
+        }
+      },
+      "root": "apps/epub-to-pdf-lab",
+      "sourceRoot": "apps/epub-to-pdf-lab/src",
+      "prefix": "app",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-angular:application",
+          "options": {
+            "outputPath": "dist/apps/epub-to-pdf-lab",
+            "index": "apps/epub-to-pdf-lab/src/index.html",
+            "browser": "apps/epub-to-pdf-lab/src/main.ts",
+            "polyfills": [
+              "zone.js"
+            ],
+            "tsConfig": "apps/epub-to-pdf-lab/tsconfig.app.json",
+            "inlineStyleLanguage": "scss",
+            "assets": [
+              {
+                "glob": "**/*",
+                "input": "apps/content-lab/src/assets",
+                "output": "assets"
+              }
+            ],
+            "styles": [
+              "apps/epub-to-pdf-lab/src/styles.scss"
+            ],
+            "scripts": []
+          },
+          "configurations": {
+            "production": {
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "500kb",
+                  "maximumError": "1mb"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "2kb",
+                  "maximumError": "4kb"
+                }
+              ],
+              "outputHashing": "all"
+            },
+            "development": {
+              "optimization": false,
+              "extractLicenses": false,
+              "sourceMap": true
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "serve": {
+          "builder": "@angular-devkit/build-angular:dev-server",
+          "options": {
+            "port": 5010
+          },
+          "configurations": {
+            "production": {
+              "buildTarget": "epub-to-pdf-lab:build:production"
+            },
+            "development": {
+              "buildTarget": "epub-to-pdf-lab:build:development"
             }
           },
           "defaultConfiguration": "development"
@@ -746,36 +744,25 @@
                 "glob": "**/*",
                 "input": "apps/content-lab/src/assets",
                 "output": "assets"
-              },
-              {
-                "glob": "**/*",
-                "input": "node_modules/monaco-editor",
-                "output": "assets/monaco-editor"
               }
             ],
             "styles": [
               "apps/csv-editor-lab/src/styles.scss"
             ],
-            "scripts": [],
-            "allowedCommonJsDependencies": [
-              "html2pdf.js"
-            ],
-            "loader": {
-              ".ttf": "file"
-            }
+            "scripts": []
           },
           "configurations": {
             "production": {
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "2mb",
-                  "maximumError": "5mb"
+                  "maximumWarning": "500kb",
+                  "maximumError": "1mb"
                 },
                 {
                   "type": "anyComponentStyle",
-                  "maximumWarning": "6kb",
-                  "maximumError": "10kb"
+                  "maximumWarning": "2kb",
+                  "maximumError": "4kb"
                 }
               ],
               "outputHashing": "all"
@@ -832,36 +819,25 @@
                 "glob": "**/*",
                 "input": "apps/content-lab/src/assets",
                 "output": "assets"
-              },
-              {
-                "glob": "**/*",
-                "input": "node_modules/monaco-editor",
-                "output": "assets/monaco-editor"
               }
             ],
             "styles": [
               "apps/word-counter-lab/src/styles.scss"
             ],
-            "scripts": [],
-            "allowedCommonJsDependencies": [
-              "html2pdf.js"
-            ],
-            "loader": {
-              ".ttf": "file"
-            }
+            "scripts": []
           },
           "configurations": {
             "production": {
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "2mb",
-                  "maximumError": "5mb"
+                  "maximumWarning": "500kb",
+                  "maximumError": "1mb"
                 },
                 {
                   "type": "anyComponentStyle",
-                  "maximumWarning": "6kb",
-                  "maximumError": "10kb"
+                  "maximumWarning": "2kb",
+                  "maximumError": "4kb"
                 }
               ],
               "outputHashing": "all"
@@ -918,36 +894,25 @@
                 "glob": "**/*",
                 "input": "apps/content-lab/src/assets",
                 "output": "assets"
-              },
-              {
-                "glob": "**/*",
-                "input": "node_modules/monaco-editor",
-                "output": "assets/monaco-editor"
               }
             ],
             "styles": [
               "apps/base64-encoder-lab/src/styles.scss"
             ],
-            "scripts": [],
-            "allowedCommonJsDependencies": [
-              "html2pdf.js"
-            ],
-            "loader": {
-              ".ttf": "file"
-            }
+            "scripts": []
           },
           "configurations": {
             "production": {
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "2mb",
-                  "maximumError": "5mb"
+                  "maximumWarning": "500kb",
+                  "maximumError": "1mb"
                 },
                 {
                   "type": "anyComponentStyle",
-                  "maximumWarning": "6kb",
-                  "maximumError": "10kb"
+                  "maximumWarning": "2kb",
+                  "maximumError": "4kb"
                 }
               ],
               "outputHashing": "all"
@@ -1004,36 +969,25 @@
                 "glob": "**/*",
                 "input": "apps/content-lab/src/assets",
                 "output": "assets"
-              },
-              {
-                "glob": "**/*",
-                "input": "node_modules/monaco-editor",
-                "output": "assets/monaco-editor"
               }
             ],
             "styles": [
               "apps/world-clock-lab/src/styles.scss"
             ],
-            "scripts": [],
-            "allowedCommonJsDependencies": [
-              "html2pdf.js"
-            ],
-            "loader": {
-              ".ttf": "file"
-            }
+            "scripts": []
           },
           "configurations": {
             "production": {
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "2mb",
-                  "maximumError": "5mb"
+                  "maximumWarning": "500kb",
+                  "maximumError": "1mb"
                 },
                 {
                   "type": "anyComponentStyle",
-                  "maximumWarning": "6kb",
-                  "maximumError": "10kb"
+                  "maximumWarning": "2kb",
+                  "maximumError": "4kb"
                 }
               ],
               "outputHashing": "all"
@@ -1090,36 +1044,25 @@
                 "glob": "**/*",
                 "input": "apps/content-lab/src/assets",
                 "output": "assets"
-              },
-              {
-                "glob": "**/*",
-                "input": "node_modules/monaco-editor",
-                "output": "assets/monaco-editor"
               }
             ],
             "styles": [
               "apps/flac-player-lab/src/styles.scss"
             ],
-            "scripts": [],
-            "allowedCommonJsDependencies": [
-              "html2pdf.js"
-            ],
-            "loader": {
-              ".ttf": "file"
-            }
+            "scripts": []
           },
           "configurations": {
             "production": {
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "2mb",
-                  "maximumError": "5mb"
+                  "maximumWarning": "500kb",
+                  "maximumError": "1mb"
                 },
                 {
                   "type": "anyComponentStyle",
-                  "maximumWarning": "6kb",
-                  "maximumError": "10kb"
+                  "maximumWarning": "2kb",
+                  "maximumError": "4kb"
                 }
               ],
               "outputHashing": "all"
@@ -1176,36 +1119,25 @@
                 "glob": "**/*",
                 "input": "apps/content-lab/src/assets",
                 "output": "assets"
-              },
-              {
-                "glob": "**/*",
-                "input": "node_modules/monaco-editor",
-                "output": "assets/monaco-editor"
               }
             ],
             "styles": [
               "apps/timeline-visualizer-lab/src/styles.scss"
             ],
-            "scripts": [],
-            "allowedCommonJsDependencies": [
-              "html2pdf.js"
-            ],
-            "loader": {
-              ".ttf": "file"
-            }
+            "scripts": []
           },
           "configurations": {
             "production": {
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "2mb",
-                  "maximumError": "5mb"
+                  "maximumWarning": "500kb",
+                  "maximumError": "1mb"
                 },
                 {
                   "type": "anyComponentStyle",
-                  "maximumWarning": "6kb",
-                  "maximumError": "10kb"
+                  "maximumWarning": "2kb",
+                  "maximumError": "4kb"
                 }
               ],
               "outputHashing": "all"
@@ -1262,36 +1194,25 @@
                 "glob": "**/*",
                 "input": "apps/content-lab/src/assets",
                 "output": "assets"
-              },
-              {
-                "glob": "**/*",
-                "input": "node_modules/monaco-editor",
-                "output": "assets/monaco-editor"
               }
             ],
             "styles": [
               "apps/globe-visualizer-lab/src/styles.scss"
             ],
-            "scripts": [],
-            "allowedCommonJsDependencies": [
-              "html2pdf.js"
-            ],
-            "loader": {
-              ".ttf": "file"
-            }
+            "scripts": []
           },
           "configurations": {
             "production": {
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "2mb",
-                  "maximumError": "5mb"
+                  "maximumWarning": "500kb",
+                  "maximumError": "1mb"
                 },
                 {
                   "type": "anyComponentStyle",
-                  "maximumWarning": "6kb",
-                  "maximumError": "10kb"
+                  "maximumWarning": "2kb",
+                  "maximumError": "4kb"
                 }
               ],
               "outputHashing": "all"
@@ -1348,36 +1269,25 @@
                 "glob": "**/*",
                 "input": "apps/content-lab/src/assets",
                 "output": "assets"
-              },
-              {
-                "glob": "**/*",
-                "input": "node_modules/monaco-editor",
-                "output": "assets/monaco-editor"
               }
             ],
             "styles": [
               "apps/star-map-lab/src/styles.scss"
             ],
-            "scripts": [],
-            "allowedCommonJsDependencies": [
-              "html2pdf.js"
-            ],
-            "loader": {
-              ".ttf": "file"
-            }
+            "scripts": []
           },
           "configurations": {
             "production": {
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "2mb",
-                  "maximumError": "5mb"
+                  "maximumWarning": "500kb",
+                  "maximumError": "1mb"
                 },
                 {
                   "type": "anyComponentStyle",
-                  "maximumWarning": "6kb",
-                  "maximumError": "10kb"
+                  "maximumWarning": "2kb",
+                  "maximumError": "4kb"
                 }
               ],
               "outputHashing": "all"
@@ -1434,36 +1344,25 @@
                 "glob": "**/*",
                 "input": "apps/content-lab/src/assets",
                 "output": "assets"
-              },
-              {
-                "glob": "**/*",
-                "input": "node_modules/monaco-editor",
-                "output": "assets/monaco-editor"
               }
             ],
             "styles": [
               "apps/tetris-lab/src/styles.scss"
             ],
-            "scripts": [],
-            "allowedCommonJsDependencies": [
-              "html2pdf.js"
-            ],
-            "loader": {
-              ".ttf": "file"
-            }
+            "scripts": []
           },
           "configurations": {
             "production": {
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "2mb",
-                  "maximumError": "5mb"
+                  "maximumWarning": "500kb",
+                  "maximumError": "1mb"
                 },
                 {
                   "type": "anyComponentStyle",
-                  "maximumWarning": "6kb",
-                  "maximumError": "10kb"
+                  "maximumWarning": "2kb",
+                  "maximumError": "4kb"
                 }
               ],
               "outputHashing": "all"
@@ -1520,36 +1419,25 @@
                 "glob": "**/*",
                 "input": "apps/content-lab/src/assets",
                 "output": "assets"
-              },
-              {
-                "glob": "**/*",
-                "input": "node_modules/monaco-editor",
-                "output": "assets/monaco-editor"
               }
             ],
             "styles": [
               "apps/markdown-converter-lab/src/styles.scss"
             ],
-            "scripts": [],
-            "allowedCommonJsDependencies": [
-              "html2pdf.js"
-            ],
-            "loader": {
-              ".ttf": "file"
-            }
+            "scripts": []
           },
           "configurations": {
             "production": {
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "2mb",
-                  "maximumError": "5mb"
+                  "maximumWarning": "500kb",
+                  "maximumError": "1mb"
                 },
                 {
                   "type": "anyComponentStyle",
-                  "maximumWarning": "6kb",
-                  "maximumError": "10kb"
+                  "maximumWarning": "2kb",
+                  "maximumError": "4kb"
                 }
               ],
               "outputHashing": "all"
