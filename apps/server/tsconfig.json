@@ -7,13 +7,15 @@
     "moduleResolution": "node",
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
-    "strict": true,
+    "allowJs": true,
+    "checkJs": false,
+    "strict": false,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
-    "declaration": true,
+    "declaration": false,
     "outDir": "../../dist/apps/server"
   },
   "exclude": ["node_modules", "tmp", "dist"],
-  "include": ["**/*.ts"]
+  "include": ["**/*.ts", "**/*.js"]
 }
