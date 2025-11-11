@@ -1,0 +1,60 @@
+<div class="headers-editor">
+  <!-- Common Headers Quick Add -->
+  <div class="quick-add">
+    <span class="quick-add-label">Quick add:</span>
+    <button class="quick-add-btn" (click)="addCommonHeader('Content-Type', 'application/json')">
+      JSON Content-Type
+    </button>
+    <button class="quick-add-btn" (click)="addCommonHeader('Accept', 'application/json')">
+      JSON Accept
+    </button>
+    <button class="quick-add-btn" (click)="addCommonHeader('User-Agent', 'Content-Lab/1.0')">
+      User-Agent
+    </button>
+  </div>
+
+  <!-- Headers List -->
+  <div class="headers-list">
+    <div *ngFor="let header of headers; let i = index" class="header-row">
+      <input
+        type="checkbox"
+        class="header-enabled"
+        [checked]="header.enabled"
+        (change)="updateHeader(i, 'enabled', $any($event.target).checked)"
+        title="Enable/disable header" />
+
+      <input
+        type="text"
+        class="header-key"
+        placeholder="Header name"
+        [value]="header.key"
+        (input)="updateHeader(i, 'key', $any($event.target).value)" />
+
+      <input
+        type="text"
+        class="header-value"
+        placeholder="Value"
+        [value]="header.value"
+        (input)="updateHeader(i, 'value', $any($event.target).value)" />
+
+      <button class="remove-btn" (click)="removeHeader(i)" title="Remove header">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M18 6L6 18M6 6l12 12"/>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="headers.length === 0" class="empty-state">
+      <p>No headers added yet. Click "Add Header" to get started.</p>
+    </div>
+  </div>
+
+  <!-- Add Header Button -->
+  <button class="add-header-btn" (click)="addHeader()">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M12 5v14M5 12h14"/>
+    </svg>
+    Add Header
+  </button>
+</div>

@@ -1,0 +1,253 @@
+<div class="sidebar">
+  <!-- Tabs -->
+  <div class="sidebar-tabs">
+    <button
+      class="sidebar-tab"
+      [class.active]="activeTab === 'collections'"
+      (click)="activeTab = 'collections'">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+      </svg>
+      Collections
+    </button>
+    <button
+      class="sidebar-tab"
+      [class.active]="activeTab === 'history'"
+      (click)="activeTab = 'history'">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="10"/>
+        <polyline points="12 6 12 12 16 14"/>
+      </svg>
+      History
+    </button>
+  </div>
+
+  <!-- Collections Tab -->
+  <div *ngIf="activeTab === 'collections'" class="sidebar-content">
+    <div class="sidebar-header">
+      <h3>Collections</h3>
+      <button class="icon-button" (click)="showNewCollectionModal = true" title="New Collection">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="12" y1="5" x2="12" y2="19"/>
+          <line x1="5" y1="12" x2="19" y2="12"/>
+        </svg>
+      </button>
+    </div>
+
+    <div class="collections-list">
+      <div *ngFor="let collection of collections" class="collection">
+        <div class="collection-header">
+          <span class="collection-name">{{ collection.name }}</span>
+          <div class="collection-actions">
+            <button
+              class="icon-button-small"
+              (click)="onShowNewFolderModal(collection.id)"
+              title="New Folder">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+                <line x1="12" y1="11" x2="12" y2="17"/>
+                <line x1="9" y1="14" x2="15" y2="14"/>
+              </svg>
+            </button>
+            <button
+              class="icon-button-small delete"
+              (click)="onDeleteCollection(collection.id)"
+              title="Delete Collection">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="3 6 5 6 21 6"/>
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Root folders and requests -->
+        <div class="collection-items">
+          <ng-container *ngTemplateOutlet="folderTree; context: { collection: collection, parentId: undefined }">
+          </ng-container>
+        </div>
+      </div>
+
+      <div *ngIf="collections.length === 0" class="empty-state">
+        <p>No collections yet</p>
+        <button class="primary-button" (click)="showNewCollectionModal = true">
+          Create Collection
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- History Tab -->
+  <div *ngIf="activeTab === 'history'" class="sidebar-content">
+    <div class="sidebar-header">
+      <h3>History</h3>
+      <button
+        class="icon-button"
+        (click)="onClearHistory()"
+        [disabled]="history.length === 0"
+        title="Clear History">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="3 6 5 6 21 6"/>
+          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+        </svg>
+      </button>
+    </div>
+
+    <div class="history-list">
+      <div
+        *ngFor="let entry of history"
+        class="history-entry"
+        (click)="onHistoryClick(entry)">
+        <div class="history-entry-header">
+          <span class="method-badge" [style.background-color]="getMethodColor(entry.request.method)">
+            {{ entry.request.method }}
+          </span>
+          <span class="history-timestamp">{{ formatTimestamp(entry.timestamp) }}</span>
+        </div>
+        <div class="history-url">{{ entry.request.url }}</div>
+        <div *ngIf="entry.response" class="history-response">
+          <span class="response-status" [class.success]="entry.response.status >= 200 && entry.response.status < 300">
+            {{ entry.response.status }}
+          </span>
+          <span class="response-time">{{ entry.response.responseTime }}ms</span>
+        </div>
+        <button
+          class="icon-button-small delete history-delete"
+          (click)="onDeleteHistoryEntry(entry.id, $event)"
+          title="Delete">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"/>
+            <line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+
+      <div *ngIf="history.length === 0" class="empty-state">
+        <p>No history yet</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Folder Tree Template (Recursive) -->
+<ng-template #folderTree let-collection="collection" let-parentId="parentId">
+  <!-- Folders -->
+  <div *ngFor="let folder of getFoldersInFolder(collection, parentId)" class="folder-item">
+    <div class="folder-header" (click)="onToggleFolder(collection.id, folder.id)">
+      <svg
+        class="folder-icon"
+        [class.collapsed]="folder.collapsed"
+        width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polyline points="9 18 15 12 9 6"/>
+      </svg>
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+      </svg>
+      <span class="folder-name">{{ folder.name }}</span>
+      <button
+        class="icon-button-small delete"
+        (click)="onDeleteFolder(collection.id, folder.id); $event.stopPropagation()"
+        title="Delete Folder">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="18" y1="6" x2="6" y2="18"/>
+          <line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
+    </div>
+
+    <div *ngIf="!folder.collapsed" class="folder-content">
+      <!-- Nested folders and requests -->
+      <ng-container *ngTemplateOutlet="folderTree; context: { collection: collection, parentId: folder.id }">
+      </ng-container>
+    </div>
+  </div>
+
+  <!-- Requests in this folder/root -->
+  <div
+    *ngFor="let request of getRequestsInFolder(collection, parentId)"
+    class="request-item"
+    (click)="onRequestClick(request)">
+    <span class="method-badge" [style.background-color]="getMethodColor(request.method)">
+      {{ request.method }}
+    </span>
+    <span class="request-name">{{ request.name }}</span>
+    <button
+      class="icon-button-small delete"
+      (click)="onDeleteRequest(collection.id, request.id, $event)"
+      title="Delete Request">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <line x1="18" y1="6" x2="6" y2="18"/>
+        <line x1="6" y1="6" x2="18" y2="18"/>
+      </svg>
+    </button>
+  </div>
+</ng-template>
+
+<!-- New Collection Modal -->
+<div *ngIf="showNewCollectionModal" class="modal-overlay" (click)="showNewCollectionModal = false">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>New Collection</h3>
+      <button class="icon-button" (click)="showNewCollectionModal = false">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="18" y1="6" x2="6" y2="18"/>
+          <line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Name</label>
+        <input
+          type="text"
+          [(ngModel)]="newCollectionName"
+          placeholder="My Collection"
+          (keyup.enter)="onCreateCollection()" />
+      </div>
+      <div class="form-group">
+        <label>Description (optional)</label>
+        <textarea
+          [(ngModel)]="newCollectionDescription"
+          placeholder="Collection description..."
+          rows="3"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="secondary-button" (click)="showNewCollectionModal = false">Cancel</button>
+      <button class="primary-button" (click)="onCreateCollection()" [disabled]="!newCollectionName.trim()">
+        Create
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- New Folder Modal -->
+<div *ngIf="showNewFolderModal" class="modal-overlay" (click)="showNewFolderModal = false">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>New Folder</h3>
+      <button class="icon-button" (click)="showNewFolderModal = false">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="18" y1="6" x2="6" y2="18"/>
+          <line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Folder Name</label>
+        <input
+          type="text"
+          [(ngModel)]="newFolderName"
+          placeholder="My Folder"
+          (keyup.enter)="onCreateFolder()" />
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="secondary-button" (click)="showNewFolderModal = false">Cancel</button>
+      <button class="primary-button" (click)="onCreateFolder()" [disabled]="!newFolderName.trim()">
+        Create
+      </button>
+    </div>
+  </div>
+</div>

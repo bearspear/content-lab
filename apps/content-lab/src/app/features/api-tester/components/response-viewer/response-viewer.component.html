@@ -1,0 +1,108 @@
+<div class="response-viewer">
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-state">
+    <div class="spinner"></div>
+    <p>Sending request...</p>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!response && !isLoading" class="empty-state">
+    <svg class="empty-icon" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9 9 4.03 9 9z"/>
+      <path d="M12 8v8M8 12h8"/>
+    </svg>
+    <p>Enter a URL and click Send to see the response</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="isError && error" class="error-state">
+    <div class="error-header">
+      <svg class="error-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="10"/>
+        <path d="M12 8v4M12 16h.01"/>
+      </svg>
+      <h3>Request Failed</h3>
+    </div>
+    <div class="error-details">
+      <p class="error-type">{{ error.type | uppercase }}</p>
+      <p class="error-message">{{ error.message }}</p>
+      <p class="error-timestamp">{{ error.timestamp | date:'medium' }}</p>
+    </div>
+  </div>
+
+  <!-- Success Response -->
+  <div *ngIf="apiResponse && !isLoading" class="response-content">
+    <!-- Status Bar -->
+    <div class="status-bar">
+      <div class="status-info">
+        <span class="status-code" [ngClass]="statusClass">
+          {{ apiResponse.status }} {{ apiResponse.statusText }}
+        </span>
+        <span class="response-time">{{ apiResponse.responseTime }}ms</span>
+        <span class="response-size">{{ formatSize(apiResponse.size) }}</span>
+      </div>
+      <button class="copy-button" (click)="copyToClipboard(formattedBody)" title="Copy response body">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+          <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+        </svg>
+        Copy
+      </button>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs">
+      <button
+        class="tab"
+        [class.active]="activeTab === 'body'"
+        (click)="activeTab = 'body'">
+        Body
+      </button>
+      <button
+        class="tab"
+        [class.active]="activeTab === 'headers'"
+        (click)="activeTab = 'headers'">
+        Headers ({{ headersArray.length }})
+      </button>
+      <button
+        class="tab"
+        [class.active]="activeTab === 'raw'"
+        (click)="activeTab = 'raw'">
+        Raw
+      </button>
+    </div>
+
+    <!-- Tab Content -->
+    <div class="tab-content">
+      <!-- Body Tab -->
+      <div *ngIf="activeTab === 'body'" class="body-content">
+        <pre class="response-body">{{ formattedBody }}</pre>
+      </div>
+
+      <!-- Headers Tab -->
+      <div *ngIf="activeTab === 'headers'" class="headers-content">
+        <div class="headers-table-wrapper">
+          <table class="headers-table">
+            <thead>
+              <tr>
+                <th>Header</th>
+                <th>Value</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let header of headersArray">
+                <td class="header-key">{{ header.key }}</td>
+                <td class="header-value">{{ header.value }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Raw Tab -->
+      <div *ngIf="activeTab === 'raw'" class="raw-content">
+        <pre class="raw-response">{{ rawResponse }}</pre>
+      </div>
+    </div>
+  </div>
+</div>

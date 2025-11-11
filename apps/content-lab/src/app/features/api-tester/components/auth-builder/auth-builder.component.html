@@ -1,0 +1,126 @@
+<div class="auth-builder">
+  <!-- Auth Type Selector -->
+  <div class="auth-type-selector">
+    <label class="type-label">Authentication Type:</label>
+    <select
+      class="type-select"
+      [value]="selectedType"
+      (change)="onTypeChange($any($event.target).value)">
+      <option [value]="AuthType.NONE">No Auth</option>
+      <option [value]="AuthType.BEARER">Bearer Token</option>
+      <option [value]="AuthType.BASIC">Basic Auth</option>
+      <option [value]="AuthType.API_KEY">API Key</option>
+    </select>
+  </div>
+
+  <!-- Auth Configuration Forms -->
+  <div class="auth-config">
+    <!-- Bearer Token -->
+    <div *ngIf="selectedType === AuthType.BEARER" class="auth-form">
+      <h4>Bearer Token Authentication</h4>
+      <p class="form-hint">The token will be sent in the Authorization header as "Bearer &lt;token&gt;"</p>
+
+      <div class="form-group">
+        <label for="bearer-token">Token</label>
+        <input
+          id="bearer-token"
+          type="text"
+          class="form-input"
+          placeholder="Enter your bearer token"
+          [value]="bearerToken"
+          (input)="bearerToken = $any($event.target).value; onFieldChange()" />
+      </div>
+    </div>
+
+    <!-- Basic Auth -->
+    <div *ngIf="selectedType === AuthType.BASIC" class="auth-form">
+      <h4>Basic Authentication</h4>
+      <p class="form-hint">Credentials will be Base64 encoded and sent in the Authorization header</p>
+
+      <div class="form-group">
+        <label for="basic-username">Username</label>
+        <input
+          id="basic-username"
+          type="text"
+          class="form-input"
+          placeholder="Enter username"
+          [value]="basicUsername"
+          (input)="basicUsername = $any($event.target).value; onFieldChange()" />
+      </div>
+
+      <div class="form-group">
+        <label for="basic-password">Password</label>
+        <input
+          id="basic-password"
+          type="password"
+          class="form-input"
+          placeholder="Enter password"
+          [value]="basicPassword"
+          (input)="basicPassword = $any($event.target).value; onFieldChange()" />
+      </div>
+    </div>
+
+    <!-- API Key -->
+    <div *ngIf="selectedType === AuthType.API_KEY" class="auth-form">
+      <h4>API Key Authentication</h4>
+      <p class="form-hint">Add your API key as a header or query parameter</p>
+
+      <div class="form-group">
+        <label for="api-key-name">Key Name</label>
+        <input
+          id="api-key-name"
+          type="text"
+          class="form-input"
+          placeholder="e.g., X-API-Key or api_key"
+          [value]="apiKeyName"
+          (input)="apiKeyName = $any($event.target).value; onFieldChange()" />
+      </div>
+
+      <div class="form-group">
+        <label for="api-key-value">Key Value</label>
+        <input
+          id="api-key-value"
+          type="text"
+          class="form-input"
+          placeholder="Enter your API key"
+          [value]="apiKeyValue"
+          (input)="apiKeyValue = $any($event.target).value; onFieldChange()" />
+      </div>
+
+      <div class="form-group">
+        <label for="api-key-location">Add To</label>
+        <select
+          id="api-key-location"
+          class="form-select"
+          [value]="apiKeyLocation"
+          (change)="apiKeyLocation = $any($event.target).value; onFieldChange()">
+          <option value="header">Header</option>
+          <option value="query">Query Parameter</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- No Auth -->
+    <div *ngIf="selectedType === AuthType.NONE" class="auth-form empty">
+      <div class="no-auth-message">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"/>
+          <path d="M12 8v4M12 16h.01"/>
+        </svg>
+        <p>No authentication will be sent with this request</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Preview -->
+  <div *ngIf="selectedType !== AuthType.NONE" class="auth-preview">
+    <div class="preview-header">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+        <circle cx="12" cy="12" r="3"/>
+      </svg>
+      <span class="preview-label">Preview:</span>
+    </div>
+    <code class="preview-content">{{ authPreview }}</code>
+  </div>
+</div>
