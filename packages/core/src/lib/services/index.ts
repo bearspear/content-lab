@@ -6,4 +6,5 @@ export * from './state-manager.service';
 export * from './script-loader.service';
 export * from './monaco-theme.service';
 export * from './epub-export.service';
+export * from './epub-pdf-api.service';
 export * from './custom-preload-strategy.service';
