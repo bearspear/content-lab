@@ -19,16 +19,9 @@
       }
     },
     "serve": {
-      "executor": "@nx/js:node",
+      "executor": "nx:run-commands",
       "options": {
-        "buildTarget": "server:build",
-        "watch": true,
-        "inspect": false
-      },
-      "configurations": {
-        "production": {
-          "buildTarget": "server:build:production"
-        }
+        "command": "nodemon --watch apps/server/src --exec 'tsc --project apps/server/tsconfig.app.json && node dist/out-tsc/main.js'"
       }
     },
     "pkg": {

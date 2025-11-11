@@ -25,7 +25,7 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve content-lab",
-    "start:server": "nx serve server",
+    "start:server": "nodemon --watch apps/server/src --exec 'tsc --project apps/server/tsconfig.app.json && node dist/out-tsc/main.js'",
     "start:dev": "concurrently \"npm run start\" \"npm run start:server\"",
     "build": "ng build content-lab",
     "build:server": "nx build server",
