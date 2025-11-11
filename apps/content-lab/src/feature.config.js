@@ -21,6 +21,8 @@ export default {
     'globe-visualizer': { enabled: true },
     'star-map': { enabled: true },
     'tetris': { enabled: true },
-    'epub-to-pdf': { enabled: true }
+    'epub-to-pdf': { enabled: true },
+    'api-tester': { enabled: true },
+    'web-capture': { enabled: true }
   }
 };

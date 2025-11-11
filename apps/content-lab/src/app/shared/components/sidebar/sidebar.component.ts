@@ -47,7 +47,23 @@ export interface ToolCategory {
       </div>
 
       <nav class="sidebar-nav">
-        <div class="category-list">
+        <!-- Loading state -->
+        <div *ngIf="isLoading" class="sidebar-loading">
+          <div class="loading-spinner"></div>
+          <p *ngIf="!isCollapsed">Loading tools...</p>
+        </div>
+
+        <!-- Empty state -->
+        <div *ngIf="!isLoading && categories.length === 0" class="sidebar-empty">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+          </svg>
+          <p *ngIf="!isCollapsed">No tools available</p>
+          <small *ngIf="!isCollapsed">This build has no features enabled</small>
+        </div>
+
+        <!-- Categories list -->
+        <div class="category-list" *ngIf="!isLoading && categories.length > 0">
           <div *ngFor="let category of categories" class="category">
             <div class="category-header"
                  (click)="toggleCategory(category.id)"
@@ -185,6 +201,55 @@ export interface ToolCategory {
       overflow-y: auto;
       overflow-x: hidden;
       padding: 16px 0;
+    }
+
+    .sidebar-loading,
+    .sidebar-empty {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 20px;
+      text-align: center;
+      color: #a0aec0;
+    }
+
+    .sidebar-loading svg,
+    .sidebar-empty svg {
+      width: 48px;
+      height: 48px;
+      margin-bottom: 16px;
+      opacity: 0.5;
+    }
+
+    .sidebar-loading p,
+    .sidebar-empty p {
+      font-size: 0.95rem;
+      font-weight: 500;
+      color: #cbd5e0;
+      margin: 0 0 8px 0;
+    }
+
+    .sidebar-empty small {
+      font-size: 0.8rem;
+      color: #718096;
+      margin: 0;
+    }
+
+    .loading-spinner {
+      width: 40px;
+      height: 40px;
+      border: 3px solid rgba(66, 153, 225, 0.2);
+      border-top-color: #4299e1;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin-bottom: 16px;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
     }
 
     .sidebar-nav::-webkit-scrollbar {
@@ -463,9 +528,10 @@ export class SidebarComponent implements OnInit, OnDestroy {
 
   // Categories will be built dynamically from plugin registry
   categories: ToolCategory[] = [];
+  isLoading = true;
 
-  // Legacy hardcoded categories (kept as fallback)
-  private legacyCategories: ToolCategory[] = [
+  // Legacy hardcoded categories - NO LONGER USED, kept for reference only
+  private legacyCategories_DEPRECATED: ToolCategory[] = [
     {
       id: 'content-design',
       name: 'Content & Design',
@@ -603,6 +669,15 @@ export class SidebarComponent implements OnInit, OnDestroy {
           description: 'View time across time zones'
         },
         {
+          id: 'web-capture',
+          name: 'Web Capture',
+          route: '/tools/web-capture',
+          icon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
+          </svg>`,
+          description: 'Capture webpages with resources'
+        },
+        {
           id: 'flac-player',
           name: 'FLAC Player',
           route: '/tools/flac-player',
@@ -708,19 +783,32 @@ export class SidebarComponent implements OnInit, OnDestroy {
       .subscribe(plugins => {
         this.buildCategoriesFromPlugins(plugins);
       });
+
+    // Set a timeout to show empty state if no plugins load within 3 seconds
+    // This handles production builds with no features enabled
+    setTimeout(() => {
+      if (this.isLoading && this.categories.length === 0) {
+        console.log('[Sidebar] No plugins loaded after timeout - showing empty state');
+        this.isLoading = false;
+      }
+    }, 3000);
   }
 
   /**
    * Build category structure from registered plugins
    */
   private buildCategoriesFromPlugins(plugins: any[]): void {
+    console.log(`[Sidebar] Building categories from ${plugins.length} plugins`);
+
     if (plugins.length === 0) {
-      // Use legacy categories if no plugins loaded yet
-      this.categories = this.legacyCategories;
+      // Don't immediately show empty state - plugins might still be loading
+      // We'll set a timeout to show empty state only if plugins don't load
+      // This prevents flashing empty state during app initialization
       return;
     }
 
-    console.log(`[Sidebar] Building categories from ${plugins.length} plugins`);
+    // Mark as loaded once we receive actual plugins
+    this.isLoading = false;
 
     // Group plugins by category
     const categoryMap = new Map<string, ToolItem[]>();
@@ -750,7 +838,7 @@ export class SidebarComponent implements OnInit, OnDestroy {
       tools: tools
     }));
 
-    console.log(`[Sidebar] Built ${this.categories.length} categories`);
+    console.log(`[Sidebar] Built ${this.categories.length} categories with ${plugins.length} total plugins`);
   }
 
   /**

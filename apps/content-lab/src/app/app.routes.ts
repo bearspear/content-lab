@@ -1,11 +1,10 @@
 import { Routes } from '@angular/router';
 import { FeaturePlugin } from '@content-lab/plugin-system';
 import featureConfig from '../feature.config.js';
+import type { FeatureConfig } from './core/plugin-system/feature-config.interface';
 
-// Import all plugin metadata for route generation
+// Import enabled plugin metadata (generated based on feature configuration)
 import { plugin as markdownToHtmlPlugin } from './features/markdown-to-html/markdown-to-html.plugin';
-// markdown-converter has no main component - only subcomponents
-// import { plugin as markdownConverterPlugin } from './features/markdown-converter/markdown-converter.plugin';
 import { plugin as textEditorPlugin } from './features/text-editor/text-editor.plugin';
 import { plugin as svgEditorPlugin } from './features/svg-editor/svg-editor.plugin';
 import { plugin as jsPlaygroundPlugin } from './features/js-playground/js-playground.plugin';
@@ -21,14 +20,13 @@ import { plugin as timelineVisualizerPlugin } from './features/timeline-visualiz
 import { plugin as globeVisualizerPlugin } from './features/globe-visualizer/globe-visualizer.plugin';
 import { plugin as starMapPlugin } from './features/star-map/star-map.plugin';
 import { plugin as tetrisPlugin } from './features/tetris/tetris.plugin';
-import { plugin as epubToPdfPlugin } from './features/epub-to-pdf/epub-to-pdf.plugin';
 
 /**
- * Map of all available plugins by feature ID
+ * Map of enabled plugins by feature ID
+ * Only features enabled in feature.config.ts are imported
  */
 const allPlugins: Record<string, FeaturePlugin> = {
   'markdown-to-html': markdownToHtmlPlugin,
-  // 'markdown-converter': markdownConverterPlugin, // Disabled - no main component
   'text-editor': textEditorPlugin,
   'svg-editor': svgEditorPlugin,
   'js-playground': jsPlaygroundPlugin,
@@ -43,8 +41,7 @@ const allPlugins: Record<string, FeaturePlugin> = {
   'timeline-visualizer': timelineVisualizerPlugin,
   'globe-visualizer': globeVisualizerPlugin,
   'star-map': starMapPlugin,
-  'tetris': tetrisPlugin,
-  'epub-to-pdf': epubToPdfPlugin
+  'tetris': tetrisPlugin
 };
 
 /**
@@ -64,7 +61,7 @@ function generateRoutes(): Routes {
 
   // Get enabled features from configuration
   const enabledFeatures = Object.entries(featureConfig.features)
-    .filter(([_, config]) => config.enabled)
+    .filter(([_, config]: [string, FeatureConfig]) => config.enabled)
     .map(([featureId, _]) => featureId);
 
   console.log(`[Routes] Generating routes for ${enabledFeatures.length} enabled features`);
@@ -105,6 +102,24 @@ function generateRoutes(): Routes {
     },
     // All plugin routes
     ...pluginRoutes,
+    // Web Capture Gallery (additional route)
+    {
+      path: 'tools/web-capture/gallery',
+      loadComponent: () => import('./features/web-capture/components/capture-gallery/capture-gallery.component').then(m => m.CaptureGalleryComponent),
+      data: {
+        pluginId: 'web-capture-gallery',
+        pluginName: 'Capture Gallery'
+      }
+    },
+    // Web Capture Viewer (additional route with parameter)
+    {
+      path: 'tools/web-capture/view/:id',
+      loadComponent: () => import('./features/web-capture/components/capture-viewer/capture-viewer.component').then(m => m.CaptureViewerComponent),
+      data: {
+        pluginId: 'web-capture-viewer',
+        pluginName: 'Capture Viewer'
+      }
+    },
     // Catch-all redirect
     {
       path: '**',

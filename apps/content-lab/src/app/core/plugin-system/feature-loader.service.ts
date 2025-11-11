@@ -1,6 +1,7 @@
 /**
  * Feature Loader Service
  * Responsible for loading feature plugins based on configuration
+ * AUTO-GENERATED - DO NOT EDIT MANUALLY
  */
 
 import { Injectable } from '@angular/core';
@@ -56,38 +57,27 @@ export class FeatureLoaderService {
 
   /**
    * Dynamically import and register a feature plugin
+   * Only enabled plugins are included in this mapping
    * @param featureId The feature ID to load
    */
   private async loadFeaturePlugin(featureId: string): Promise<void> {
-    // Map feature IDs to their plugin module paths
+    // Map feature IDs to their plugin module paths (only enabled features)
     const pluginPaths: Record<string, string> = {
-      // Content & Design
       'markdown-to-html': '../features/markdown-to-html/markdown-to-html.plugin',
-      'markdown-converter': '../features/markdown-converter/markdown-converter.plugin',
       'text-editor': '../features/text-editor/text-editor.plugin',
       'svg-editor': '../features/svg-editor/svg-editor.plugin',
-
-      // Code & Development
       'js-playground': '../features/js-playground/js-playground.plugin',
       'json-editor': '../features/json-editor/json-editor.plugin',
       'regex-tester': '../features/regex-tester/regex-tester.plugin',
       'diff-checker': '../features/diff-checker/diff-checker.plugin',
-
-      // Data & Text
       'csv-editor': '../features/csv-editor/csv-editor.plugin',
       'word-counter': '../features/word-counter/word-counter.plugin',
-
-      // Utilities
       'base64-encoder': '../features/base64-encoder/base64-encoder.plugin',
       'world-clock': '../features/world-clock/world-clock.plugin',
       'flac-player': '../features/flac-player/flac-player.plugin',
-
-      // Visualizations
       'timeline-visualizer': '../features/timeline-visualizer/timeline-visualizer.plugin',
       'globe-visualizer': '../features/globe-visualizer/globe-visualizer.plugin',
       'star-map': '../features/star-map/star-map.plugin',
-
-      // Games
       'tetris': '../features/tetris/tetris.plugin'
     };
 

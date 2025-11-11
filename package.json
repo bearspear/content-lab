@@ -33,7 +33,10 @@
     "build:all": "npm run build:full && npm run build:lightweight && npm run build:developer && npm run build:writer",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "analyze": "ng build --configuration production --stats-json && npx webpack-bundle-analyzer dist/content-lab/browser/stats.json"
+    "analyze": "ng build --configuration production --stats-json && npx webpack-bundle-analyzer dist/content-lab/browser/stats.json",
+    "deploy:server": "npm run build:lightweight && rm -rf ../content-lab-server/public && cp -r dist/apps/content-lab/browser ../content-lab-server/public && echo '✅ Deployed to content-lab-server/public'",
+    "deploy:server:full": "npm run deploy:server && cd ../content-lab-server && npm run build && echo '✅ Server executables built'",
+    "watch:deploy": "node scripts/watch-and-deploy.js"
   },
   "private": true,
   "dependencies": {

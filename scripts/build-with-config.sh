@@ -35,36 +35,80 @@ case "$CONFIG_NAME" in
 esac
 
 echo "📦 Building Content Lab with '$CONFIG_NAME' configuration..."
-echo "   Config file: src/$CONFIG_FILE"
+echo "   Config file: apps/content-lab/src/$CONFIG_FILE"
 
-# Backup current feature.config.ts
-cp src/feature.config.ts src/feature.config.backup.ts
+# Define paths
+SOURCE_CONFIG="apps/content-lab/src/$CONFIG_FILE"
+TARGET_CONFIG="apps/content-lab/src/feature.config.ts"
+BACKUP_CONFIG="apps/content-lab/src/feature.config.backup.ts"
+ROUTES_FILE="apps/content-lab/src/app/app.routes.ts"
+BACKUP_ROUTES="apps/content-lab/src/app/app.routes.backup.ts"
+LOADER_FILE="apps/content-lab/src/app/core/plugin-system/feature-loader.service.ts"
+BACKUP_LOADER="apps/content-lab/src/app/core/plugin-system/feature-loader.service.backup.ts"
+
+# Backup current feature.config.ts if it exists
+if [ -f "$TARGET_CONFIG" ]; then
+  cp "$TARGET_CONFIG" "$BACKUP_CONFIG"
+  echo "   ✓ Backed up current feature.config.ts"
+fi
+
+# Backup current app.routes.ts
+if [ -f "$ROUTES_FILE" ]; then
+  cp "$ROUTES_FILE" "$BACKUP_ROUTES"
+  echo "   ✓ Backed up current app.routes.ts"
+fi
+
+# Backup current feature-loader.service.ts
+if [ -f "$LOADER_FILE" ]; then
+  cp "$LOADER_FILE" "$BACKUP_LOADER"
+  echo "   ✓ Backed up current feature-loader.service.ts"
+fi
 
 # Copy the selected config to feature.config.ts
 if [ "$CONFIG_NAME" != "full" ]; then
-  cp "src/$CONFIG_FILE" src/feature.config.ts
-  echo "   ✓ Copied $CONFIG_FILE to feature.config.ts"
+  if [ -f "$SOURCE_CONFIG" ]; then
+    # Copy and fix the import path (from ../app to ./app)
+    sed "s|from '../app/|from './app/|g" "$SOURCE_CONFIG" > "$TARGET_CONFIG"
+    echo "   ✓ Copied $CONFIG_FILE to feature.config.ts (fixed import path)"
+  else
+    echo "   ❌ Config file not found: $SOURCE_CONFIG"
+    exit 1
+  fi
 fi
 
-# Build the application
+# Generate routes based on feature configuration
+echo "   Generating routes from feature configuration..."
+node scripts/generate-routes.js "$TARGET_CONFIG" "apps/content-lab/src/app/app.routes.ts"
+
+# Build the application (specify project name)
 echo "   Building..."
-ng build --configuration production
+ng build content-lab --configuration production
 
 BUILD_STATUS=$?
 
-# Restore the backup
-if [ -f src/feature.config.backup.ts ]; then
-  mv src/feature.config.backup.ts src/feature.config.ts
+# Restore the backups
+if [ -f "$BACKUP_CONFIG" ]; then
+  mv "$BACKUP_CONFIG" "$TARGET_CONFIG"
   echo "   ✓ Restored original feature.config.ts"
+fi
+
+if [ -f "$BACKUP_ROUTES" ]; then
+  mv "$BACKUP_ROUTES" "$ROUTES_FILE"
+  echo "   ✓ Restored original app.routes.ts"
+fi
+
+if [ -f "$BACKUP_LOADER" ]; then
+  mv "$BACKUP_LOADER" "$LOADER_FILE"
+  echo "   ✓ Restored original feature-loader.service.ts"
 fi
 
 if [ $BUILD_STATUS -eq 0 ]; then
   echo "✅ Build completed successfully!"
   echo ""
   echo "📊 Bundle size:"
-  du -sh dist/content-lab/browser
+  du -sh dist/apps/content-lab/browser
   echo ""
-  echo "📁 Output directory: dist/content-lab/browser"
+  echo "📁 Output directory: dist/apps/content-lab/browser"
 else
   echo "❌ Build failed"
   exit 1
