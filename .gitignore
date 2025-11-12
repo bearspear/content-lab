@@ -6,6 +6,7 @@ tmp/
 out-tsc/
 bazel-out/
 .angular/
+.nx/
 .sass-cache/
 connect.lock
 coverage/
