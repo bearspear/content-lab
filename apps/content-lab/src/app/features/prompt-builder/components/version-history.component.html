@@ -1,0 +1,244 @@
+<div class="version-history">
+  <!-- Header -->
+  <div class="history-header">
+    <h3>Version History</h3>
+    <button class="btn-close" (click)="closePanel()" title="Close">×</button>
+  </div>
+
+  <!-- Controls -->
+  <div class="history-controls">
+    <!-- Search -->
+    <div class="search-box">
+      <input
+        type="text"
+        [(ngModel)]="searchQuery"
+        (ngModelChange)="onSearchChange()"
+        placeholder="Search versions..."
+        class="search-input"
+      />
+      <span class="search-icon">🔍</span>
+    </div>
+
+    <!-- Actions -->
+    <div class="action-buttons">
+      <button
+        class="btn btn-secondary"
+        (click)="toggleAutoSaves()"
+        [title]="showAutoSaves ? 'Hide auto-saves' : 'Show auto-saves'"
+      >
+        {{ showAutoSaves ? 'Hide' : 'Show' }} Auto-saves
+      </button>
+      <button
+        class="btn btn-secondary"
+        (click)="toggleComparisonMode()"
+        [class.active]="comparisonMode"
+        title="Compare versions"
+      >
+        {{ comparisonMode ? 'Cancel' : 'Compare' }}
+      </button>
+      <button class="btn btn-secondary" (click)="exportHistory()" title="Export version history to file">
+        Export
+      </button>
+      <button class="btn btn-secondary" (click)="importHistory()" title="Import version history from file">
+        Import
+      </button>
+    </div>
+  </div>
+
+  <!-- Comparison Banner -->
+  <div class="comparison-banner" *ngIf="comparisonMode">
+    <div class="banner-content">
+      <span class="banner-text">
+        Select 2 versions to compare ({{ selectedVersions.length }}/2 selected)
+      </span>
+      <button
+        class="btn btn-primary btn-sm"
+        (click)="compareSelected()"
+        [disabled]="selectedVersions.length !== 2"
+      >
+        Compare Selected
+      </button>
+    </div>
+  </div>
+
+  <!-- Version Count -->
+  <div class="version-count">
+    {{ filteredVersions.length }} version{{ filteredVersions.length !== 1 ? 's' : '' }}
+    <span *ngIf="filteredVersions.length !== versions.length">
+      (filtered from {{ versions.length }})
+    </span>
+  </div>
+
+  <!-- Version Timeline -->
+  <div class="version-timeline">
+    <div *ngIf="filteredVersions.length === 0" class="empty-state">
+      <p>No versions found.</p>
+      <button class="btn btn-secondary" (click)="searchQuery = ''; showAutoSaves = true; loadVersionHistory()">
+        Reset Filters
+      </button>
+    </div>
+
+    <div
+      *ngFor="let version of filteredVersions; let i = index"
+      class="version-item"
+      [class.selected]="isVersionSelected(version)"
+      [class.comparison-mode]="comparisonMode"
+      (click)="comparisonMode ? selectVersionForComparison(version) : toggleVersionDetails(version.id)"
+    >
+      <!-- Version Header -->
+      <div class="version-header">
+        <div class="version-info">
+          <div class="version-number">
+            <span class="icon">{{ getVersionIcon(version) }}</span>
+            <span class="number">Version {{ version.version }}</span>
+            <span class="badge" [class]="getVersionBadgeClass(version)">
+              {{ version.metadata?.isAutoSave ? 'Auto' : 'Manual' }}
+            </span>
+          </div>
+          <div class="version-time">
+            {{ getTimeAgo(version.createdAt) }}
+          </div>
+        </div>
+
+        <div class="version-actions" *ngIf="!comparisonMode">
+          <button
+            class="btn-icon"
+            (click)="restoreVersion(version); $event.stopPropagation()"
+            title="Restore this version"
+          >
+            ↻
+          </button>
+          <button
+            class="btn-icon btn-danger"
+            (click)="deleteVersion(version, $event)"
+            title="Delete this version"
+          >
+            ✕
+          </button>
+        </div>
+
+        <div class="comparison-checkbox" *ngIf="comparisonMode">
+          <input
+            type="checkbox"
+            [checked]="isVersionSelected(version)"
+            (click)="$event.stopPropagation()"
+            (change)="selectVersionForComparison(version)"
+          />
+        </div>
+      </div>
+
+      <!-- Version Details (expandable) -->
+      <div class="version-details" *ngIf="isVersionExpanded(version.id) && !comparisonMode">
+        <div class="detail-section" *ngIf="version.changeDescription">
+          <strong>Change Description:</strong>
+          <p>{{ version.changeDescription }}</p>
+        </div>
+
+        <!-- Tag Management Section -->
+        <div class="detail-section">
+          <div class="tag-header">
+            <strong>Tags:</strong>
+            <button
+              class="btn-icon btn-tag-edit"
+              (click)="toggleTagEditing(version.id); $event.stopPropagation()"
+              [title]="editingTagsForVersion === version.id ? 'Close tag editor' : 'Manage tags'"
+            >
+              {{ editingTagsForVersion === version.id ? '✕' : '🏷️' }}
+            </button>
+          </div>
+
+          <!-- Display Tags -->
+          <div class="tag-list" *ngIf="version.tags && version.tags.length > 0">
+            <span *ngFor="let tag of version.tags" class="tag">
+              {{ tag }}
+              <button
+                *ngIf="editingTagsForVersion === version.id"
+                class="tag-remove"
+                (click)="removeTag(version, tag, $event)"
+                title="Remove tag"
+              >
+                ×
+              </button>
+            </span>
+          </div>
+          <div class="no-tags" *ngIf="!version.tags || version.tags.length === 0">
+            No tags
+          </div>
+
+          <!-- Add Tag Input -->
+          <div class="tag-input-container" *ngIf="editingTagsForVersion === version.id">
+            <input
+              type="text"
+              class="tag-input"
+              [(ngModel)]="newTagInput"
+              (keydown)="onTagInputKeydown(version, $event)"
+              (click)="$event.stopPropagation()"
+              placeholder="Add new tag..."
+              maxlength="30"
+            />
+            <button
+              class="btn-icon btn-add-tag"
+              (click)="addTag(version, $event)"
+              title="Add tag"
+            >
+              +
+            </button>
+          </div>
+        </div>
+
+        <div class="detail-section" *ngIf="version.metadata">
+          <strong>Metadata:</strong>
+          <div class="metadata-grid">
+            <div class="meta-item">
+              <span class="meta-label">Messages:</span>
+              <span class="meta-value">{{ version.metadata.messageCount }}</span>
+            </div>
+            <div class="meta-item">
+              <span class="meta-label">Characters:</span>
+              <span class="meta-value">{{ version.metadata.characterCount?.toLocaleString() }}</span>
+            </div>
+            <div class="meta-item" *ngIf="version.metadata.tokenCount">
+              <span class="meta-label">Tokens:</span>
+              <span class="meta-value">~{{ version.metadata.tokenCount.toLocaleString() }}</span>
+            </div>
+            <div class="meta-item" *ngIf="version.metadata.source">
+              <span class="meta-label">Source:</span>
+              <span class="meta-value">{{ version.metadata.source }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="detail-section">
+          <strong>Snapshot Info:</strong>
+          <div class="snapshot-info">
+            <div class="info-row">
+              <span>Prompt Name:</span>
+              <span>{{ version.snapshot.name }}</span>
+            </div>
+            <div class="info-row" *ngIf="version.snapshot.description">
+              <span>Description:</span>
+              <span>{{ version.snapshot.description }}</span>
+            </div>
+            <div class="info-row">
+              <span>Created:</span>
+              <span>{{ formatDate(version.createdAt) }}</span>
+            </div>
+            <div class="info-row" *ngIf="version.createdBy">
+              <span>Created By:</span>
+              <span>{{ version.createdBy }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="detail-actions">
+          <button class="btn btn-primary btn-sm" (click)="restoreVersion(version); $event.stopPropagation()">
+            Restore This Version
+          </button>
+        </div>
+      </div>
+
+      <!-- Timeline connector (except for last item) -->
+      <div class="timeline-connector" *ngIf="i < filteredVersions.length - 1"></div>
+    </div>
+  </div>
+</div>

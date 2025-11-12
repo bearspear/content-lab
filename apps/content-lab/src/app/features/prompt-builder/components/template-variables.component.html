@@ -1,0 +1,126 @@
+<div class="template-variables" *ngIf="template">
+  <!-- Header -->
+  <div class="variables-header">
+    <h3>Template Variables</h3>
+    <p class="template-name">{{ template.name }}</p>
+  </div>
+
+  <!-- Variables Form -->
+  <div class="variables-form" *ngIf="template.variables && template.variables.length > 0">
+    <div *ngFor="let variable of template.variables" class="form-group">
+      <label [for]="'var-' + variable.name" class="form-label">
+        {{ variable.label }}
+        <span *ngIf="variable.required" class="required-badge">Required</span>
+      </label>
+
+      <p class="variable-description" *ngIf="variable.description">
+        {{ variable.description }}
+      </p>
+
+      <!-- Text Input -->
+      <input
+        *ngIf="!variable.type || variable.type === 'text'"
+        type="text"
+        [id]="'var-' + variable.name"
+        [(ngModel)]="variableValues[variable.name]"
+        (ngModelChange)="onVariableChange()"
+        [placeholder]="variable.defaultValue || ''"
+        class="form-control"
+      />
+
+      <!-- Textarea Input -->
+      <textarea
+        *ngIf="variable.type === 'textarea'"
+        [id]="'var-' + variable.name"
+        [(ngModel)]="variableValues[variable.name]"
+        (ngModelChange)="onVariableChange()"
+        [placeholder]="variable.defaultValue || ''"
+        class="form-control textarea-control"
+        rows="4"
+      ></textarea>
+
+      <!-- Number Input -->
+      <input
+        *ngIf="variable.type === 'number'"
+        type="number"
+        [id]="'var-' + variable.name"
+        [(ngModel)]="variableValues[variable.name]"
+        (ngModelChange)="onVariableChange()"
+        [placeholder]="variable.defaultValue || ''"
+        class="form-control"
+      />
+
+      <!-- Select Input -->
+      <select
+        *ngIf="variable.type === 'select' && variable.options"
+        [id]="'var-' + variable.name"
+        [(ngModel)]="variableValues[variable.name]"
+        (ngModelChange)="onVariableChange()"
+        class="form-control"
+      >
+        <option value="">-- Select --</option>
+        <option *ngFor="let option of variable.options" [value]="option">
+          {{ option }}
+        </option>
+      </select>
+    </div>
+
+    <!-- Actions -->
+    <div class="form-actions">
+      <button
+        class="btn-secondary"
+        (click)="resetVariables()"
+        type="button"
+      >
+        Reset to Defaults
+      </button>
+      <button
+        class="btn-preview"
+        (click)="togglePreview()"
+        type="button"
+      >
+        {{ showPreview ? 'Hide' : 'Show' }} Preview
+      </button>
+    </div>
+  </div>
+
+  <!-- No Variables Message -->
+  <div class="no-variables" *ngIf="!template.variables || template.variables.length === 0">
+    <p>This template has no customizable variables.</p>
+    <p class="hint">The template will be applied as-is.</p>
+  </div>
+
+  <!-- Preview Section -->
+  <div class="preview-section" *ngIf="showPreview && interpolatedResult">
+    <h4>Preview</h4>
+
+    <div class="preview-block" *ngIf="interpolatedResult.systemPrompt">
+      <h5>System Prompt</h5>
+      <div class="preview-content">{{ interpolatedResult.systemPrompt }}</div>
+    </div>
+
+    <div class="preview-block">
+      <h5>User Prompt</h5>
+      <div class="preview-content">{{ interpolatedResult.userPrompt }}</div>
+    </div>
+  </div>
+
+  <!-- Apply Button -->
+  <div class="apply-section">
+    <div class="validation-errors" *ngIf="!isValid()">
+      <p class="error-message">Please fill in all required variables:</p>
+      <ul class="error-list">
+        <li *ngFor="let error of getValidationErrors()">{{ error }}</li>
+      </ul>
+    </div>
+
+    <button
+      class="btn-primary btn-apply"
+      (click)="apply()"
+      [disabled]="!isValid()"
+      type="button"
+    >
+      Apply Template to Prompt
+    </button>
+  </div>
+</div>

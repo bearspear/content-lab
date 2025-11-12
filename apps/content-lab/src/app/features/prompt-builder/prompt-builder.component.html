@@ -9,8 +9,10 @@
     </div>
   </div>
 
-  <div class="main-content">
-    <!-- Prompt Metadata -->
+  <div class="content-wrapper">
+    <!-- Main Content Area -->
+    <div class="main-content">
+      <!-- Prompt Metadata -->
     <div class="prompt-metadata">
       <div class="metadata-field">
         <label for="prompt-name">Prompt Name</label>
@@ -39,6 +41,27 @@
     <!-- Message Controls -->
     <div class="message-controls">
       <div class="control-group">
+        <button
+          class="btn btn-template"
+          (click)="openTemplateBrowser()"
+          title="Browse and use prompt templates"
+        >
+          📚 Browse Templates
+        </button>
+        <button
+          class="btn btn-version"
+          (click)="createManualVersion()"
+          title="Save current version"
+        >
+          💾 Save Version
+        </button>
+        <button
+          class="btn btn-version"
+          (click)="openVersionHistory()"
+          title="View version history"
+        >
+          📜 History ({{ getVersionCount() }})
+        </button>
         <button
           class="btn btn-primary"
           (click)="addMessage(MessageRole.System)"
@@ -130,20 +153,70 @@
       </div>
     </div>
 
-    <!-- Export Section -->
-    <div class="export-section">
-      <h3>Export Prompt</h3>
-      <div class="export-buttons">
-        <button class="btn btn-secondary" (click)="exportAsJSON()">
-          📄 Export as JSON
-        </button>
-        <button class="btn btn-secondary" (click)="exportAsAPIFormat()">
-          🔌 Export as API Format
-        </button>
-        <button class="btn btn-secondary" (click)="exportAsText()">
-          📝 Export as Text
-        </button>
+      <!-- Export Section -->
+      <div class="export-section">
+        <h3>Export Prompt</h3>
+        <div class="export-buttons">
+          <button class="btn btn-secondary" (click)="exportAsJSON()">
+            📄 Export as JSON
+          </button>
+          <button class="btn btn-secondary" (click)="exportAsAPIFormat()">
+            🔌 Export as API Format
+          </button>
+          <button class="btn btn-secondary" (click)="exportAsText()">
+            📝 Export as Text
+          </button>
+        </div>
       </div>
+    </div>
+
+    <!-- Sidebar with Token Counter -->
+    <div class="sidebar">
+      <app-token-counter [prompt]="currentPrompt"></app-token-counter>
+    </div>
+  </div>
+
+  <!-- Template Browser Modal -->
+  <div class="modal-overlay" *ngIf="showTemplateBrowser" (click)="closeTemplateBrowser()">
+    <div class="modal-container" (click)="$event.stopPropagation()">
+      <app-template-browser
+        (templateSelected)="onTemplateSelected($event)"
+        (closeModal)="closeTemplateBrowser()"
+      ></app-template-browser>
+    </div>
+  </div>
+
+  <!-- Template Variables Modal -->
+  <div class="modal-overlay" *ngIf="showTemplateVariables" (click)="closeTemplateVariables()">
+    <div class="modal-container modal-variables" (click)="$event.stopPropagation()">
+      <div class="modal-close-btn" (click)="closeTemplateVariables()">×</div>
+      <app-template-variables
+        [template]="selectedTemplate"
+        (applyTemplate)="onTemplateApplied($event)"
+      ></app-template-variables>
+    </div>
+  </div>
+
+  <!-- Version History Modal -->
+  <div class="modal-overlay" *ngIf="showVersionHistory" (click)="closeVersionHistory()">
+    <div class="modal-container modal-history" (click)="$event.stopPropagation()">
+      <app-version-history
+        [prompt]="currentPrompt"
+        (versionRestored)="onVersionRestored($event)"
+        (compareVersions)="onCompareVersions($event)"
+        (close)="closeVersionHistory()"
+      ></app-version-history>
+    </div>
+  </div>
+
+  <!-- Version Diff Modal -->
+  <div class="modal-overlay" *ngIf="showVersionDiff && versionForComparison.oldVersion && versionForComparison.newVersion" (click)="closeVersionDiff()">
+    <div class="modal-container modal-diff" (click)="$event.stopPropagation()">
+      <app-version-diff
+        [oldVersion]="versionForComparison.oldVersion"
+        [newVersion]="versionForComparison.newVersion"
+        (close)="closeVersionDiff()"
+      ></app-version-diff>
     </div>
   </div>
 </div>

@@ -1,0 +1,209 @@
+<div class="token-counter">
+  <!-- Header -->
+  <div class="counter-header">
+    <h3>Token Count & Cost Estimation</h3>
+    <button
+      class="btn-compare"
+      (click)="toggleModelComparison()"
+      [class.active]="showModelComparison"
+      title="Compare costs across models"
+    >
+      {{ showModelComparison ? 'Hide' : 'Show' }} Comparison
+    </button>
+  </div>
+
+  <!-- Model Selection -->
+  <div class="model-selection">
+    <div class="form-group">
+      <label for="model-select">LLM Model</label>
+      <select
+        id="model-select"
+        class="model-select"
+        [(ngModel)]="selectedModelId"
+        (ngModelChange)="onModelChange()"
+      >
+        <optgroup
+          *ngFor="let provider of [LLMProvider.Anthropic, LLMProvider.OpenAI, LLMProvider.Google, LLMProvider.Cohere]"
+          [label]="getProviderDisplayName(provider)"
+        >
+          <option
+            *ngFor="let model of getModelsByProvider(provider)"
+            [value]="model.id"
+          >
+            {{ model.name }}
+          </option>
+        </optgroup>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="output-tokens">Expected Output Tokens</label>
+      <input
+        id="output-tokens"
+        type="number"
+        class="form-input"
+        [(ngModel)]="expectedOutputTokens"
+        (ngModelChange)="onOutputTokensChange()"
+        min="1"
+        max="100000"
+        step="100"
+      />
+    </div>
+  </div>
+
+  <!-- Warnings -->
+  <div class="warnings" *ngIf="warnings.length > 0">
+    <div class="warning-item" *ngFor="let warning of warnings">
+      <span class="warning-icon">⚠️</span>
+      <span class="warning-text">{{ warning }}</span>
+    </div>
+  </div>
+
+  <!-- Token Count Summary -->
+  <div class="token-summary" *ngIf="tokenCount">
+    <div class="summary-card">
+      <div class="summary-label">Input Tokens</div>
+      <div class="summary-value">{{ formatTokens(tokenCount.totalTokens) }}</div>
+      <div class="summary-detail">{{ tokenCount.totalCharacters.toLocaleString() }} characters</div>
+    </div>
+
+    <div class="summary-card">
+      <div class="summary-label">Output Tokens</div>
+      <div class="summary-value">{{ formatTokens(expectedOutputTokens) }}</div>
+      <div class="summary-detail">Expected response</div>
+    </div>
+
+    <div class="summary-card">
+      <div class="summary-label">Total Tokens</div>
+      <div class="summary-value">
+        {{ formatTokens(tokenCount.totalTokens + expectedOutputTokens) }}
+      </div>
+      <div class="summary-detail">
+        <span
+          class="context-usage"
+          [class]="getContextUsageColor(getContextUsagePercent())"
+        >
+          {{ getContextUsagePercent().toFixed(1) }}% of context window
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cost Estimation -->
+  <div class="cost-estimation" *ngIf="costEstimation">
+    <h4>Cost Estimation</h4>
+    <div class="cost-grid">
+      <div class="cost-item">
+        <span class="cost-label">Input Cost:</span>
+        <span class="cost-value">{{ formatCost(costEstimation.inputCost) }}</span>
+      </div>
+      <div class="cost-item">
+        <span class="cost-label">Output Cost:</span>
+        <span class="cost-value">{{ formatCost(costEstimation.outputCost) }}</span>
+      </div>
+      <div class="cost-item total">
+        <span class="cost-label">Total Per Request:</span>
+        <span class="cost-value">{{ formatCost(costEstimation.totalCost) }}</span>
+      </div>
+    </div>
+
+    <!-- Cost at scale -->
+    <div class="cost-scale">
+      <div class="scale-item">
+        <span class="scale-count">100 requests:</span>
+        <span class="scale-cost">{{ formatCost(costEstimation.totalCost * 100) }}</span>
+      </div>
+      <div class="scale-item">
+        <span class="scale-count">1,000 requests:</span>
+        <span class="scale-cost">{{ formatCost(costEstimation.totalCost * 1000) }}</span>
+      </div>
+      <div class="scale-item">
+        <span class="scale-count">10,000 requests:</span>
+        <span class="scale-cost">{{ formatCost(costEstimation.totalCost * 10000) }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Message Breakdown -->
+  <div class="message-breakdown" *ngIf="tokenCount && tokenCount.messageBreakdown.length > 0">
+    <h4>Message Breakdown</h4>
+    <div class="breakdown-list">
+      <div
+        class="breakdown-item"
+        *ngFor="let msgToken of tokenCount.messageBreakdown; let i = index"
+      >
+        <div class="breakdown-header" (click)="toggleMessageBreakdown(msgToken.messageId)">
+          <div class="breakdown-info">
+            <span class="message-role" [class]="'role-' + msgToken.role">
+              {{ msgToken.role }}
+            </span>
+            <span class="message-index">#{{ i + 1 }}</span>
+          </div>
+          <div class="breakdown-stats">
+            <span class="token-count">{{ formatTokens(msgToken.totalTokens) }} tokens</span>
+            <span class="expand-icon">{{ isMessageExpanded(msgToken.messageId) ? '▼' : '▶' }}</span>
+          </div>
+        </div>
+        <div class="breakdown-details" *ngIf="isMessageExpanded(msgToken.messageId)">
+          <div class="detail-row">
+            <span class="detail-label">Content tokens:</span>
+            <span class="detail-value">{{ formatTokens(msgToken.contentTokens) }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Overhead:</span>
+            <span class="detail-value">
+              {{ formatTokens(msgToken.totalTokens - msgToken.contentTokens) }}
+            </span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Characters:</span>
+            <span class="detail-value">{{ msgToken.characterCount.toLocaleString() }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Model Comparison -->
+  <div class="model-comparison" *ngIf="showModelComparison && comparisonModels.length > 0">
+    <h4>Cost Comparison Across Models</h4>
+    <div class="comparison-table">
+      <table>
+        <thead>
+          <tr>
+            <th>Model</th>
+            <th>Provider</th>
+            <th>Input Tokens</th>
+            <th>Output Tokens</th>
+            <th>Total Cost</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr
+            *ngFor="let estimation of comparisonModels"
+            [class.selected-model]="estimation.model.id === selectedModelId"
+          >
+            <td class="model-name">{{ estimation.model.name }}</td>
+            <td class="model-provider">{{ estimation.model.provider }}</td>
+            <td class="token-value">{{ formatTokens(estimation.inputTokens) }}</td>
+            <td class="token-value">{{ formatTokens(estimation.outputTokens) }}</td>
+            <td class="cost-value">{{ formatCost(estimation.totalCost) }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="comparison-note">
+      <strong>Note:</strong> Token counts are estimates and may vary slightly from actual API usage.
+      Prices shown are approximate based on current pricing tiers.
+    </div>
+  </div>
+
+  <!-- Footer Info -->
+  <div class="counter-footer">
+    <p class="footer-note">
+      Token counting uses a ~4 characters per token approximation.
+      Actual token counts may vary by model and language.
+    </p>
+  </div>
+</div>

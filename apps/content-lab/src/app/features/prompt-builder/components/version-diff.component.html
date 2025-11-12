@@ -1,0 +1,161 @@
+<div class="version-diff" *ngIf="comparison && diff">
+  <!-- Header -->
+  <div class="diff-header">
+    <h3>Version Comparison</h3>
+    <button class="btn-close" (click)="closeView()" title="Close">×</button>
+  </div>
+
+  <!-- Version Info -->
+  <div class="version-info-bar">
+    <div class="version-info old-version">
+      <div class="version-label">Old Version</div>
+      <div class="version-number">Version {{ oldVersion.version }}</div>
+      <div class="version-date">{{ formatDate(oldVersion.createdAt) }}</div>
+    </div>
+    <div class="comparison-arrow">→</div>
+    <div class="version-info new-version">
+      <div class="version-label">New Version</div>
+      <div class="version-number">Version {{ newVersion.version }}</div>
+      <div class="version-date">{{ formatDate(newVersion.createdAt) }}</div>
+    </div>
+  </div>
+
+  <!-- Summary -->
+  <div class="diff-summary">
+    <h4>Summary of Changes</h4>
+    <div class="summary-stats">
+      <div class="stat-item">
+        <span class="stat-label">Total Changes:</span>
+        <span class="stat-value">{{ diff.summary.totalChanges }}</span>
+      </div>
+      <div class="stat-item" *ngIf="diff.summary.messagesAdded > 0">
+        <span class="stat-label">Messages Added:</span>
+        <span class="stat-value added">+{{ diff.summary.messagesAdded }}</span>
+      </div>
+      <div class="stat-item" *ngIf="diff.summary.messagesRemoved > 0">
+        <span class="stat-label">Messages Removed:</span>
+        <span class="stat-value removed">-{{ diff.summary.messagesRemoved }}</span>
+      </div>
+      <div class="stat-item" *ngIf="diff.summary.messagesModified > 0">
+        <span class="stat-label">Messages Modified:</span>
+        <span class="stat-value modified">~{{ diff.summary.messagesModified }}</span>
+      </div>
+      <div class="stat-item" *ngIf="diff.summary.metadataChanged">
+        <span class="stat-label">Metadata Changed:</span>
+        <span class="stat-value">Yes</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- No Changes Message -->
+  <div class="no-changes" *ngIf="!hasChanges()">
+    <p>No changes detected between these versions.</p>
+  </div>
+
+  <!-- Detailed Diff -->
+  <div class="diff-content" *ngIf="hasChanges()">
+    <!-- Name Change -->
+    <div class="diff-section" *ngIf="hasPropertyChanged(diff.name)">
+      <h4>Name Changed</h4>
+      <div class="side-by-side">
+        <div class="side old-side">
+          <div class="side-label">Old</div>
+          <div class="side-content removed">{{ diff.name?.old }}</div>
+        </div>
+        <div class="side new-side">
+          <div class="side-label">New</div>
+          <div class="side-content added">{{ diff.name?.new }}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Description Change -->
+    <div class="diff-section" *ngIf="hasPropertyChanged(diff.description)">
+      <h4>Description Changed</h4>
+      <div class="side-by-side">
+        <div class="side old-side">
+          <div class="side-label">Old</div>
+          <div class="side-content removed">{{ diff.description?.old || '(empty)' }}</div>
+        </div>
+        <div class="side new-side">
+          <div class="side-label">New</div>
+          <div class="side-content added">{{ diff.description?.new || '(empty)' }}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Message Changes -->
+    <div class="diff-section" *ngIf="diff.messages && diff.messages.length > 0">
+      <h4>Message Changes</h4>
+      <div class="message-diffs">
+        <div
+          *ngFor="let msgDiff of diff.messages"
+          class="message-diff"
+          [class]="getDiffTypeClass(msgDiff.type)"
+        >
+          <div class="message-diff-header">
+            <span class="diff-icon">{{ getDiffIcon(msgDiff.type) }}</span>
+            <span class="diff-summary">{{ getMessageDiffSummary(msgDiff) }}</span>
+          </div>
+
+          <!-- For Added Messages -->
+          <div class="message-content" *ngIf="msgDiff.type === 'added' && msgDiff.newMessage">
+            <div class="message-meta">
+              <span class="role-badge" [class]="'role-' + msgDiff.newMessage.role">
+                {{ msgDiff.newMessage.role }}
+              </span>
+            </div>
+            <div class="message-text added">{{ msgDiff.newMessage.content }}</div>
+          </div>
+
+          <!-- For Removed Messages -->
+          <div class="message-content" *ngIf="msgDiff.type === 'removed' && msgDiff.oldMessage">
+            <div class="message-meta">
+              <span class="role-badge" [class]="'role-' + msgDiff.oldMessage.role">
+                {{ msgDiff.oldMessage.role }}
+              </span>
+            </div>
+            <div class="message-text removed">{{ msgDiff.oldMessage.content }}</div>
+          </div>
+
+          <!-- For Modified Messages -->
+          <div class="message-content" *ngIf="msgDiff.type === 'modified' && msgDiff.oldMessage && msgDiff.newMessage">
+            <div class="side-by-side">
+              <div class="side old-side">
+                <div class="side-label">
+                  <span class="role-badge" [class]="'role-' + msgDiff.oldMessage.role">
+                    {{ msgDiff.oldMessage.role }}
+                  </span>
+                  <span>(Old)</span>
+                </div>
+                <div class="side-content removed">{{ msgDiff.oldMessage.content }}</div>
+              </div>
+              <div class="side new-side">
+                <div class="side-label">
+                  <span class="role-badge" [class]="'role-' + msgDiff.newMessage.role">
+                    {{ msgDiff.newMessage.role }}
+                  </span>
+                  <span>(New)</span>
+                </div>
+                <div class="side-content added">{{ msgDiff.newMessage.content }}</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- For Unchanged Messages (collapsed view) -->
+          <div class="message-content" *ngIf="msgDiff.type === 'unchanged'">
+            <div class="unchanged-indicator">No changes</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Metadata Changes -->
+    <div class="diff-section" *ngIf="diff.summary.metadataChanged">
+      <h4>Metadata Changed</h4>
+      <div class="metadata-note">
+        Metadata has been modified. Check the full version details for specifics.
+      </div>
+    </div>
+  </div>
+</div>
