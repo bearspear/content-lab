@@ -23,6 +23,11 @@ export default {
     'tetris': { enabled: true },
     'epub-to-pdf': { enabled: true },
     'api-tester': { enabled: true },
-    'web-capture': { enabled: true }
+    // TODO: web-capture disabled temporarily - needs plugin file creation
+    // Backend APIs functional, but frontend components incomplete
+    // See: apps/server/src/api/routes/web-capture.routes.js (backend working)
+    // See: apps/content-lab/src/app/features/web-capture/components/ (frontend incomplete)
+    // To enable: Create web-capture.plugin.ts following standard plugin pattern
+    'web-capture': { enabled: false }
   }
 };

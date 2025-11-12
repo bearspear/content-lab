@@ -24,9 +24,12 @@
   "homepage": "https://github.com/mbehringer/content-lab#readme",
   "scripts": {
     "ng": "ng",
+    "validate:plugins": "node scripts/validate-plugins.js",
     "start": "ng serve content-lab",
     "start:server": "nodemon --watch apps/server/src --exec 'tsc --project apps/server/tsconfig.app.json && node dist/out-tsc/main.js'",
+    "prestart:dev": "npm run validate:plugins",
     "start:dev": "concurrently \"npm run start\" \"npm run start:server\"",
+    "prebuild": "npm run validate:plugins",
     "build": "ng build content-lab",
     "build:server": "nx build server",
     "build:full": "bash scripts/build-with-config.sh full",

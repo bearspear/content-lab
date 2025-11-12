@@ -3,6 +3,21 @@ import { FeaturePlugin } from '@content-lab/plugin-system';
 import featureConfig from '../feature.config.js';
 import type { FeatureConfig } from './core/plugin-system/feature-config.interface';
 
+/**
+ * PLUGIN REGISTRATION REQUIREMENTS
+ *
+ * When adding a new plugin, you MUST register it in 3 places:
+ * 1. Add import statement below (line ~7-24)
+ * 2. Add to allPlugins map (line ~30-48)
+ * 3. Add to pluginPaths in feature-loader.service.ts
+ *
+ * VALIDATION: Run `npm run validate:plugins` to verify registration
+ * GUIDE: See docs/PLUGIN_DEVELOPMENT_GUIDE.md for detailed instructions
+ *
+ * Missing any of these steps will cause "orphaned plugins" that are enabled
+ * but not accessible. The validation script will catch this before build/start.
+ */
+
 // Import enabled plugin metadata (generated based on feature configuration)
 import { plugin as markdownToHtmlPlugin } from './features/markdown-to-html/markdown-to-html.plugin';
 import { plugin as textEditorPlugin } from './features/text-editor/text-editor.plugin';
@@ -20,10 +35,15 @@ import { plugin as timelineVisualizerPlugin } from './features/timeline-visualiz
 import { plugin as globeVisualizerPlugin } from './features/globe-visualizer/globe-visualizer.plugin';
 import { plugin as starMapPlugin } from './features/star-map/star-map.plugin';
 import { plugin as tetrisPlugin } from './features/tetris/tetris.plugin';
+import { plugin as apiTesterPlugin } from './features/api-tester/api-tester.plugin';
+import { plugin as epubToPdfPlugin } from './features/epub-to-pdf/epub-to-pdf.plugin';
 
 /**
  * Map of enabled plugins by feature ID
  * Only features enabled in feature.config.ts are imported
+ *
+ * ⚠️  IMPORTANT: When adding a plugin, add it here AND in feature-loader.service.ts
+ * Run `npm run validate:plugins` to verify all registrations are correct
  */
 const allPlugins: Record<string, FeaturePlugin> = {
   'markdown-to-html': markdownToHtmlPlugin,
@@ -41,7 +61,9 @@ const allPlugins: Record<string, FeaturePlugin> = {
   'timeline-visualizer': timelineVisualizerPlugin,
   'globe-visualizer': globeVisualizerPlugin,
   'star-map': starMapPlugin,
-  'tetris': tetrisPlugin
+  'tetris': tetrisPlugin,
+  'api-tester': apiTesterPlugin,
+  'epub-to-pdf': epubToPdfPlugin
 };
 
 /**

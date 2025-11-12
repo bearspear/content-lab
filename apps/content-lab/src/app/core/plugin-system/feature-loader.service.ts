@@ -1,7 +1,10 @@
 /**
  * Feature Loader Service
  * Responsible for loading feature plugins based on configuration
- * AUTO-GENERATED - DO NOT EDIT MANUALLY
+ *
+ * ⚠️  PLUGIN REGISTRATION: When adding a new plugin, update pluginPaths map below
+ * Run `npm run validate:plugins` to verify registration
+ * See docs/PLUGIN_DEVELOPMENT_GUIDE.md for complete instructions
  */
 
 import { Injectable } from '@angular/core';
@@ -61,7 +64,11 @@ export class FeatureLoaderService {
    * @param featureId The feature ID to load
    */
   private async loadFeaturePlugin(featureId: string): Promise<void> {
-    // Map feature IDs to their plugin module paths (only enabled features)
+    /**
+     * ⚠️  IMPORTANT: When adding a plugin, add it here AND in app.routes.ts
+     * Map feature IDs to their plugin module paths (only enabled features)
+     * Paths are relative to this file - do NOT include .ts extension
+     */
     const pluginPaths: Record<string, string> = {
       'markdown-to-html': '../features/markdown-to-html/markdown-to-html.plugin',
       'text-editor': '../features/text-editor/text-editor.plugin',
@@ -78,7 +85,9 @@ export class FeatureLoaderService {
       'timeline-visualizer': '../features/timeline-visualizer/timeline-visualizer.plugin',
       'globe-visualizer': '../features/globe-visualizer/globe-visualizer.plugin',
       'star-map': '../features/star-map/star-map.plugin',
-      'tetris': '../features/tetris/tetris.plugin'
+      'tetris': '../features/tetris/tetris.plugin',
+      'api-tester': '../features/api-tester/api-tester.plugin',
+      'epub-to-pdf': '../features/epub-to-pdf/epub-to-pdf.plugin'
     };
 
     const pluginPath = pluginPaths[featureId];
