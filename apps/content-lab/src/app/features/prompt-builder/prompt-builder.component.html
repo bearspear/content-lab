@@ -1,0 +1,149 @@
+<div class="prompt-builder">
+  <div class="header">
+    <div class="header-content">
+      <h1>Prompt Builder</h1>
+      <p class="subtitle">Create and test LLM prompts with multi-turn conversations</p>
+    </div>
+    <div class="header-actions">
+      <app-reset-button (resetClick)="resetToDefault()"></app-reset-button>
+    </div>
+  </div>
+
+  <div class="main-content">
+    <!-- Prompt Metadata -->
+    <div class="prompt-metadata">
+      <div class="metadata-field">
+        <label for="prompt-name">Prompt Name</label>
+        <input
+          id="prompt-name"
+          type="text"
+          class="form-input"
+          [(ngModel)]="currentPrompt.name"
+          (blur)="updateMessage()"
+          placeholder="Enter prompt name..."
+        />
+      </div>
+      <div class="metadata-field">
+        <label for="prompt-description">Description</label>
+        <input
+          id="prompt-description"
+          type="text"
+          class="form-input"
+          [(ngModel)]="currentPrompt.description"
+          (blur)="updateMessage()"
+          placeholder="Brief description of this prompt's purpose..."
+        />
+      </div>
+    </div>
+
+    <!-- Message Controls -->
+    <div class="message-controls">
+      <div class="control-group">
+        <button
+          class="btn btn-primary"
+          (click)="addMessage(MessageRole.System)"
+          title="Add system message"
+        >
+          ⚙️ Add System
+        </button>
+        <button
+          class="btn btn-primary"
+          (click)="addMessage(MessageRole.User)"
+          title="Add user message"
+        >
+          👤 Add User
+        </button>
+        <button
+          class="btn btn-primary"
+          (click)="addMessage(MessageRole.Assistant)"
+          title="Add assistant message"
+        >
+          🤖 Add Assistant
+        </button>
+      </div>
+      <div class="stats">
+        <span class="stat">
+          <strong>Messages:</strong> {{ currentPrompt.messages.length }}
+        </span>
+        <span class="stat">
+          <strong>Characters:</strong> {{ getTotalCharacterCount() }}
+        </span>
+      </div>
+    </div>
+
+    <!-- Messages List -->
+    <div class="messages-container">
+      <div
+        *ngFor="let message of currentPrompt.messages; let i = index"
+        class="message-card"
+        [class]="'message-' + message.role"
+      >
+        <div class="message-header">
+          <div class="message-info">
+            <span class="role-badge" [class]="getRoleColor(message.role)">
+              {{ message.role }}
+            </span>
+            <span class="message-order">#{{ i + 1 }}</span>
+          </div>
+          <div class="message-actions">
+            <button
+              class="btn-icon"
+              (click)="moveMessageUp(i)"
+              [disabled]="i === 0"
+              title="Move up"
+            >
+              ▲
+            </button>
+            <button
+              class="btn-icon"
+              (click)="moveMessageDown(i)"
+              [disabled]="i === currentPrompt.messages.length - 1"
+              title="Move down"
+            >
+              ▼
+            </button>
+            <button
+              class="btn-icon btn-danger"
+              (click)="removeMessage(message.id)"
+              title="Remove message"
+            >
+              ✕
+            </button>
+          </div>
+        </div>
+        <div class="message-content">
+          <textarea
+            class="message-textarea"
+            [(ngModel)]="message.content"
+            (blur)="updateMessage()"
+            [placeholder]="'Enter ' + message.role + ' message...'"
+            rows="4"
+          ></textarea>
+          <div class="message-stats">
+            {{ message.content.length }} characters
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="currentPrompt.messages.length === 0" class="empty-state">
+        <p>No messages yet. Add your first message to start building your prompt.</p>
+      </div>
+    </div>
+
+    <!-- Export Section -->
+    <div class="export-section">
+      <h3>Export Prompt</h3>
+      <div class="export-buttons">
+        <button class="btn btn-secondary" (click)="exportAsJSON()">
+          📄 Export as JSON
+        </button>
+        <button class="btn btn-secondary" (click)="exportAsAPIFormat()">
+          🔌 Export as API Format
+        </button>
+        <button class="btn btn-secondary" (click)="exportAsText()">
+          📝 Export as Text
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

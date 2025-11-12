@@ -102,20 +102,20 @@ function validateAppRoutes(featureId) {
 }
 
 /**
- * Validate that feature is in feature-loader.service.ts
+ * Validate that feature-loader imports allPlugins from app.routes
  */
 function validateFeatureLoader(featureId) {
   try {
     const loaderContent = fs.readFileSync(paths.featureLoader, 'utf8');
 
-    // Check for entry in pluginPaths map
-    // Example: 'markdown-to-html': '../features/markdown-to-html/markdown-to-html.plugin',
-    const pathRegex = new RegExp(`['"]${featureId}['"]:\\s*['"].*${featureId}\\.plugin['"]`);
-    const hasPathEntry = pathRegex.test(loaderContent);
+    // Check that feature-loader imports allPlugins from app.routes
+    // Example: import { allPlugins } from '../../app.routes';
+    const importRegex = /import\s*{\s*allPlugins\s*}\s*from\s*['"].*app\.routes['"]/;
+    const hasImport = importRegex.test(loaderContent);
 
     return {
-      hasPathEntry,
-      isValid: hasPathEntry
+      hasImport,
+      isValid: hasImport
     };
   } catch (error) {
     console.error(`${colors.red}✗ Error reading feature-loader.service.ts:${colors.reset}`);
@@ -167,15 +167,8 @@ function validatePlugins() {
       });
     }
 
-    // Check 3: In feature-loader.service.ts
-    const loaderValidation = validateFeatureLoader(featureId);
-    if (!loaderValidation.hasPathEntry) {
-      featureErrors.push({
-        severity: 'error',
-        message: `Not in pluginPaths map in feature-loader.service.ts`,
-        fix: `Add to pluginPaths: '${featureId}': '../features/${featureId}/${featureId}.plugin',`
-      });
-    }
+    // Note: feature-loader.service.ts now imports allPlugins from app.routes
+    // No per-feature validation needed - if app.routes is valid, loader will work
 
     // Collect results
     if (featureErrors.length > 0) {

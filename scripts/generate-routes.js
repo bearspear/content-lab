@@ -159,8 +159,9 @@ ${imports}
 /**
  * Map of enabled plugins by feature ID
  * Only features enabled in feature.config.ts are imported
+ * Exported for use by FeatureLoaderService
  */
-const allPlugins: Record<string, FeaturePlugin> = {
+export const allPlugins: Record<string, FeaturePlugin> = {
 ${pluginMapEntries}
 };
 
@@ -243,11 +244,6 @@ export const routes: Routes = generateRoutes();
 function generateFeatureLoaderFile(enabledFeatures, loaderPath) {
   const absoluteLoaderPath = path.resolve(projectRoot, loaderPath);
 
-  const pluginPathEntries = enabledFeatures
-    .filter(featureId => PLUGIN_PATHS[featureId])
-    .map(featureId => `      '${featureId}': '../features/${featureId}/${featureId}.plugin'`)
-    .join(',\n');
-
   const template = `/**
  * Feature Loader Service
  * Responsible for loading feature plugins based on configuration
@@ -270,7 +266,8 @@ function generateFeatureLoaderFile(enabledFeatures, loaderPath) {
 import { Injectable } from '@angular/core';
 import { PluginRegistryService } from './plugin-registry.service';
 import { FeatureBuildConfig, FeatureConfig } from './feature-config.interface';
-import featureConfig from '../../../feature.config.js';
+import featureConfig from '../../../../apps/content-lab/src/feature.config.js';
+import { allPlugins } from '../../../../apps/content-lab/src/app/app.routes';
 
 @Injectable({
   providedIn: 'root'
@@ -319,43 +316,29 @@ export class FeatureLoaderService {
   }
 
   /**
-   * Dynamically import and register a feature plugin
-   * Only enabled plugins are included in this mapping
+   * Load and register a feature plugin using the static plugin map from app.routes.ts
    * @param featureId The feature ID to load
    */
   private async loadFeaturePlugin(featureId: string): Promise<void> {
-    // Map feature IDs to their plugin module paths (only enabled features)
-    const pluginPaths: Record<string, string> = {
-${pluginPathEntries}
-    };
+    console.log(\`[FeatureLoader] 🔍 DEBUG: Attempting to load feature: \${featureId}\`);
+    console.log(\`[FeatureLoader] 🔍 DEBUG: allPlugins object type: \${typeof allPlugins}\`);
+    console.log(\`[FeatureLoader] 🔍 DEBUG: allPlugins keys: \${Object.keys(allPlugins).join(', ')}\`);
 
-    const pluginPath = pluginPaths[featureId];
-    if (!pluginPath) {
+    const plugin = allPlugins[featureId];
+    console.log(\`[FeatureLoader] 🔍 DEBUG: Plugin lookup result for '\${featureId}': \${plugin ? 'FOUND' : 'NOT FOUND'}\`);
+
+    if (!plugin) {
+      console.error(\`[FeatureLoader] ❌ ERROR: Unknown feature ID: \${featureId}\`);
+      console.error(\`[FeatureLoader] Available features: \${Object.keys(allPlugins).join(', ')}\`);
       throw new Error(\`Unknown feature ID: \${featureId}\`);
     }
 
-    try {
-      // Dynamically import the plugin module
-      const pluginModule = await import(/* @vite-ignore */ pluginPath);
+    console.log(\`[FeatureLoader] 🔍 DEBUG: Plugin metadata: \${JSON.stringify(plugin.metadata)}\`);
 
-      // The module should export a 'plugin' object
-      if (!pluginModule.plugin) {
-        throw new Error(\`Plugin module does not export 'plugin' object\`);
-      }
+    // Register the plugin
+    await this.pluginRegistry.register(plugin);
 
-      // Register the plugin
-      this.pluginRegistry.register(pluginModule.plugin);
-
-      console.log(\`[FeatureLoader] ✓ Loaded: \${featureId}\`);
-    } catch (error) {
-      // If the plugin file doesn't exist yet (Phase 1 work), that's okay
-      // We'll create them in the next phase
-      if (error instanceof Error && error.message.includes('Cannot find module')) {
-        console.warn(\`[FeatureLoader] Plugin file not found for '\${featureId}' - will be created in Phase 1\`);
-      } else {
-        throw error;
-      }
-    }
+    console.log(\`[FeatureLoader] ✓ Loaded: \${featureId}\`);
   }
 
   /**
@@ -399,7 +382,12 @@ try {
   const enabledFeatures = loadFeatureConfig(configPath);
   console.log(`Found ${enabledFeatures.length} enabled features:`, enabledFeatures.join(', '));
   generateRoutesFile(enabledFeatures, outputPath);
-  generateFeatureLoaderFile(enabledFeatures, 'apps/content-lab/src/app/core/plugin-system/feature-loader.service.ts');
+
+  // ⚠️ CRITICAL: Generate in the LIBRARY package, not the app directory
+  // The app imports from @content-lab/plugin-system which resolves to packages/plugin-system/src/lib/
+  // NOT from apps/content-lab/src/app/core/plugin-system/
+  // See: docs/TROUBLESHOOTING_PLUGIN_LOADING.md for detailed explanation
+  generateFeatureLoaderFile(enabledFeatures, 'packages/plugin-system/src/lib/feature-loader.service.ts');
 } catch (error) {
   console.error('Error generating routes:', error.message);
   process.exit(1);

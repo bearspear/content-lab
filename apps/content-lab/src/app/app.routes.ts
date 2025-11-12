@@ -38,12 +38,14 @@ import { plugin as starMapPlugin } from './features/star-map/star-map.plugin';
 import { plugin as tetrisPlugin } from './features/tetris/tetris.plugin';
 import { plugin as epubToPdfPlugin } from './features/epub-to-pdf/epub-to-pdf.plugin';
 import { plugin as apiTesterPlugin } from './features/api-tester/api-tester.plugin';
+import { plugin as promptBuilderPlugin } from './features/prompt-builder/prompt-builder.plugin';
 
 /**
  * Map of enabled plugins by feature ID
  * Only features enabled in feature.config.ts are imported
+ * Exported for use by FeatureLoaderService
  */
-const allPlugins: Record<string, FeaturePlugin> = {
+export const allPlugins: Record<string, FeaturePlugin> = {
   'markdown-to-html': markdownToHtmlPlugin,
   'text-editor': textEditorPlugin,
   'svg-editor': svgEditorPlugin,
@@ -61,7 +63,8 @@ const allPlugins: Record<string, FeaturePlugin> = {
   'star-map': starMapPlugin,
   'tetris': tetrisPlugin,
   'epub-to-pdf': epubToPdfPlugin,
-  'api-tester': apiTesterPlugin
+  'api-tester': apiTesterPlugin,
+  'prompt-builder': promptBuilderPlugin
 };
 
 /**
