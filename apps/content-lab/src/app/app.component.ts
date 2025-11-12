@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Router, RouterOutlet, NavigationStart, NavigationEnd, NavigationCancel, NavigationError } from '@angular/router';
 import { SidebarComponent } from '@content-lab/ui-components'  // NOTE: specify componentsidebar/sidebar.component';
 import { LoadingSpinnerComponent } from '@content-lab/ui-components'  // NOTE: specify componentloading-spinner/loading-spinner.component';
+import { PluginLifecycleService } from '@content-lab/plugin-system';
 
 @Component({
   selector: 'app-root',
@@ -16,7 +17,10 @@ export class AppComponent {
   isSidebarCollapsed = false;
   isLoading = false;
 
-  constructor(private router: Router) {
+  constructor(
+    private router: Router,
+    private pluginLifecycle: PluginLifecycleService  // Phase 4: Initialize lifecycle management
+  ) {
     // Listen to router events to show/hide loading spinner
     this.router.events.subscribe(event => {
       if (event instanceof NavigationStart) {
@@ -29,6 +33,8 @@ export class AppComponent {
         this.isLoading = false;
       }
     });
+
+    console.log('[AppComponent] Plugin lifecycle management initialized');
   }
 
   onSidebarToggled(isCollapsed: boolean): void {

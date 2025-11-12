@@ -2,11 +2,14 @@
 
 ## Overview
 
-The Content Lab Plugin System is a modular architecture that enables features to be:
+The Content Lab Plugin System is a **convention-based, zero-configuration** architecture that enables features to be:
+- Automatically discovered from the filesystem
 - Independently developed and tested
-- Selectively included in builds
+- Selectively enabled/disabled via configuration
 - Dynamically registered at runtime
 - Eventually extracted into separate npm packages
+
+**Phase 3 Status:** ✅ Convention-Based Discovery + Automation + Validation
 
 ## Architecture
 
@@ -15,7 +18,10 @@ The Content Lab Plugin System is a modular architecture that enables features to
 1. **PluginRegistryService** - Central registry for all feature plugins
 2. **FeatureLoaderService** - Loads and registers plugins based on configuration
 3. **FeaturePlugin Interface** - Contract that all plugins must implement
-4. **Feature Configuration** - TypeScript config file specifying enabled features
+4. **Feature Configuration** - Single source of truth for enabling/disabling features
+5. **Convention-Based Discovery** - Automatic filesystem scanning for plugins
+6. **Code Generation** - Automated generation of routes and loader files
+7. **Validation System** - Build-time checks for plugin integrity
 
 ### Directory Structure
 
@@ -23,12 +29,25 @@ The Content Lab Plugin System is a modular architecture that enables features to
 src/app/core/plugin-system/
 ├── plugin.interface.ts           # Plugin contract & types
 ├── plugin-registry.service.ts    # Plugin registry
-├── feature-loader.service.ts     # Feature loader
+├── feature-loader.service.ts     # Feature loader (AUTO-GENERATED)
 ├── feature-config.interface.ts   # Build config types
 ├── index.ts                       # Public API exports
 └── README.md                      # This file
 
-feature.config.ts                  # Build configuration (root)
+src/app/
+├── app.routes.ts                  # Routes (AUTO-GENERATED)
+└── features/
+    ├── my-tool/
+    │   ├── my-tool.component.ts
+    │   └── my-tool.plugin.ts      # ← Convention: [name].plugin.ts
+    └── another-tool/
+        ├── another-tool.component.ts
+        └── another-tool.plugin.ts
+
+feature.config.js                  # Single source of truth (root)
+scripts/
+├── generate-routes.js             # Code generation script
+└── validate-plugins.js            # Validation script
 ```
 
 ## Plugin Contract
@@ -62,60 +81,82 @@ export interface FeaturePluginMetadata {
 }
 ```
 
-## Creating a Plugin
+## Creating a Plugin (Phase 3 - Zero Configuration)
+
+**Convention:** Just follow the naming pattern `features/[name]/[name].plugin.ts` and you're done!
 
 ### Step 1: Create Plugin Definition File
 
-Create a `.plugin.ts` file in your feature directory:
+Create a `.plugin.ts` file following the naming convention:
 
 ```typescript
 // src/app/features/my-tool/my-tool.plugin.ts
 
-import { FeaturePlugin, ToolCategory } from '@core/plugin-system';
+import { FeaturePlugin, ToolCategory } from '@content-lab/plugin-system';
 
 export const metadata = {
-  id: 'my-tool',
+  id: 'my-tool',  // Must match directory name
   name: 'My Awesome Tool',
   description: 'Does amazing things',
   version: '1.0.0',
   category: ToolCategory.Utilities,
   route: '/tools/my-tool',
-  icon: `<svg>...</svg>`
+  icon: `<svg>...</svg>`,
+  dependencies: ['monaco-editor']  // Optional: external dependencies
 };
 
 export const plugin: FeaturePlugin = {
   metadata,
   loadComponent: () => import('./my-tool.component')
-    .then(m => m.MyToolComponent)
-};
-```
+    .then(m => m.MyToolComponent),
 
-### Step 2: Register in Feature Config
+  // Optional: lifecycle hooks
+  onActivate: () => {
+    console.log('[MyTool] Plugin activated');
+  },
 
-Add your feature to `feature.config.ts`:
+  onDeactivate: () => {
+    console.log('[MyTool] Plugin deactivated');
+  },
 
-```typescript
-const config: FeatureBuildConfig = {
-  buildName: 'content-lab-full',
-  version: '1.0.0',
-  features: {
-    'my-tool': { enabled: true }
+  // Optional: plugin-specific configuration
+  config: {
+    maxFileSize: 10 * 1024 * 1024,
+    defaultMode: 'editor'
   }
 };
 ```
 
-### Step 3: Add to Feature Loader
+### Step 2: Enable in Feature Config
 
-Update the `pluginPaths` map in `feature-loader.service.ts`:
+Add your feature to `feature.config.js` (the ONLY file you need to edit):
 
-```typescript
-const pluginPaths: Record<string, string> = {
-  'my-tool': '../features/my-tool/my-tool.plugin',
-  // ... other plugins
+```javascript
+module.exports = {
+  buildName: 'content-lab-full',
+  version: '1.0.0',
+  features: {
+    'my-tool': { enabled: true }  // Feature ID must match directory name
+  }
 };
 ```
 
-That's it! Your plugin will now be loaded automatically.
+### Step 3: Generate and Validate
+
+Run the automated build preparation:
+
+```bash
+npm run generate:routes  # Auto-discovers plugins and generates files
+npm run validate:plugins # Validates everything is properly configured
+```
+
+**That's it!** Your plugin is now:
+- ✅ Auto-discovered from filesystem
+- ✅ Routes automatically generated
+- ✅ Loader automatically configured
+- ✅ Validated for correctness
+
+**No manual mapping required!** The system discovers plugins by scanning for `features/*/[name].plugin.ts` files.
 
 ## Usage Examples
 
@@ -269,24 +310,50 @@ The plugin system handles errors gracefully:
 - Duplicate registrations are warned but ignored
 - Missing plugin files are logged as warnings
 
-## Migration Path
+## Evolution & Migration Path
 
-### Current Phase: Phase 0 (Foundation) ✓
+### ✅ Phase 0 (Foundation) - COMPLETE
 - Plugin system infrastructure created
 - Core interfaces and services implemented
 - Build configuration system in place
 
-### Next Phase: Phase 1 (Plugin Migration)
-- Convert existing features to plugins
-- Create `.plugin.ts` files for each feature
-- Update sidebar to use plugin registry
-- Dynamic route generation
+### ✅ Phase 1 (Stabilization) - COMPLETE
+- Validation scripts added (`npm run validate:plugins`)
+- Orphaned plugins detected and fixed
+- Build-time safety nets implemented
+- Pre-build hooks integrated
 
-### Future Phases
-- Phase 2: Build configuration system
-- Phase 3: Monorepo structure
-- Phase 4: npm package publishing
-- Phase 5: Complete separation
+### ✅ Phase 2 (Automation) - COMPLETE
+- Code generation implemented (`npm run generate:routes`)
+- Auto-generation of app.routes.ts and feature-loader.service.ts
+- Single source of truth: feature.config.js
+- Pre-build automation: `npm run prebuild`
+
+### ✅ Phase 3 (Modernization) - COMPLETE
+- **Convention-based plugin discovery**
+- Zero manual mapping required
+- Filesystem scanning for `features/*/[name].plugin.ts`
+- Developer workflow: 8 steps → 2 steps
+
+### ✅ Phase 4 (Advanced Features) - COMPLETE
+- ✅ **Lifecycle hooks implementation** (onActivate, onDeactivate, onInitialize, onDestroy)
+  - PluginLifecycleService manages plugin activation/deactivation
+  - Router integration for automatic lifecycle management
+  - Error handling and graceful degradation
+- ✅ **Dependency validation system**
+  - PluginDependencyValidatorService validates required dependencies
+  - Runtime detection of global libraries and npm packages
+  - Clear warning messages for missing dependencies
+- ⏸️ Service plugins (deferred - not needed yet)
+- ⏸️ Plugin communication bus (deferred - not needed yet)
+- ⏸️ Dynamic plugin loading (deferred - not needed yet)
+
+**See:** [docs/PHASE_4_COMPLETION.md](../../../../docs/PHASE_4_COMPLETION.md) for complete details
+
+### 🔮 Future Phases
+- Phase 5: Monorepo structure with Nx
+- Phase 6: npm package publishing
+- Phase 7: Complete plugin separation
 
 ## API Reference
 
@@ -335,22 +402,42 @@ The plugin system handles errors gracefully:
 
 ## Contributing
 
-When adding new features:
-1. Create plugin definition file
-2. Add to feature configuration
-3. Update plugin paths in loader
-4. Test the plugin loads correctly
-5. Update documentation
+When adding new features (Phase 3 workflow):
+1. Create plugin definition file following naming convention: `features/[name]/[name].plugin.ts`
+2. Add to `feature.config.js` with `enabled: true`
+3. Run `npm run generate:routes` to auto-discover and generate files
+4. Run `npm run validate:plugins` to verify correctness
+5. Test the plugin loads correctly
+6. Update documentation if needed
+
+## Troubleshooting
+
+### Common Issues
+
+**Problem:** Plugin not discovered by generation script
+- **Solution:** Verify naming convention: directory name must match plugin file name
+- **Example:** `features/my-tool/my-tool.plugin.ts` ✅ | `features/my-tool/plugin.ts` ❌
+
+**Problem:** Validation fails after generation
+- **Solution:** Check that feature ID in plugin metadata matches directory name
+- **Solution:** Ensure `feature.config.js` has `enabled: true` for the feature
+
+**Problem:** Plugin appears in routes but doesn't load
+- **Solution:** Check component import path in `loadComponent` function
+- **Solution:** Verify component is exported from its module
 
 ## Support
 
 For questions or issues:
 - See main project documentation
-- Check Phase 0 implementation plan
+- Check [docs/PLUGIN_DEVELOPMENT_GUIDE.md](../../../../docs/PLUGIN_DEVELOPMENT_GUIDE.md)
 - Review code examples above
+- Check [docs/PLUGIN_SYSTEM_ANALYSIS.md](../../../../docs/PLUGIN_SYSTEM_ANALYSIS.md) for architecture details
 
 ---
 
-**Phase 0 Status:** ✓ Complete
-**Last Updated:** 2025-10-19
-**Version:** 1.0.0
+**Current Phase:** Phase 4 (Advanced Features) ✅ COMPLETE
+**Last Updated:** 2025-11-11
+**Version:** 4.0.0
+
+**Next Phase:** Phase 5 (Optional advanced features based on future needs)

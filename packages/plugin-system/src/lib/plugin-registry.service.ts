@@ -6,6 +6,7 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { FeaturePlugin, FeaturePluginMetadata, ToolCategory, isFeaturePlugin } from './plugin.interface';
+import { PluginDependencyValidatorService } from './plugin-dependency-validator.service';
 
 @Injectable({
   providedIn: 'root'
@@ -20,7 +21,7 @@ export class PluginRegistryService {
   /** Observable of registered plugins */
   public plugins$: Observable<FeaturePlugin[]> = this.pluginsSubject.asObservable();
 
-  constructor() {
+  constructor(private dependencyValidator: PluginDependencyValidatorService) {
     console.log('[PluginRegistry] Service initialized');
   }
 
@@ -29,7 +30,7 @@ export class PluginRegistryService {
    * @param plugin The plugin to register
    * @throws Error if plugin is invalid
    */
-  register(plugin: FeaturePlugin): void {
+  async register(plugin: FeaturePlugin): Promise<void> {
     // Validate plugin
     if (!isFeaturePlugin(plugin)) {
       throw new Error(`Invalid plugin: Plugin does not conform to FeaturePlugin interface`);
@@ -45,8 +46,32 @@ export class PluginRegistryService {
       `[PluginRegistry] Registering plugin: ${plugin.metadata.name} (${plugin.metadata.version})`
     );
 
+    // Validate dependencies (Phase 4)
+    const validationResult = this.dependencyValidator.validateDependencies(plugin.metadata);
+    if (!validationResult.valid) {
+      console.warn(
+        `[PluginRegistry] Plugin '${plugin.metadata.id}' has missing dependencies:`,
+        validationResult.missingDependencies,
+        '\nPlugin will be registered but may not function correctly.'
+      );
+      // Continue registration even with missing dependencies
+      // This allows the plugin to load and potentially show a helpful error message
+    }
+
     // Register the plugin
     this.plugins.set(plugin.metadata.id, plugin);
+
+    // Call onInitialize lifecycle hook (Phase 4)
+    if (plugin.onInitialize) {
+      try {
+        console.log(`[PluginRegistry] Initializing plugin: ${plugin.metadata.id}`);
+        await plugin.onInitialize();
+        console.log(`[PluginRegistry] ✓ Plugin initialized: ${plugin.metadata.id}`);
+      } catch (error) {
+        console.error(`[PluginRegistry] Error initializing plugin ${plugin.metadata.id}:`, error);
+        // Continue registration even if initialization fails
+      }
+    }
 
     // Notify subscribers
     this.pluginsSubject.next(Array.from(this.plugins.values()));
@@ -56,9 +81,12 @@ export class PluginRegistryService {
    * Register multiple plugins at once
    * @param plugins Array of plugins to register
    */
-  registerMany(plugins: FeaturePlugin[]): void {
+  async registerMany(plugins: FeaturePlugin[]): Promise<void> {
     console.log(`[PluginRegistry] Registering ${plugins.length} plugins...`);
-    plugins.forEach(plugin => this.register(plugin));
+    // Register plugins sequentially to ensure proper initialization
+    for (const plugin of plugins) {
+      await this.register(plugin);
+    }
   }
 
   /**
@@ -101,7 +129,25 @@ export class PluginRegistryService {
    * @param id The plugin ID to unregister
    * @returns True if plugin was unregistered, false if it wasn't registered
    */
-  unregister(id: string): boolean {
+  async unregister(id: string): Promise<boolean> {
+    const plugin = this.plugins.get(id);
+
+    if (!plugin) {
+      return false;
+    }
+
+    // Call onDestroy lifecycle hook (Phase 4)
+    if (plugin.onDestroy) {
+      try {
+        console.log(`[PluginRegistry] Destroying plugin: ${id}`);
+        await plugin.onDestroy();
+        console.log(`[PluginRegistry] ✓ Plugin destroyed: ${id}`);
+      } catch (error) {
+        console.error(`[PluginRegistry] Error destroying plugin ${id}:`, error);
+        // Continue unregistration even if destruction fails
+      }
+    }
+
     const wasRegistered = this.plugins.delete(id);
 
     if (wasRegistered) {
@@ -114,9 +160,18 @@ export class PluginRegistryService {
 
   /**
    * Clear all registered plugins
+   * Calls onDestroy on all plugins before clearing (Phase 4)
    */
-  clear(): void {
+  async clear(): Promise<void> {
     console.log('[PluginRegistry] Clearing all plugins');
+
+    // Call onDestroy on all plugins
+    const pluginIds = Array.from(this.plugins.keys());
+    for (const id of pluginIds) {
+      await this.unregister(id);
+    }
+
+    // Ensure map is cleared even if unregister had issues
     this.plugins.clear();
     this.pluginsSubject.next([]);
   }

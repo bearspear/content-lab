@@ -54,6 +54,12 @@ export interface FeaturePluginMetadata {
 /**
  * Main plugin interface
  * All feature plugins must implement this contract
+ *
+ * Lifecycle Hooks (Phase 4):
+ * - onInitialize: Called once when plugin is first registered (app startup)
+ * - onActivate: Called when user navigates to the plugin route
+ * - onDeactivate: Called when user navigates away from the plugin route
+ * - onDestroy: Called when plugin is unregistered or app shuts down
  */
 export interface FeaturePlugin {
   /** Plugin metadata */
@@ -62,11 +68,17 @@ export interface FeaturePlugin {
   /** Function to lazy-load the plugin component */
   loadComponent: () => Promise<any>;
 
-  /** Optional lifecycle hook called when plugin is activated */
+  /** Optional lifecycle hook called once when plugin is registered (Phase 4) */
+  onInitialize?(): void | Promise<void>;
+
+  /** Optional lifecycle hook called when plugin route is activated (Phase 4) */
   onActivate?(): void | Promise<void>;
 
-  /** Optional lifecycle hook called when plugin is deactivated */
+  /** Optional lifecycle hook called when navigating away from plugin route (Phase 4) */
   onDeactivate?(): void | Promise<void>;
+
+  /** Optional lifecycle hook called when plugin is unregistered or app destroyed (Phase 4) */
+  onDestroy?(): void | Promise<void>;
 
   /** Optional configuration object for plugin-specific settings */
   config?: Record<string, any>;
