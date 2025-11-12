@@ -78,7 +78,8 @@
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "options": {
-            "port": 5001
+            "port": 5001,
+            "proxyConfig": "apps/content-lab/proxy.conf.json"
           },
           "configurations": {
             "production": {

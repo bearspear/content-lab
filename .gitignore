@@ -6,6 +6,7 @@ tmp/
 out-tsc/
 bazel-out/
 .angular/
+.nx/
 .sass-cache/
 connect.lock
 coverage/
@@ -201,6 +202,15 @@ testem.log
 /tmp
 /out-tsc
 /bazel-out
+
+# Server-specific
+apps/server/public/
+apps/server/temp/
+apps/server/uploads/
+apps/server/.env
+.puppeteer_cache/
+.chrome/
+executables/
 
 # Dependencies
 /node_modules

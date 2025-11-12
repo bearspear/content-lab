@@ -34,6 +34,10 @@
   },
   "plugins": [
     {
+      "plugin": "@nx/js",
+      "options": {}
+    },
+    {
       "plugin": "@nx/angular",
       "options": {
         "enableIvy": true

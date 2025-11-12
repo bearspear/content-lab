@@ -1,0 +1,51 @@
+{
+  "name": "server",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "sourceRoot": "apps/server/src",
+  "targets": {
+    "build": {
+      "executor": "nx:run-commands",
+      "outputs": ["{workspaceRoot}/dist/apps/server"],
+      "options": {
+        "command": "tsc --project apps/server/tsconfig.app.json && mkdir -p dist/apps/server && cp -r dist/out-tsc/* dist/apps/server/ && cp -r apps/server/assets dist/apps/server/ 2>/dev/null || true && cp apps/server/.env.example dist/apps/server/ 2>/dev/null || true"
+      },
+      "configurations": {
+        "production": {
+          "optimization": true,
+          "extractLicenses": true,
+          "inspect": false
+        }
+      }
+    },
+    "serve": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "nodemon --watch apps/server/src --exec 'tsc --project apps/server/tsconfig.app.json && node dist/out-tsc/main.js'"
+      }
+    },
+    "pkg": {
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": [
+          "pkg dist/apps/server/main.js --out-path dist/executables --targets node18-macos-x64,node18-macos-arm64,node18-win-x64,node18-linux-x64 --config apps/server/pkg-config.json"
+        ],
+        "parallel": false
+      },
+      "dependsOn": ["build"]
+    },
+    "deploy-frontend": {
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": [
+          "rm -rf apps/server/public",
+          "mkdir -p apps/server/public",
+          "cp -r dist/apps/content-lab/browser/* apps/server/public/"
+        ],
+        "parallel": false
+      },
+      "dependsOn": ["content-lab:build"]
+    }
+  },
+  "tags": ["type:app", "platform:node"]
+}
