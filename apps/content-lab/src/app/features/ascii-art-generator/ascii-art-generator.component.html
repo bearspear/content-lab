@@ -1,0 +1,627 @@
+<div class="ascii-art-generator">
+  <!-- Toast Notifications -->
+  <app-toast></app-toast>
+  <!-- Header -->
+  <div class="generator-header">
+    <div class="header-content">
+      <h1>ASCII Art Generator</h1>
+      <p>Create ASCII art, charts, graphs, and tables with multiple styles</p>
+    </div>
+  </div>
+
+  <!-- Mode Selection -->
+  <div class="mode-selector">
+    <button
+      class="mode-btn"
+      [class.active]="currentMode === AsciiArtMode.Text"
+      (click)="changeMode(AsciiArtMode.Text)"
+    >
+      <span class="mode-icon">✍️</span>
+      <span>Text to ASCII</span>
+    </button>
+    <button
+      class="mode-btn"
+      [class.active]="currentMode === AsciiArtMode.Image"
+      (click)="changeMode(AsciiArtMode.Image)"
+    >
+      <span class="mode-icon">🖼️</span>
+      <span>Image to ASCII</span>
+    </button>
+    <button
+      class="mode-btn"
+      [class.active]="currentMode === AsciiArtMode.Chart"
+      (click)="changeMode(AsciiArtMode.Chart)"
+    >
+      <span class="mode-icon">📊</span>
+      <span>Charts & Graphs</span>
+    </button>
+    <button
+      class="mode-btn"
+      [class.active]="currentMode === AsciiArtMode.Table"
+      (click)="changeMode(AsciiArtMode.Table)"
+    >
+      <span class="mode-icon">📋</span>
+      <span>Tables</span>
+    </button>
+    <button
+      class="mode-btn"
+      [class.active]="currentMode === AsciiArtMode.Border"
+      (click)="changeMode(AsciiArtMode.Border)"
+    >
+      <span class="mode-icon">🎨</span>
+      <span>Borders</span>
+    </button>
+  </div>
+
+  <!-- Main Content Area -->
+  <div class="generator-content">
+    <!-- Left Panel: Controls -->
+    <div class="controls-panel">
+      <!-- Text to ASCII Controls -->
+      <div *ngIf="currentMode === AsciiArtMode.Text" class="control-section">
+        <div class="control-group">
+          <label for="input-text">Input Text</label>
+          <textarea
+            id="input-text"
+            [(ngModel)]="inputText"
+            (ngModelChange)="onTextChange()"
+            placeholder="Enter text to convert to ASCII art..."
+            rows="3"
+            class="input-text"
+          ></textarea>
+        </div>
+
+        <div class="control-group">
+          <label for="font-selector">Font Style</label>
+          <select
+            id="font-selector"
+            [(ngModel)]="selectedFont"
+            (ngModelChange)="onFontChange()"
+            class="font-selector"
+          >
+            <option *ngFor="let font of availableFonts" [value]="font">
+              {{ font }}
+            </option>
+          </select>
+        </div>
+
+        <div class="control-group">
+          <label>Text Alignment</label>
+          <div class="alignment-buttons">
+            <button
+              class="alignment-btn"
+              [class.active]="selectedAlignment === TextAlignment.Left"
+              (click)="selectedAlignment = TextAlignment.Left; onAlignmentChange()"
+              title="Align Left"
+            >
+              ⬅️ Left
+            </button>
+            <button
+              class="alignment-btn"
+              [class.active]="selectedAlignment === TextAlignment.Center"
+              (click)="selectedAlignment = TextAlignment.Center; onAlignmentChange()"
+              title="Align Center"
+            >
+              ↔️ Center
+            </button>
+            <button
+              class="alignment-btn"
+              [class.active]="selectedAlignment === TextAlignment.Right"
+              (click)="selectedAlignment = TextAlignment.Right; onAlignmentChange()"
+              title="Align Right"
+            >
+              ➡️ Right
+            </button>
+          </div>
+        </div>
+
+        <div class="action-buttons">
+          <button class="btn-secondary" (click)="clear()" title="Clear (Ctrl+K)">
+            🗑️ Clear
+          </button>
+        </div>
+
+        <!-- Keyboard Shortcuts Help -->
+        <div class="shortcuts-help">
+          <h4>Keyboard Shortcuts</h4>
+          <div class="shortcut-item">
+            <kbd>Ctrl</kbd> + <kbd>C</kbd> - Copy to clipboard
+          </div>
+          <div class="shortcut-item">
+            <kbd>Ctrl</kbd> + <kbd>S</kbd> - Download as text
+          </div>
+          <div class="shortcut-item">
+            <kbd>Ctrl</kbd> + <kbd>K</kbd> - Clear
+          </div>
+        </div>
+
+        <!-- History Panel -->
+        <div *ngIf="history.length > 0" class="history-panel">
+          <div class="history-header">
+            <h4>Recent ({{ history.length }})</h4>
+            <button class="btn-text" (click)="clearHistory()">Clear All</button>
+          </div>
+          <div class="history-list">
+            <div
+              *ngFor="let item of history; let i = index"
+              class="history-item"
+              (click)="loadFromHistory(item)"
+            >
+              <div class="history-preview">{{ item.output.split('\n')[0].substring(0, 30) }}...</div>
+              <div class="history-meta">
+                <span class="history-font" *ngIf="item.config && item.mode === AsciiArtMode.Text">{{ $any(item.config).font }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Image to ASCII Controls -->
+      <div *ngIf="currentMode === AsciiArtMode.Image" class="control-section">
+        <div class="control-group">
+          <label for="image-upload">Upload Image</label>
+          <input
+            type="file"
+            id="image-upload"
+            accept="image/*"
+            (change)="onImageFileSelected($event)"
+            class="file-input"
+          />
+          <div *ngIf="uploadedImageUrl" class="image-preview">
+            <img [src]="uploadedImageUrl" alt="Uploaded image" />
+          </div>
+        </div>
+
+        <div *ngIf="uploadedImageUrl" class="control-group">
+          <label for="character-set">Character Set</label>
+          <select
+            id="character-set"
+            [(ngModel)]="selectedCharacterSet"
+            (ngModelChange)="onCharacterSetChange()"
+            class="font-selector"
+          >
+            <option *ngFor="let set of availableCharacterSets | keyvalue" [value]="set.key">
+              {{ set.value.description }}
+            </option>
+          </select>
+          <div class="char-set-preview">
+            {{ availableCharacterSets[selectedCharacterSet].chars }}
+          </div>
+        </div>
+
+        <div *ngIf="uploadedImageUrl" class="control-group">
+          <label for="image-width">Width (characters)</label>
+          <input
+            type="number"
+            id="image-width"
+            [(ngModel)]="imageWidth"
+            (ngModelChange)="onImageWidthChange()"
+            min="20"
+            max="200"
+            class="number-input"
+          />
+        </div>
+
+        <div *ngIf="uploadedImageUrl" class="control-group">
+          <label for="image-height">Height (optional)</label>
+          <input
+            type="number"
+            id="image-height"
+            [(ngModel)]="imageHeight"
+            (ngModelChange)="onImageHeightChange()"
+            min="10"
+            max="200"
+            placeholder="Auto"
+            class="number-input"
+          />
+          <small>Leave empty for auto-calculated height</small>
+        </div>
+
+        <div *ngIf="uploadedImageUrl" class="control-group">
+          <label class="checkbox-label">
+            <input
+              type="checkbox"
+              [(ngModel)]="invertImage"
+              (ngModelChange)="onInvertImageChange()"
+            />
+            <span>Invert Colors</span>
+          </label>
+        </div>
+
+        <div class="action-buttons">
+          <button
+            *ngIf="uploadedImageUrl"
+            class="btn-secondary"
+            (click)="clearImage()"
+            title="Clear Image"
+          >
+            🗑️ Clear Image
+          </button>
+        </div>
+
+        <!-- Instructions -->
+        <div class="help-text">
+          <h4>How to use:</h4>
+          <ol>
+            <li>Upload an image (JPG, PNG, GIF, etc.)</li>
+            <li>Select a character set for different styles</li>
+            <li>Adjust width/height to control detail</li>
+            <li>Use "Invert Colors" for negative effect</li>
+          </ol>
+          <p><strong>Tip:</strong> Smaller images and high-contrast images work best!</p>
+        </div>
+      </div>
+
+      <!-- Chart Generator Controls -->
+      <div *ngIf="currentMode === AsciiArtMode.Chart" class="control-section">
+        <div class="control-group">
+          <label for="chart-type">Chart Type</label>
+          <select
+            id="chart-type"
+            [(ngModel)]="selectedChartType"
+            (ngModelChange)="onChartTypeChange()"
+            class="font-selector"
+          >
+            <option *ngFor="let type of availableChartTypes" [value]="type">
+              {{ type | titlecase }}
+            </option>
+          </select>
+        </div>
+
+        <div class="control-group">
+          <label for="chart-data-input-mode">Data Input Mode</label>
+          <div class="mode-buttons">
+            <button
+              class="mode-btn-small"
+              [class.active]="chartDataInputMode === 'csv'"
+              (click)="chartDataInputMode = 'csv'; onChartDataInputModeChange()"
+            >
+              CSV
+            </button>
+            <button
+              class="mode-btn-small"
+              [class.active]="chartDataInputMode === 'json'"
+              (click)="chartDataInputMode = 'json'; onChartDataInputModeChange()"
+            >
+              JSON
+            </button>
+          </div>
+        </div>
+
+        <!-- CSV/JSON Input -->
+        <div class="control-group">
+          <label for="chart-data">
+            {{ chartDataInputMode === 'csv' ? 'CSV Data' : 'JSON Data' }}
+          </label>
+          <textarea
+            id="chart-data"
+            [(ngModel)]="chartData"
+            (ngModelChange)="onChartDataChange()"
+            placeholder="{{ chartDataInputMode === 'csv' ? 'Month,Sales\nJan,10\nFeb,20\nMar,15' : '[{\"x\":\"Jan\",\"y\":10}]' }}"
+            rows="6"
+            class="input-text"
+          ></textarea>
+          <small>
+            {{ chartDataInputMode === 'csv' ? 'Format: Label,Value (first row is header)' : 'Format: [{x: "label", y: value}]' }}
+          </small>
+        </div>
+
+        <div class="control-group">
+          <label for="chart-title">Chart Title</label>
+          <input
+            type="text"
+            id="chart-title"
+            [(ngModel)]="chartTitle"
+            (ngModelChange)="onChartConfigChange()"
+            placeholder="Enter chart title"
+            class="text-input"
+          />
+        </div>
+
+        <div class="control-group">
+          <label for="chart-x-label">X-Axis Label</label>
+          <input
+            type="text"
+            id="chart-x-label"
+            [(ngModel)]="chartXLabel"
+            (ngModelChange)="onChartConfigChange()"
+            placeholder="X Axis"
+            class="text-input"
+          />
+        </div>
+
+        <div class="control-group">
+          <label for="chart-y-label">Y-Axis Label</label>
+          <input
+            type="text"
+            id="chart-y-label"
+            [(ngModel)]="chartYLabel"
+            (ngModelChange)="onChartConfigChange()"
+            placeholder="Y Axis"
+            class="text-input"
+          />
+        </div>
+
+        <div class="control-group">
+          <label for="chart-width">Chart Width</label>
+          <input
+            type="number"
+            id="chart-width"
+            [(ngModel)]="chartWidth"
+            (ngModelChange)="onChartConfigChange()"
+            min="40"
+            max="120"
+            class="number-input"
+          />
+        </div>
+
+        <div class="control-group">
+          <label for="chart-height">Chart Height</label>
+          <input
+            type="number"
+            id="chart-height"
+            [(ngModel)]="chartHeight"
+            (ngModelChange)="onChartConfigChange()"
+            min="10"
+            max="40"
+            class="number-input"
+          />
+        </div>
+
+        <div class="control-group" *ngIf="selectedChartType === ChartType.Scatter">
+          <label class="checkbox-label">
+            <input
+              type="checkbox"
+              [(ngModel)]="chartShowLegend"
+              (ngModelChange)="onChartConfigChange()"
+            />
+            <span>Show Legend</span>
+          </label>
+        </div>
+
+        <!-- Instructions -->
+        <div class="help-text">
+          <h4>How to use:</h4>
+          <ol>
+            <li>Select a chart type (Bar, Line, Scatter, Pie, Histogram)</li>
+            <li>Enter your data in CSV or JSON format</li>
+            <li>Customize chart title and axis labels</li>
+            <li>Adjust chart dimensions as needed</li>
+          </ol>
+          <p><strong>Tip:</strong> CSV format is easiest - just use Label,Value format!</p>
+        </div>
+      </div>
+
+      <!-- Border Generator Controls -->
+      <div *ngIf="currentMode === AsciiArtMode.Border" class="control-section">
+        <div class="control-group">
+          <label for="border-type">Border Type</label>
+          <select
+            id="border-type"
+            [(ngModel)]="borderType"
+            (ngModelChange)="onBorderTypeChange()"
+            class="font-selector"
+          >
+            <option value="box">Box</option>
+            <option value="banner">Banner</option>
+            <option value="titled">Titled Box</option>
+            <option value="comment">Comment Block</option>
+          </select>
+        </div>
+
+        <div class="control-group">
+          <label for="border-text">Text</label>
+          <textarea
+            id="border-text"
+            [(ngModel)]="borderText"
+            (ngModelChange)="onBorderTextChange()"
+            placeholder="Enter text to wrap in border..."
+            rows="4"
+            class="input-text"
+          ></textarea>
+        </div>
+
+        <div class="control-group" *ngIf="borderType !== 'comment'">
+          <label for="border-style">Border Style</label>
+          <select
+            id="border-style"
+            [(ngModel)]="selectedDecorativeBorderStyle"
+            (ngModelChange)="onBorderStyleChange()"
+            class="font-selector"
+          >
+            <option *ngFor="let style of availableDecorativeBorderStyles" [value]="style">
+              {{ style | titlecase }}
+            </option>
+          </select>
+        </div>
+
+        <div class="control-group" *ngIf="borderType === 'titled'">
+          <label for="border-title">Box Title</label>
+          <input
+            type="text"
+            id="border-title"
+            [(ngModel)]="borderTitle"
+            (ngModelChange)="onBorderConfigChange()"
+            placeholder="Enter title"
+            class="text-input"
+          />
+        </div>
+
+        <div class="control-group" *ngIf="borderType === 'comment'">
+          <label for="comment-style">Comment Style</label>
+          <select
+            id="comment-style"
+            [(ngModel)]="borderCommentStyle"
+            (ngModelChange)="onBorderConfigChange()"
+            class="font-selector"
+          >
+            <option value="slash">// (Slash - JavaScript/C++)</option>
+            <option value="hash"># (Hash - Python/Ruby)</option>
+            <option value="semicolon">; (Semicolon - Lisp/Assembly)</option>
+          </select>
+        </div>
+
+        <div class="control-group" *ngIf="borderType === 'box' || borderType === 'titled'">
+          <label for="border-padding">Padding</label>
+          <input
+            type="number"
+            id="border-padding"
+            [(ngModel)]="borderPadding"
+            (ngModelChange)="onBorderConfigChange()"
+            min="0"
+            max="5"
+            class="number-input"
+          />
+        </div>
+
+        <!-- Instructions -->
+        <div class="help-text">
+          <h4>How to use:</h4>
+          <ol>
+            <li>Select a border type (Box, Banner, Titled, Comment)</li>
+            <li>Enter your text</li>
+            <li>Choose a border style</li>
+            <li>Adjust padding and title if needed</li>
+          </ol>
+          <p><strong>Tip:</strong> Use Comment blocks for code documentation!</p>
+        </div>
+      </div>
+
+      <!-- Table Generator Controls -->
+      <div *ngIf="currentMode === AsciiArtMode.Table" class="control-section">
+        <div class="control-group">
+          <label for="data-input-mode">Data Input Mode</label>
+          <div class="mode-buttons">
+            <button
+              class="mode-btn-small"
+              [class.active]="dataInputMode === 'manual'"
+              (click)="dataInputMode = 'manual'; onDataInputModeChange()"
+            >
+              Manual
+            </button>
+            <button
+              class="mode-btn-small"
+              [class.active]="dataInputMode === 'csv'"
+              (click)="dataInputMode = 'csv'; onDataInputModeChange()"
+            >
+              CSV
+            </button>
+            <button
+              class="mode-btn-small"
+              [class.active]="dataInputMode === 'json'"
+              (click)="dataInputMode = 'json'; onDataInputModeChange()"
+            >
+              JSON
+            </button>
+          </div>
+        </div>
+
+        <!-- CSV/JSON Input -->
+        <div *ngIf="dataInputMode === 'csv' || dataInputMode === 'json'" class="control-group">
+          <label for="table-data">
+            {{ dataInputMode === 'csv' ? 'CSV Data' : 'JSON Data' }}
+          </label>
+          <textarea
+            id="table-data"
+            [(ngModel)]="tableData"
+            (ngModelChange)="onTableDataChange()"
+            placeholder="{{ dataInputMode === 'csv' ? 'Name,Age,City\nJohn,25,NYC\nJane,30,LA' : '[{\"Name\":\"John\",\"Age\":25}]' }}"
+            rows="6"
+            class="input-text"
+          ></textarea>
+        </div>
+
+        <!-- Manual Input Info -->
+        <div *ngIf="dataInputMode === 'manual'" class="control-group">
+          <p class="info-text">Manual table editing coming soon. Using sample data for now.</p>
+        </div>
+
+        <div class="control-group">
+          <label for="border-style">Border Style</label>
+          <select
+            id="border-style"
+            [(ngModel)]="selectedBorderStyle"
+            (ngModelChange)="onBorderStyleChange()"
+            class="font-selector"
+          >
+            <option *ngFor="let style of availableBorderStyles" [value]="style">
+              {{ style }}
+            </option>
+          </select>
+        </div>
+
+        <div class="control-group">
+          <label class="checkbox-label">
+            <input
+              type="checkbox"
+              [(ngModel)]="tableHasHeader"
+              (ngModelChange)="onTableDataChange()"
+            />
+            <span>Show Header Row</span>
+          </label>
+        </div>
+
+        <div class="control-group">
+          <label for="table-padding">Cell Padding</label>
+          <input
+            id="table-padding"
+            type="number"
+            [(ngModel)]="tablePadding"
+            (ngModelChange)="onTableDataChange()"
+            min="0"
+            max="5"
+            class="input-number"
+          />
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Panel: Output -->
+    <div class="output-panel">
+      <div class="output-header">
+        <h3>Output</h3>
+        <div class="output-actions">
+          <button
+            class="btn-icon"
+            (click)="copyToClipboard()"
+            [disabled]="!asciiOutput"
+            title="Copy to Clipboard (Ctrl+C)"
+          >
+            📋
+          </button>
+          <button
+            class="btn-icon"
+            (click)="downloadAsText()"
+            [disabled]="!asciiOutput"
+            title="Download as Text (Ctrl+S)"
+          >
+            💾
+          </button>
+        </div>
+      </div>
+
+      <div class="output-content">
+        <div *ngIf="isGenerating" class="loading-state">
+          <div class="spinner"></div>
+          <p>Generating ASCII art...</p>
+        </div>
+
+        <div *ngIf="errorMessage" class="error-state">
+          <p>{{ errorMessage }}</p>
+        </div>
+
+        <pre
+          *ngIf="!isGenerating && !errorMessage && asciiOutput"
+          class="ascii-output"
+        >{{ asciiOutput }}</pre>
+
+        <div
+          *ngIf="!isGenerating && !errorMessage && !asciiOutput"
+          class="empty-state"
+        >
+          <p>Enter some text to generate ASCII art</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

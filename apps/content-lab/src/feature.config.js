@@ -24,6 +24,7 @@ export default {
     'epub-to-pdf': { enabled: true },
     'api-tester': { enabled: true },
     'prompt-builder': { enabled: true },
+    'ascii-art-generator': { enabled: true },
     // TODO: web-capture disabled temporarily - needs plugin file creation
     // Backend APIs functional, but frontend components incomplete
     // See: apps/server/src/api/routes/web-capture.routes.js (backend working)

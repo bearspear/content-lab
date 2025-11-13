@@ -39,6 +39,7 @@ import { plugin as tetrisPlugin } from './features/tetris/tetris.plugin';
 import { plugin as epubToPdfPlugin } from './features/epub-to-pdf/epub-to-pdf.plugin';
 import { plugin as apiTesterPlugin } from './features/api-tester/api-tester.plugin';
 import { plugin as promptBuilderPlugin } from './features/prompt-builder/prompt-builder.plugin';
+import { plugin as asciiArtGeneratorPlugin } from './features/ascii-art-generator/ascii-art-generator.plugin';
 
 /**
  * Map of enabled plugins by feature ID
@@ -64,7 +65,8 @@ export const allPlugins: Record<string, FeaturePlugin> = {
   'tetris': tetrisPlugin,
   'epub-to-pdf': epubToPdfPlugin,
   'api-tester': apiTesterPlugin,
-  'prompt-builder': promptBuilderPlugin
+  'prompt-builder': promptBuilderPlugin,
+  'ascii-art-generator': asciiArtGeneratorPlugin
 };
 
 /**
