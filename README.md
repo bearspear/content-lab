@@ -1,101 +1,97 @@
 # Content Lab
 
-> **Laboratory for Content Transformation** - A modern multi-tool content editor and converter suite built with Angular.
+> **Laboratory for Content Transformation** - A modern plugin-based multi-tool suite for content editing, transformation, and visualization built with Angular 17.
 
-Transform, edit, and forge content in multiple formats with professional-grade tools. Content Lab combines powerful editors for Markdown, JSON, CSV, JavaScript, and plain text into one seamless application.
+Transform, edit, visualize, and create content in multiple formats with 20+ professional-grade tools. Content Lab features a powerful plugin architecture with editors, converters, visualizations, games, and utilities all in one seamless application.
 
----
-
-## 🚀 Features
-
-### 🔧 Multi-Tool Suite
-
-Content Lab includes 5 specialized tools:
-
-#### 1. **Markdown Converter & Editor**
-- Real-time markdown to HTML conversion
-- Live preview with multiple professional themes
-- Syntax highlighting for code blocks (powered by highlight.js)
-- Math equation rendering with KaTeX (inline `$...$` and block)
-- GitHub Flavored Markdown (GFM) support
-- Footnotes, tables, and advanced formatting
-- Drag-and-drop file upload
-- Export to HTML and PDF
-- Multiple export formats: HTML, PDF, Markdown, AsciiDoc, Plain Text, JSON, YAML
-
-#### 2. **JSON Editor**
-- Monaco editor with full IntelliSense
-- Syntax highlighting and validation
-- Auto-formatting and beautification
-- Error detection and reporting
-- Dark/light theme support
-- Import/export JSON files
-
-#### 3. **CSV Editor**
-- Interactive spreadsheet-like interface
-- Add, edit, and delete rows/columns
-- Import/export CSV files
-- Column sorting and filtering
-- Bulk editing capabilities
-- Header row management
-
-#### 4. **JavaScript Playground**
-- Live code execution environment
-- Monaco editor with autocomplete
-- Real-time console output
-- Error handling and debugging
-- Support for modern ES6+ syntax
-- Code persistence across sessions
-
-#### 5. **Text Editor**
-- Clean, distraction-free text editing
-- Monaco editor integration
-- Syntax highlighting for multiple languages
-- Word/character count
-- Auto-save functionality
+[![Angular](https://img.shields.io/badge/Angular-17-red.svg)](https://angular.io/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.4-blue.svg)](https://www.typescriptlang.org/)
+[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
 ---
 
-## 🎨 Themes
+## ✨ Features
 
-Choose from **27 professionally designed themes** for markdown preview:
+Content Lab includes **20 specialized tools** organized into 6 categories:
 
-### Featured Themes:
-- **Claude Chatbox** (Default) - Compact chat-optimized variant with tighter spacing
-- **GitHub** - Classic GitHub markdown style
-- **Dark Mode** - Dark theme for reduced eye strain
-- **Academic** - Professional academic paper style
-- **PubCSS** - Academic publication style (ACM SIG format)
-- **Premium** - High-quality publish-ready theme with elegant typography
-- **Medium** - Reader-friendly design inspired by Medium.com
-- **ReadTheDocs** - Technical documentation style
-- **Notion** - Clean minimal aesthetic
-- **GitBook Clean** - Modern documentation with translucency
-- **LaTeX** - Academic paper style with Computer Modern fonts
-- **Cyberpunk Neon** - Futuristic theme with neon colors
-- **Newspaper** - Traditional newspaper layout
-- **Terminal** - Retro terminal aesthetic
-- **Gradient Glass** - Modern glassmorphism
-- **Professional Article** - Elegant typography with serif fonts
-- And more...
+### 📝 Content & Design (4 tools)
+- **Markdown to HTML** - Real-time markdown conversion with 27+ themes, math equations, syntax highlighting, and multiple export formats
+- **Text Editor** - Monaco-powered editor with syntax highlighting for 190+ languages
+- **SVG Editor** - Vector graphics editor with real-time preview and export
+- **EPUB to PDF** - Convert EPUB books to PDF format (requires backend server)
+
+### 💻 Code & Development (6 tools)
+- **JSON Editor** - Monaco editor with IntelliSense, validation, and auto-formatting
+- **JavaScript Playground** - Live code execution environment with console output
+- **Regex Tester** - Interactive regular expression testing with explanations
+- **Diff Checker** - Side-by-side text comparison with syntax highlighting
+- **API Tester** - HTTP client for testing REST APIs with request/response views
+- **Prompt Builder** - AI prompt engineering tool with templates and optimization
+
+### 📊 Data & Text (2 tools)
+- **CSV Editor** - Spreadsheet-like interface with sorting, filtering, and bulk editing
+- **Word Counter** - Text analysis with word count, character count, and readability metrics
+
+### 🛠️ Utilities (3 tools)
+- **Base64 Encoder** - Encode/decode text and files to Base64
+- **World Clock** - Multiple timezone clock with converter
+- **FLAC Player** - High-fidelity audio player for FLAC files
+
+### 🌍 Visualizations (4 tools)
+- **Timeline Visualizer** - Interactive timeline creator with events and milestones
+- **Globe Visualizer** - 3D Earth visualization with Three.js (locations, arcs, labels)
+- **Star Map** - Astronomical visualization of stars and constellations
+- **ASCII Art Generator** - Convert text/images to ASCII art, create charts, tables, and decorative borders
+
+### 🎮 Games (1 tool)
+- **Tetris** - Classic block-stacking game
 
 ---
 
-## 📦 Display Options
+## 🏗️ Architecture
 
-Multi-select dropdown with customizable display settings:
-- **Center Content** - Center content with 900px max-width
-- **Hide Plaintext** - Hide plaintext code blocks
-- **Hide Markdown** - Hide markdown code blocks
-- **Hide Images** - Hide all images in preview
+Content Lab uses a **convention-based plugin architecture** (Phase 3) with:
+
+- **Auto-discovery**: Plugins follow `features/[name]/[name].plugin.ts` pattern
+- **Zero configuration**: Enable/disable features via `feature.config.js`
+- **Auto-generated routes**: Routes generated from discovered plugins at build time
+- **Automated validation**: Build-time checks prevent configuration errors
+- **Lazy loading**: Features loaded on-demand for optimal performance
+- **Lifecycle hooks**: Full plugin lifecycle (onInitialize, onActivate, onDeactivate, onDestroy)
+
+### Monorepo Structure
+
+```
+content-lab/
+├── apps/
+│   ├── content-lab/              # Angular 17 frontend (20 features)
+│   │   └── src/
+│   │       ├── app/
+│   │       │   ├── features/     # Plugin features
+│   │       │   ├── core/         # Core services
+│   │       │   └── shared/       # Shared components
+│   │       └── feature.config.js # Feature enable/disable
+│   └── server/                   # Node.js backend (Express)
+│       └── src/
+│           └── api/              # REST APIs
+├── packages/                     # Shared libraries
+│   ├── plugin-system/            # Core plugin system
+│   ├── core/                     # Shared core
+│   ├── components/               # Shared components
+│   └── ui-components/            # UI library
+├── scripts/                      # Build automation
+│   ├── generate-routes.js        # Auto-generate routes
+│   └── validate-plugins.js       # Validate plugins
+└── docs/                         # Documentation
+```
 
 ---
 
-## 🛠️ Getting Started
+## 🚀 Getting Started
 
 ### Prerequisites
-- Node.js 18.x or higher
-- Yarn package manager
+- **Node.js** 18.x or higher
+- **npm** 8.x or higher
 
 ### Installation
 
@@ -107,117 +103,184 @@ git clone https://github.com/mbehringer/content-lab.git
 cd content-lab
 
 # Install dependencies
-yarn install
+npm install
 
-# Start development server
-yarn start
+# Generate routes (auto-discovers plugins)
+npm run generate:routes
+
+# Start development server (frontend only)
+npm start
+
+# OR start with backend server (frontend + backend)
+npm run start:dev
 ```
 
-The application will be available at **`http://localhost:5001`**
+The application will be available at:
+- **Frontend**: `http://localhost:5002`
+- **Backend** (if running): `http://localhost:3000`
 
-### Development Commands
+---
+
+## 📦 Development Commands
 
 ```bash
-# Start development server
-yarn start
+# Generate routes from plugins
+npm run generate:routes
+
+# Validate plugin configuration
+npm run validate:plugins
+
+# Start frontend only (port 5002)
+npm start
+
+# Start frontend + backend (ports 5002 + 3000)
+npm run start:dev
 
 # Build for production
-yarn build
+npm run build
 
-# Watch mode for development
-yarn watch
+# Build with specific configuration
+npm run build:full          # All features (~1.04 MB)
+npm run build:lightweight   # Essential tools (~600-800 KB)
+npm run build:developer     # Dev-focused tools (~900 KB)
+npm run build:writer        # Content writer tools (~800 KB)
+
+# Analyze bundle size
+npm run analyze
 
 # Run tests
-yarn test
+npm test
+
+# Build server executables
+npm run build:executables
 ```
 
 ---
 
-## 📖 Usage
+## 🎨 Markdown Themes
 
-### Markdown Tool
-1. Upload a markdown file or start typing
-2. Choose a theme from the dropdown
-3. Use the display options to customize view
-4. Export to HTML, PDF, or other formats
+Choose from **27 professionally designed themes** for markdown preview:
 
-### JSON Editor
-1. Click "JSON Editor" in the tool selector
-2. Paste or type your JSON
-3. Use auto-formatting features
-4. Export when ready
-
-### CSV Editor
-1. Select "CSV Editor" from tools
-2. Import a CSV file or start from scratch
-3. Edit cells directly in the spreadsheet
-4. Export your modified CSV
-
-### JavaScript Playground
-1. Navigate to "JS Playground"
-2. Write your JavaScript code
-3. Click "Run" to execute
-4. View output in the console panel
-
-### Text Editor
-1. Open "Text Editor"
-2. Start writing or paste content
-3. Select language for syntax highlighting
-4. Content auto-saves
+**Featured Themes:**
+- Claude Chatbox (Default), GitHub, Dark Mode, Academic
+- PubCSS (ACM SIG format), Premium, Medium, ReadTheDocs
+- Notion, GitBook Clean, LaTeX, Cyberpunk Neon
+- Newspaper, Terminal, Gradient Glass, Professional Article
+- And more...
 
 ---
 
-## 🏗️ Project Structure
-
-```
-content-lab/
-├── src/
-│   ├── app/
-│   │   ├── core/                      # Core services and models
-│   │   │   ├── services/              # Theme, export, markdown services
-│   │   │   ├── models/                # TypeScript interfaces
-│   │   │   └── base/                  # Base components
-│   │   ├── features/
-│   │   │   ├── markdown-converter/    # Markdown tool
-│   │   │   ├── json-editor/           # JSON editor tool
-│   │   │   ├── csv-editor/            # CSV editor tool
-│   │   │   ├── js-playground/         # JavaScript playground
-│   │   │   └── text-editor/           # Text editor tool
-│   │   ├── shared/                    # Shared components and utilities
-│   │   │   ├── components/            # Reusable UI components
-│   │   │   ├── constants/             # App constants
-│   │   │   └── utils/                 # Utility functions
-│   │   ├── md-converter/              # Main converter component
-│   │   └── app.component.ts           # Root component
-│   ├── embedded-styles/               # KaTeX and Highlight.js CSS
-│   ├── styles.scss                    # Global styles
-│   └── index.html                     # Main HTML file
-├── docs/                              # Documentation and backups
-├── angular.json                       # Angular CLI configuration
-├── package.json                       # Dependencies
-└── tsconfig.json                      # TypeScript configuration
-```
-
----
-
-## 💻 Technologies Used
+## 💻 Technology Stack
 
 ### Core Framework
-- **Angular 17** - Modern web framework with standalone components
+- **Angular 17.3** - Modern web framework with standalone components
 - **TypeScript 5.4** - Type-safe JavaScript
 - **RxJS 7.8** - Reactive programming
+- **Nx 21.6** - Monorepo build system
 - **SCSS** - Advanced styling
 
-### Editor & Rendering
-- **Monaco Editor** - VS Code's powerful editor
-- **Marked 12.0.2** - Markdown parser with GFM support
+### Editors & Rendering
+- **Monaco Editor 0.54** - VS Code's powerful code editor
+- **CodeMirror 6.0** - Lightweight code editor
+- **Marked 12.0** - Markdown parser with GFM support
 - **Highlight.js 11.11** - Syntax highlighting for 190+ languages
 - **KaTeX 0.16** - Fast math equation rendering
 - **html2pdf.js 0.12** - Client-side PDF generation
 
+### Visualizations
+- **Three.js 0.180** - 3D graphics library (Globe, Star Map)
+- **D3.js 7.9** - Data visualization
+
+### Backend
+- **Node.js** - JavaScript runtime
+- **Express 4.18** - Web server framework
+- **Puppeteer 21.6** - Headless browser for EPUB-PDF conversion
+- **Nodemon** - Auto-restart development server
+
 ### Build & Development
 - **Angular CLI 17.3** - Command-line interface
-- **Yarn** - Package manager
+- **Webpack** - Module bundler
+- **ESBuild** - Fast JavaScript bundler
+
+---
+
+## 🔌 Plugin Development
+
+### Creating a New Plugin
+
+1. **Create plugin directory:**
+   ```
+   apps/content-lab/src/app/features/my-feature/
+   ```
+
+2. **Create plugin file:**
+   ```typescript
+   // my-feature.plugin.ts
+   import { Plugin } from '@content-lab/plugin-system';
+
+   export const myFeaturePlugin: Plugin = {
+     id: 'my-feature',
+     name: 'My Feature',
+     description: 'Description of my feature',
+     version: '1.0.0',
+     route: 'my-feature',
+     icon: 'icon-name',
+     category: 'utilities',
+
+     load: async () => {
+       const { MyFeatureComponent } = await import('./my-feature.component');
+       return MyFeatureComponent;
+     },
+
+     onInitialize: () => console.log('[MyFeature] Initialized'),
+     onActivate: () => console.log('[MyFeature] Activated'),
+     onDeactivate: () => console.log('[MyFeature] Deactivated'),
+     onDestroy: () => console.log('[MyFeature] Destroyed')
+   };
+
+   export default myFeaturePlugin;
+   ```
+
+3. **Enable in config:**
+   ```javascript
+   // feature.config.js
+   export default {
+     features: {
+       'my-feature': { enabled: true }
+     }
+   };
+   ```
+
+4. **Generate routes:**
+   ```bash
+   npm run generate:routes
+   ```
+
+See [docs/PLUGIN_DEVELOPMENT_GUIDE.md](docs/PLUGIN_DEVELOPMENT_GUIDE.md) for detailed documentation.
+
+---
+
+## 🌐 Server APIs
+
+The backend server provides the following REST APIs:
+
+- `POST /api/epub-pdf/convert` - Convert EPUB to PDF
+- `POST /api/proxy` - CORS proxy for API Tester
+- `POST /api/web-capture/capture` - Web page capture (experimental)
+- `GET /api/health` - Health check endpoint
+
+---
+
+## 📊 Build Configurations
+
+Content Lab supports multiple build configurations for different use cases:
+
+| Configuration | Size | Features | Use Case |
+|--------------|------|----------|----------|
+| **Full** | ~1.04 MB | All 20 features | Complete toolkit |
+| **Lightweight** | ~600-800 KB | Essential tools | Fast loading |
+| **Developer** | ~900 KB | Dev-focused | Software engineers |
+| **Writer** | ~800 KB | Content tools | Content creators |
 
 ---
 
@@ -228,35 +291,84 @@ content-lab/
 - Safari (latest)
 - Edge (latest)
 
----
-
-## 📊 Bundle Size
-
-- **Main Bundle**: ~607 KB (optimized)
-- **Polyfills**: ~88 KB
-- **Styles**: ~1 KB
-- **Total**: ~696 KB (initial load)
+**Note**: Some features (e.g., 3D visualizations) require WebGL support.
 
 ---
 
-## 🎯 Key Features by Tool
+## 📖 Documentation
 
-| Feature | Markdown | JSON | CSV | JavaScript | Text |
-|---------|----------|------|-----|------------|------|
-| Monaco Editor | ✓ | ✓ | - | ✓ | ✓ |
-| Syntax Highlighting | ✓ | ✓ | - | ✓ | ✓ |
-| Live Preview | ✓ | - | - | - | - |
-| Multiple Themes | ✓ | - | - | - | - |
-| Export Formats | 7 | 1 | 1 | - | 1 |
-| File Import | ✓ | ✓ | ✓ | - | ✓ |
-| Auto-save | ✓ | ✓ | ✓ | ✓ | ✓ |
-| Code Execution | - | - | - | ✓ | - |
+- [Plugin Development Guide](docs/PLUGIN_DEVELOPMENT_GUIDE.md)
+- [Plugin System Analysis](docs/PLUGIN_SYSTEM_ANALYSIS.md)
+- [Phase 4 Completion](docs/PHASE_4_COMPLETION.md)
+- [Troubleshooting Plugin Loading](docs/TROUBLESHOOTING_PLUGIN_LOADING.md)
+- [Deploy to Server](docs/DEPLOY_TO_SERVER.md)
+- [Feature Suggestions](docs/content-lab-feature-suggestions.md)
+
+---
+
+## 🎯 Feature Highlights
+
+| Feature | Monaco Editor | Live Preview | Export | 3D Graphics | Backend Required |
+|---------|---------------|--------------|--------|-------------|------------------|
+| Markdown to HTML | ✓ | ✓ | 7 formats | - | - |
+| JSON Editor | ✓ | - | JSON | - | - |
+| JavaScript Playground | ✓ | ✓ | - | - | - |
+| CSV Editor | - | ✓ | CSV | - | - |
+| Text Editor | ✓ | - | TXT | - | - |
+| Globe Visualizer | - | ✓ | - | ✓ | - |
+| Star Map | - | ✓ | - | ✓ | - |
+| ASCII Art Generator | - | ✓ | TXT | - | - |
+| EPUB to PDF | - | - | PDF | - | ✓ |
+| API Tester | - | ✓ | - | - | ✓ (proxy) |
+
+---
+
+## 🚧 Roadmap
+
+### In Progress
+- [x] Plugin system Phase 3 (convention-based)
+- [x] Plugin lifecycle hooks Phase 4
+- [x] ASCII Art Generator (5 modes)
+- [x] Prompt Builder tool
+- [ ] Web Capture tool (backend complete, frontend in progress)
+
+### Planned Features
+- [ ] Real-time collaboration
+- [ ] Cloud storage integration
+- [ ] More export formats (DOCX, EPUB)
+- [ ] Template library
+- [ ] Advanced data visualizations
+- [ ] Plugin marketplace
+- [ ] Mobile-responsive design improvements
+- [ ] Offline mode with service workers
+- [ ] Custom plugin API extensions
+
+---
+
+## 🤝 Contributing
+
+Contributions are welcome! Please follow these steps:
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/AmazingFeature`)
+3. Follow the plugin development guide for new features
+4. Ensure all validation passes (`npm run validate:plugins`)
+5. Commit your changes (`git commit -m 'Add AmazingFeature'`)
+6. Push to the branch (`git push origin feature/AmazingFeature`)
+7. Open a Pull Request
+
+### Contribution Guidelines
+- Follow Angular style guide
+- Use TypeScript strict mode
+- Add JSDoc comments for public APIs
+- Update documentation for new features
+- Ensure bundle size remains reasonable
 
 ---
 
 ## 📝 License
 
-MIT License - See LICENSE file for details
+MIT License - See [LICENSE](LICENSE) file for details
 
 **Author**: Michael Behringer
 **Repository**: [github.com/mbehringer/content-lab](https://github.com/mbehringer/content-lab)
@@ -265,37 +377,33 @@ MIT License - See LICENSE file for details
 
 ## 🙏 Acknowledgments
 
+Built with the help of powerful open-source libraries:
+
+- **Frameworks**: Angular, Express, Nx
+- **Editors**: Monaco Editor (Microsoft), CodeMirror
+- **Rendering**: Marked.js, KaTeX, Highlight.js, html2pdf.js
+- **3D Graphics**: Three.js
+- **Data Viz**: D3.js
+- **Backend**: Puppeteer, Nodemon
 - Theme designs inspired by Claude.ai, GitHub, Medium, Notion, and more
-- Markdown parsing powered by [marked.js](https://marked.js.org/)
-- Math rendering by [KaTeX](https://katex.org/)
-- Syntax highlighting by [highlight.js](https://highlightjs.org/)
-- Code editor by [Monaco Editor](https://microsoft.github.io/monaco-editor/)
 - Built with [Claude Code](https://claude.com/claude-code)
 
 ---
 
-## 🚧 Future Enhancements
+## 📧 Support
 
-- [ ] Real-time collaboration features
-- [ ] More export formats (DOCX, EPUB)
-- [ ] Plugin system for custom tools
-- [ ] Cloud storage integration
-- [ ] Template library
-- [ ] Advanced CSV operations (formulas, charts)
-- [ ] JavaScript library imports
+For issues, questions, or feature requests:
+- Open an issue on [GitHub](https://github.com/mbehringer/content-lab/issues)
+- Check [documentation](docs/) for guides and troubleshooting
 
 ---
 
-## 🤝 Contributing
+## ⭐ Star History
 
-Contributions are welcome! Please feel free to submit a Pull Request.
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
+If you find Content Lab useful, please consider giving it a star on GitHub!
 
 ---
 
-**Content Lab** - *Forge any content, in any format* 🔬✨
+**Content Lab** - *Your Laboratory for Content Transformation* 🔬✨
+
+Transform anything, create everything.
